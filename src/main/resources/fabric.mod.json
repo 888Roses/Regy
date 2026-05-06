@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "regy",
+  "version": "${version}",
+  "name": "Regy",
+  "description": "Register data more easily.",
+  "authors": ["Rosenoire"],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/registry/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "dev.rosenoire.regy.data.RegyData"
+    ],
+    "client": [
+      "dev.rosenoire.regy.client.RegyClient"
+    ],
+    "main": [
+      "dev.rosenoire.regy.common.RegyCommon"
+    ]
+  },
+  "mixins": [
+    "registry.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
