@@ -10,9 +10,6 @@
   "icon": "assets/registry/icon.png",
   "environment": "*",
   "entrypoints": {
-    "fabric-datagen": [
-      "dev.rosenoire.regy.data.RegyData"
-    ],
     "client": [
       "dev.rosenoire.regy.client.RegyClient"
     ],
@@ -21,7 +18,7 @@
     ]
   },
   "mixins": [
-    "registry.mixins.json"
+    "regy.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",

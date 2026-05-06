@@ -3,11 +3,11 @@ package dev.rosenoire.regy.api.data;
 import org.jspecify.annotations.NonNull;
 
 /// Variant of [Cached] that can handle [AutoCloseable] inheritors.
-/// Upon using [#clear()] or when calling [#close()] on an instance of
+/// Upon using [#clear()] or when calling [#close()] on an owner of
 /// [CachedAutoCloseable], the contained cached value will also be closed, throwing
 /// whatever exception in the process.
 public class CachedAutoCloseable<A extends AutoCloseable> extends Cached<A> implements AutoCloseable {
-    /// Creates a new instance of a [CachedAutoCloseable] value.
+    /// Creates a new owner of a [CachedAutoCloseable] value.
     /// @param provider   [NonNullSupplier] providing the cached value every time
     /// [#get()] is called and [#cached] is null.
     /// @param precompute whether to call [#get()] in the constructor or not.
@@ -15,7 +15,7 @@ public class CachedAutoCloseable<A extends AutoCloseable> extends Cached<A> impl
         super(provider, precompute);
     }
 
-    /// Creates a new instance of a [CachedAutoCloseable] value.
+    /// Creates a new owner of a [CachedAutoCloseable] value.
     /// @param provider   [NonNullSupplier] providing the cached value every time
     /// [#get()] is called and [#cached] is null.
     /// @param precompute whether to call [#get()] in the constructor or not.
@@ -23,7 +23,7 @@ public class CachedAutoCloseable<A extends AutoCloseable> extends Cached<A> impl
         return new CachedAutoCloseable<>(provider, precompute);
     }
 
-    /// Creates a new instance of a [CachedAutoCloseable] value.
+    /// Creates a new owner of a [CachedAutoCloseable] value.
     /// @param provider [NonNullSupplier] providing the cached value every time
     /// [#get()] is called and the cached value is `null`.
     /// @implNote this is a shortcut of:

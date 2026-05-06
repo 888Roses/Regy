@@ -1,5 +1,7 @@
 package dev.rosenoire.regy.api.data;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.function.Supplier;
 
 /// Implementation of Java's [Supplier] only providing non-`null` values.
@@ -10,7 +12,7 @@ import java.util.function.Supplier;
 @FunctionalInterface
 public interface NonNullSupplier<@NonNullType V> extends Supplier<V> {
     @Override
-    V get();
+    @NonNull V get();
 
     /// Creates a new [NonNullSupplier] using a default Java [Supplier] as a template,
     /// throwing an [Exception] if the provided value is `null`.
