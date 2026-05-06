@@ -8,7 +8,10 @@ import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntry;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.ItemEntryBuilder;
+import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntryBuilder;
+import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabMapper;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 
@@ -23,9 +26,14 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
     public final List<DatagenTarget> datagenTargets = new ArrayList<>();
     protected final List<AbstractDatagenProvider> datagenProviders = new ArrayList<>();
     public final List<AbstractEntry<?, ?>> entries = new ArrayList<>();
+    public final CreativeTabMapper creativeTabMapper = new CreativeTabMapper(this);
 
     protected AbstractRegy(String modNamespace) {
         this.modNamespace = modNamespace;
+    }
+
+    public void initializeEvents() {
+        ItemGroupEvents.MODIFY_ENTRIES_ALL.register(this.creativeTabMapper::modifyEntriesAll);
     }
 
     /// Represents the namespace of the mod this Regy owner represents.
@@ -50,6 +58,7 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
      *      - HudElementEntryBuilder<H> <H extends HudElement> hudElement(String path, H owner)
      *      - ParticleEntryBuilder<O> <O extends ParticleOptions> particle(String name, O options)
      *      - AttributeEntryBuilder attribute(String name)
+     *      - CreativeTabEntryBuilder creativeTab(String name)
      *
      *  **Client Side:**
      *      - <O extends ParticleOptions> ClientParticleEntryBuilder<O> particle(ParticleEntry<O> entry)
@@ -59,6 +68,10 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
         this.datagenTargets.add(builder);
         this.entries.add(entry);
         return entry;
+    }
+
+    public CreativeTabEntryBuilder<AbstractRegy<R>> tab(String identifier) {
+        return new CreativeTabEntryBuilder<>(this, this, identifier);
     }
 
     public <I extends Item> ItemEntryBuilder<I, AbstractRegy<R>> item(String identifier, ItemFactory<I> factory) {

@@ -1,7 +1,9 @@
 package dev.rosenoire.regy.api.data;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.NonNull;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /// Implementation of Java's [Supplier] only providing non-`null` values.
@@ -22,5 +24,10 @@ public interface NonNullSupplier<@NonNullType V> extends Supplier<V> {
                 supplier.get(),
                 () -> "Received null value from getter of NonNullSupplier. This is not allowed."
         );
+    }
+
+    @ApiStatus.NonExtendable
+    default <@NonNullType T> @NonNull NonNullSupplier<T> map(Function<V, T> mapper) {
+        return () -> mapper.apply(this.get());
     }
 }

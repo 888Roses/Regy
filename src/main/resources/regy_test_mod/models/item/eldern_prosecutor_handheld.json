@@ -1,0 +1,36 @@
+{
+	"format_version": "1.21.4",
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:item/handheld",
+	"textures": {
+		"layer0": "eldritch_testimony:item/eldern_prosecutor_handheld"
+	},
+	"gui_light": "front",
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [-50, -90, 0],
+			"translation": [-0.5, 9, -0.5],
+			"scale": [1.65, 1.65, 1]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [-50, 90, 0],
+			"translation": [-0.5, 7.5, -0.5],
+			"scale": [1.5, 1.5, 1]
+		},
+		"firstperson_righthand": {
+			"rotation": [-45, -80, 0],
+			"translation": [2, 4.5, 0],
+			"scale": [1, 1, 0.8]
+		},
+		"firstperson_lefthand": {
+			"rotation": [135, 80, -180],
+			"translation": [2, 4.5, 0],
+			"scale": [1, 1, 0.8]
+		},
+		"fixed": {
+			"rotation": [0, 0, 90],
+			"translation": [-6.75, 6.75, -0.5],
+			"scale": [2, 2, 1]
+		}
+	}
+}

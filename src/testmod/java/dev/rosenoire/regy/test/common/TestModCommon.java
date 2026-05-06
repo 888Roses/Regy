@@ -1,8 +1,9 @@
 package dev.rosenoire.regy.test.common;
 
 import dev.rosenoire.regy.pipeline.Regy;
+import dev.rosenoire.regy.test.common.index.AllCreativeTabs;
+import dev.rosenoire.regy.test.common.index.AllItems;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.world.item.Item;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +17,9 @@ public class TestModCommon implements ModInitializer {
     public void onInitialize() {
         log.info("Initialized " + MOD_ID);
 
-        REGY
-                .item("skibidi", Item::new)
-                .register();
+        REGY.initializeEvents();
+
+        AllItems.register();
+        AllCreativeTabs.register();
     }
 }
