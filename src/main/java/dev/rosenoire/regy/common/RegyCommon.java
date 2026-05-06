@@ -6,6 +6,4 @@ public class RegyCommon implements ModInitializer {
     @Override
     public void onInitialize() {
     }
-
-    interface UwU<@NonNu T> {}
 }
