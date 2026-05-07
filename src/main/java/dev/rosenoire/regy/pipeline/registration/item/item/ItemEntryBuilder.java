@@ -4,6 +4,7 @@ import dev.rosenoire.regy.api.data.NonNullSupplier;
 import dev.rosenoire.regy.api.data.RegistryUtils;
 import dev.rosenoire.regy.api.model.ModelUtils;
 import dev.rosenoire.regy.api.text.NamingConventions;
+import dev.rosenoire.regy.common.RegyCommon;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
@@ -42,6 +43,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -51,7 +53,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     private final ResourceKey<Item> resourceKey;
 
     private Item.Properties properties;
-    private NonNullSupplier<ItemAttributeModifiers.Builder> attributesBuilder = null;
+    private ItemAttributeModifiers.Builder attributesBuilder = null;
 
     private @Nullable CreativeTabEntry creativeTab;
     private @Nullable ToolMaterial toolMaterial;
@@ -68,18 +70,27 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     @Override
     public @NonNull ItemEntry<I> register() {
+        RegyCommon.log.info("Starting registration for entry builder: '{}'...", identifier());
+
         if (this.attributesBuilder != null) {
-            this.properties = this.properties.attributes(this.attributesBuilder.get().build());
+            RegyCommon.log.info("  Building attribute building...");
+            if (this.properties instanceof ItemPropertiesExtension extension) {
+                this.properties = extension.forceSetAttributes(this.attributesBuilder.build());
+            }
         }
 
-        var item = itemFactory.bake(this.properties);
+        var item = itemFactory.bake(this, this.properties);
         Registry.register(BuiltInRegistries.ITEM, resourceKey, item);
 
         itemDataState = new ItemDataState<>(item, this.resourceKey, this.path());
+        RegyCommon.log.info("  Adding data-gen data...");
         getRegy().dataGeneration().addData(this);
 
         var entry = new ItemEntry<>(item, resourceKey, toolMaterial());
-        return getRegy().entry(entry);
+        RegyCommon.log.info("  Adding entry...");
+        entry = getRegy().entry(entry);
+        RegyCommon.log.info("Finished registration for entry builder: '{}'...", identifier());
+        return entry;
     }
 
     // region accessors
@@ -113,9 +124,12 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     private final List<Recipe<I>> recipeStorage = new ArrayList<>();
 
     /// @apiNote Should not be used raw! This variable is ALWAYS right up until
-    /// [#register()] is called. Then, all the data-gen related methods are called, for
-    /// which this data state system was created, and then it is discarded. For that
-    /// reason, it should NEVER be used as a source of information.
+    ///                                                 [#register()] is called. Then, all the data-gen related methods are
+    ///         called,
+    ///                 for
+    ///                                                 which this data state system was created, and then it is discarded.
+    ///         For that
+    ///                                                 reason, it should NEVER be used as a source of information.
     private ItemDataState<I> itemDataState;
 
     /// Represents the translation key for this item entry generated using its
@@ -252,10 +266,10 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     public ItemEntryBuilder<I, P> attribute(ItemAttributeModifiers.Entry entry) {
         if (this.attributesBuilder == null) {
-            this.attributesBuilder = ItemAttributeModifiers::builder;
+            this.attributesBuilder = ItemAttributeModifiers.builder();
         }
 
-        this.attributesBuilder = this.attributesBuilder.map(current -> current.add(entry.attribute(), entry.modifier(), entry.slot(), entry.display()));
+        this.attributesBuilder.add(entry.attribute(), entry.modifier(), entry.slot(), entry.display());
         return this;
     }
 
@@ -269,6 +283,14 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     public ItemEntryBuilder<I, P> toolMaterial(ToolMaterial toolMaterial) {
         this.toolMaterial = toolMaterial;
+
+        if (toolMaterial != null) {
+            return this.properties(properties -> properties
+                    .durability(toolMaterial.durability())
+                    .repairable(toolMaterial.repairItems())
+                    .enchantable(toolMaterial.enchantmentValue()));
+        }
+
         return this;
     }
 
@@ -288,10 +310,32 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return properties(properties -> properties.component(dataComponentType, object));
     }
 
+    public <T> ItemEntryBuilder<I, P> removeComponent(DataComponentType<T> dataComponentType) {
+        return properties(properties -> properties.component(dataComponentType, null));
+    }
+
+    public ToolSettingsBuilder<I, P> tool() {
+        return new ToolSettingsBuilder<>(this);
+    }
+
     public ItemEntryBuilder<I, P> tool(Function<HolderGetter<Block>, Tool> func) {
         return map(builder -> {
             HolderGetter<Block> blockRegistry = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
             return builder.component(DataComponents.TOOL, func.apply(blockRegistry));
+        });
+    }
+
+    @FunctionalInterface
+    public interface ToolRuleCollector {
+        void collect(HolderGetter<Block> lookup, Consumer<Tool.Rule> collector);
+    }
+
+    public ItemEntryBuilder<I, P> tool(float defaultMiningSpeed, int damagePerBlock, boolean canDestroyBlocksInCreativeMode, ToolRuleCollector collector) {
+        return map(builder -> {
+            HolderGetter<Block> blockRegistry = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
+            var toolRules = new ArrayList<Tool.Rule>();
+            collector.collect(blockRegistry, toolRules::add);
+            return builder.component(DataComponents.TOOL, new Tool(toolRules, defaultMiningSpeed, damagePerBlock, canDestroyBlocksInCreativeMode));
         });
     }
 
@@ -305,10 +349,6 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     public ItemEntryBuilder<I, P> weaponComponent() {
         return weaponComponent(1);
-    }
-
-    public SwordSettingsBuilder<I, P> swordSettings() {
-        return new SwordSettingsBuilder<>(this);
     }
 
     public ItemEntryBuilder<I, P> tag(TagKey<Item> key) {

@@ -2,12 +2,10 @@ package dev.rosenoire.regy.test.common.index;
 
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemMaps;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.ToolMaterial;
 
 import static dev.rosenoire.regy.test.common.TestModCommon.REGY;
 
@@ -21,24 +19,26 @@ public interface AllItems {
     ItemEntry<Item> ELDERN_PROSECUTOR = REGY
             .item("eldern_prosecutor")
             .map(ItemMaps::singleStackSize)
-            .swordSettings()
+            .tool()
             .material(AllMaterials.ELDEN)
             .attackDamage(6f)
             .attackSpeed(1.8f)
+            .sword()
             .build()
             .tag(ItemTags.SWORDS)
             .tag(ItemTags.SHARP_WEAPON_ENCHANTABLE)
             .handheldModel()
             .register();
 
-    ItemEntry<Item> ELDERN_VERDICT = REGY
-            .item("eldern_verdict")
+    ItemEntry<AxeItem> ELDERN_VERDICT = REGY
+            .axe("eldern_verdict", AxeItem::new)
             .map(ItemMaps::singleStackSize)
-            .swordSettings()
+            .tool()
             .material(AllMaterials.ELDEN)
             .attackDamage(9.5F)
             .attackSpeed(1)
             .blockingDisableTime(5f)
+            .axe()
             .build()
             .tag(ItemTags.AXES)
             .tag(ItemTags.SHARP_WEAPON_ENCHANTABLE)

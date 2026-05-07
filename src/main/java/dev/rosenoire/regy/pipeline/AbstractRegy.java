@@ -2,17 +2,24 @@ package dev.rosenoire.regy.pipeline;
 
 import dev.rosenoire.regy.api.event.WrappingValueEvent;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
+import dev.rosenoire.regy.pipeline.factory.AxeItemFactory;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
+import dev.rosenoire.regy.pipeline.factory.SimpleItemFactory;
 import dev.rosenoire.regy.pipeline.registration.Entry;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabMapper;
+import dev.rosenoire.regy.pipeline.registration.item.item.ItemMaps;
 import dev.rosenoire.regy.pipeline.registration.item.material.ToolMaterialEntryBuilder;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.NonNull;
 
@@ -142,8 +149,16 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
         return new ItemEntryBuilder<>(this, this, identifier, factory);
     }
 
+    public <I extends Item> ItemEntryBuilder<I, AbstractRegy<R>> item(String identifier, SimpleItemFactory<I> factory) {
+        return item(identifier, (ItemFactory<I>) factory);
+    }
+
     public ItemEntryBuilder<Item, AbstractRegy<R>> item(String identifier) {
         return item(identifier, Item::new);
+    }
+
+    public <I extends AxeItem> ItemEntryBuilder<I, AbstractRegy<R>> axe(String identifier, AxeItemFactory<I> factory) {
+        return item(identifier, factory);
     }
 
     public ToolMaterialEntryBuilder<AbstractRegy<R>> material(String identifier) {
