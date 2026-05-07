@@ -12,7 +12,6 @@ import dev.rosenoire.regy.pipeline.datagen.provider.recipe.DatagenRecipeTarget;
 import dev.rosenoire.regy.pipeline.datagen.provider.recipe.RecipeInstruction;
 import dev.rosenoire.regy.pipeline.datagen.provider.tag.DatagenTagTarget;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
-import dev.rosenoire.regy.pipeline.registration.AbstractRegistryEntry;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntry;
 import net.minecraft.client.data.models.model.ItemModelUtils;
@@ -79,7 +78,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return Optional.of(factory.bake(this.properties))
                 .map(item -> Registry.register(BuiltInRegistries.ITEM, resourceKey, item))
                 .map(registered -> new ItemEntry<>(registered, resourceKey))
-                .map(entry -> getOwner().process(this, entry))
+                .map(entry -> getRegy().process(this, entry))
                 .orElseThrow(this::throwRegisterNullEntryException);
     }
 

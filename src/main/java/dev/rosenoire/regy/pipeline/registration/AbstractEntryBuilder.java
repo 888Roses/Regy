@@ -9,19 +9,19 @@ import org.jspecify.annotations.NonNull;
 /// @param <T> Type of the value represented by this entry builder.
 /// @param <P> Represents the type of the parent of this [AbstractEntryBuilder] if it has one. Usually also an [AbstractEntryBuilder] but doesn't have to be.
 public abstract class AbstractEntryBuilder<T extends Entry<?>, P> implements DatagenTarget {
-    private final @NonNull AbstractRegy<?> owner;
+    private final @NonNull AbstractRegy<?> regy;
     private final P parent;
     private final String identifier;
 
-    public AbstractEntryBuilder(@NonNull AbstractRegy<?> owner, P parent, String identifier) {
-        this.owner = owner;
+    public AbstractEntryBuilder(@NonNull AbstractRegy<?> regy, P parent, String identifier) {
+        this.regy = regy;
         this.parent = parent;
         this.identifier = identifier;
     }
 
     /// [AbstractRegy] getOwner that created this entry builder.
-    protected final @NonNull AbstractRegy<?> getOwner() {
-        return this.owner;
+    protected final @NonNull AbstractRegy<?> getRegy() {
+        return this.regy;
     }
 
     /// Returns the instanceof [P] that created this [AbstractEntryBuilder].
@@ -37,7 +37,7 @@ public abstract class AbstractEntryBuilder<T extends Entry<?>, P> implements Dat
     /// Returns an [Identifier] representing this [AbstractEntryBuilder] using its getOwner
     /// [AbstractRegy]'s [AbstractRegy#id(String)] and the [#path()].
     public final Identifier identifier() {
-        return getOwner().id(path());
+        return getRegy().id(path());
     }
 
     /// Registers this builder in the Minecraft registries and returns an [AbstractRegistryEntry]

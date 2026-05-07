@@ -54,7 +54,7 @@ public class CreativeTabEntryBuilder<P> extends AbstractEntryBuilder<CreativeTab
                 .map(tab -> Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, resourceKey, tab))
                 .map(registered -> new CreativeTabEntry(registered, resourceKey))
                 .map(registered -> {
-                    if (registerAsMainTab) getOwner().creativeTabMapper.setMainTab(registered.get());
+                    if (registerAsMainTab) getRegy().creativeTabMapper.setMainTab(registered.get());
                     return registered;
                 })
                 .orElseThrow(this::throwRegisterNullEntryException);
