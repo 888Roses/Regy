@@ -5,10 +5,10 @@ import dev.rosenoire.regy.pipeline.datagen.DatagenTarget;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
-/// Represents an abstract builder of an [AbstractEntry] representing a value registered in a Minecraft registry.
+/// Represents an abstract builder of an [AbstractRegistryEntry] representing a value registered in a Minecraft registry.
 /// @param <T> Type of the value represented by this entry builder.
 /// @param <P> Represents the type of the parent of this [AbstractEntryBuilder] if it has one. Usually also an [AbstractEntryBuilder] but doesn't have to be.
-public abstract class AbstractEntryBuilder<T extends AbstractEntry<?, ?>, P> implements DatagenTarget {
+public abstract class AbstractEntryBuilder<T extends Entry<?>, P> implements DatagenTarget {
     private final @NonNull AbstractRegy<?> owner;
     private final P parent;
     private final String identifier;
@@ -40,7 +40,7 @@ public abstract class AbstractEntryBuilder<T extends AbstractEntry<?, ?>, P> imp
         return getOwner().id(path());
     }
 
-    /// Registers this builder in the Minecraft registries and returns an [AbstractEntry]
+    /// Registers this builder in the Minecraft registries and returns an [AbstractRegistryEntry]
     /// representing the registered value.
     public abstract @NonNull T register();
 

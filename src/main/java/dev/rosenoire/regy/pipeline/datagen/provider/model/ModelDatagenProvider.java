@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Either;
 import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
 import dev.rosenoire.regy.pipeline.datagen.ProviderType;
 import dev.rosenoire.regy.pipeline.datagen.provider.DefaultDatagenProvider;
-import dev.rosenoire.regy.pipeline.registration.AbstractEntry;
+import dev.rosenoire.regy.pipeline.registration.AbstractRegistryEntry;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -35,7 +35,7 @@ public class ModelDatagenProvider extends FabricModelProvider implements Default
 
     private void generateEitherModels(Either<ItemModelGenerators, BlockModelGenerators> generators) {
         for (var entry : ctx.getOwner().datagenTargets.entrySet()) {
-            if (entry.getKey() instanceof DatagenModelTarget.ItemTarget modelTarget && entry.getValue() instanceof AbstractEntry<?, ?> abstractEntry) {
+            if (entry.getKey() instanceof DatagenModelTarget.ItemTarget modelTarget && entry.getValue() instanceof AbstractRegistryEntry<?, ?> abstractEntry) {
                 generators.ifLeft(left -> modelTarget.internal$generate(ctx, abstractEntry, left, null));
             }
         }

@@ -11,6 +11,7 @@ public enum ProviderType implements StringRepresentable {
     LANG("lang", LangDatagenProvider::new),
     MODEL("item_model", ModelDatagenProvider::new),
     ITEM_TAG("item_tag", ItemTagDatagenProvider::new),
+    // BLOCK_TAG("block_tag", BlockTagDatagenProvider::new),
     RECIPE("recipe", RecipeDatagenProvider::new),
 
     ;

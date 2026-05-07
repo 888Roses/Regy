@@ -6,7 +6,7 @@ import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
 import dev.rosenoire.regy.pipeline.datagen.ProviderType;
 import dev.rosenoire.regy.pipeline.datagen.provider.RegyDatagenProvider;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
-import dev.rosenoire.regy.pipeline.registration.AbstractEntry;
+import dev.rosenoire.regy.pipeline.registration.AbstractRegistryEntry;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntryBuilder;
@@ -28,7 +28,7 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
 
     public final Map<DatagenTarget, Object> datagenTargets = new HashMap<>();
     protected final List<RegyDatagenProvider> datagenProviders = new ArrayList<>();
-    public final List<AbstractEntry<?, ?>> entries = new ArrayList<>();
+    public final List<AbstractRegistryEntry<?, ?>> entries = new ArrayList<>();
     public final CreativeTabMapper creativeTabMapper = new CreativeTabMapper(this);
 
     protected ConflictMode conflictMode = ConflictMode.THROW; // TODO
@@ -54,10 +54,10 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
     /*
      *  TODO: Expected Features:
      *  **Common Side:**
-     *      - <I extends Item> ItemEntryBuilder<I> item(String name, ItemFactory<I> factory)
-     *          - <E, T extends ComponentType<E>> ItemEntryBuilder<I> component(E value)
-     *          - ItemEntryBuilder<I> attackDamage(float attackDamage)
-     *          - ItemEntryBuilder<I> attackSpeed(float attackSpeed)
+     *      [~] - <I extends Item> ItemEntryBuilder<I> item(String name, ItemFactory<I> factory)
+     *          [X] - <E, T extends ComponentType<E>> ItemEntryBuilder<I> component(E value)
+     *          [X] - ItemEntryBuilder<I> attackDamage(float attackDamage)
+     *          [X] - ItemEntryBuilder<I> attackSpeed(float attackSpeed)
      *      - <B extends Block> BlockEntryBuilder<B> block(String name, BlockFactory<B> factory)
      *      - <F extends Fluid> FluidEntryBuilder<F> fluid(String name, FluidFactory<F> factory)
      *      - <E extends Entity> EntityEntryBuilder<E> entity(String name, EntityFactory<E> factory)
@@ -73,7 +73,7 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
      *      - <O extends ParticleOptions> ClientParticleEntryBuilder<O> particle(ParticleEntry<O> entry)
      */
 
-    public <A, B, E extends AbstractEntry<A, B>> E process(AbstractEntryBuilder<?, ?> builder, E entry) {
+    public <A, B, E extends AbstractRegistryEntry<A, B>> E process(AbstractEntryBuilder<?, ?> builder, E entry) {
         this.datagenTargets.put(builder, entry);
         this.entries.add(entry);
 

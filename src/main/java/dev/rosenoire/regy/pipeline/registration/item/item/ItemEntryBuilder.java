@@ -12,7 +12,7 @@ import dev.rosenoire.regy.pipeline.datagen.provider.recipe.DatagenRecipeTarget;
 import dev.rosenoire.regy.pipeline.datagen.provider.recipe.RecipeInstruction;
 import dev.rosenoire.regy.pipeline.datagen.provider.tag.DatagenTagTarget;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
-import dev.rosenoire.regy.pipeline.registration.AbstractEntry;
+import dev.rosenoire.regy.pipeline.registration.AbstractRegistryEntry;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntry;
 import net.minecraft.client.data.models.model.ItemModelUtils;
@@ -85,7 +85,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     // region modifiers
 
-    public <T extends AbstractEntry<?, ?>, V, B extends AbstractEntryBuilder<T, V>> B map(Function<ItemEntryBuilder<I, P>, B> mapper) {
+    public <B> B map(Function<ItemEntryBuilder<I, P>, B> mapper) {
         return mapper.apply(this);
     }
 
@@ -209,6 +209,10 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     @Override
     public Translation getDatagenTranslation() {
         return new Translation(RegistryUtils.toDescriptionId(resourceKey), this.generatedName);
+    }
+
+    public ResourceKey<Item> getResourceKey() {
+        return resourceKey;
     }
 
     public @Nullable CreativeTabEntry getCreativeTab() {
