@@ -1,7 +1,6 @@
 package dev.rosenoire.regy.pipeline;
 
-import dev.rosenoire.regy.pipeline.datagen.v2.impl.generator.LangDataGenerator;
-import dev.rosenoire.regy.pipeline.datagen.v2.impl.generator.ModelDataGenerator;
+import dev.rosenoire.regy.pipeline.datagen.v2.impl.generator.*;
 
 /// Represents a default implementation of the [AbstractRegy] class.
 /// This class is `final`; if you wish to extend the behaviour of a Regy registry,
@@ -13,6 +12,11 @@ public final class Regy extends AbstractRegy<Regy> {
         onBeforeSetupDatagen(instance -> instance.dataGeneration()
                 .addGenerator(LangDataGenerator::new)
                 .addGenerator(ModelDataGenerator::new)
+                .addGenerator(ItemTagDataGenerator::new)
+                .addGenerator(BlockTagDataGenerator::new)
+                .addGenerator(BlockEntityTagDataGenerator::new)
+                .addGenerator(FluidTagDataGenerator::new)
+                .addGenerator(EntityTypeTagDataGenerator::new)
         );
     }
 

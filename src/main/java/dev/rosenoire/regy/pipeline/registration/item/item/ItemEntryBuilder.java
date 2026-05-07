@@ -8,6 +8,7 @@ import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.datagen.v1.provider.recipe.RecipeInstruction;
 import dev.rosenoire.regy.pipeline.datagen.v2.DataGenObject;
 import dev.rosenoire.regy.pipeline.datagen.v2.DataGeneration;
+import dev.rosenoire.regy.pipeline.datagen.v2.impl.generator.ItemTagDataGenerator;
 import dev.rosenoire.regy.pipeline.datagen.v2.impl.generator.LangDataGenerator;
 import dev.rosenoire.regy.pipeline.datagen.v2.impl.generator.ModelDataGenerator;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
@@ -25,6 +26,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -56,7 +58,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     private @NonNull ModelInstruction<I> modelInstruction = ModelInstruction.simple();
     private @Nullable ToolMaterial toolMaterial;
     private NonNullSupplier<ItemAttributeModifiers.Builder> attributesBuilder = null;
-    private final List<TagKey<?>> tags = new ArrayList<>();
+    private final List<TagKey<Item>> tagStorage = new ArrayList<>();
     private final List<RecipeInstruction> recipeStorage = new ArrayList<>();
 
     public ItemEntryBuilder(@NonNull AbstractRegy<?> owner, P parent, String identifier, ItemFactory<I> itemFactory) {
@@ -78,7 +80,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         var item = itemFactory.bake(this.properties);
         Registry.register(BuiltInRegistries.ITEM, resourceKey, item);
 
-        datagenData = new DatagenData<I>(item);
+        dataGenData = new DatagenData<I>(item);
         getRegy().dataGeneration().addData(this);
 
         var entry = new ItemEntry<>(item, resourceKey, toolMaterial());
@@ -102,7 +104,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     // endregion
 
     // region datagen
-    private DatagenData<I> datagenData;
+    private DatagenData<I> dataGenData;
 
     public String descriptionId() {
         return RegistryUtils.toDescriptionId(this.resourceKey());
@@ -119,8 +121,20 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         collector.addProvider(dataGen ->
                 dataGen.<ModelDataGenerator>getGeneratorOptional("model").ifPresent(generator ->
                         generator.addItemModel(() -> itemModelGenerator ->
-                                modelInstruction.generateModel(dataGen, itemModelGenerator, datagenData)
+                                modelInstruction.generateModel(dataGen, itemModelGenerator, dataGenData)
                         )
+                )
+        );
+
+        collector.addProvider(dataGen ->
+                dataGen.<ItemTagDataGenerator>getGeneratorOptional("item_tag").ifPresent(generator -> {
+                            for (var tag : this.tagStorage) {
+                                generator.tag(tag, builder -> builder
+                                        .add(dataGenData.item())
+                                        .setReplace(false)
+                                );
+                            }
+                        }
                 )
         );
     }
@@ -261,8 +275,8 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return new SwordSettingsBuilder<>(this);
     }
 
-    public ItemEntryBuilder<I, P> tag(TagKey<? extends ItemLike> key) {
-        tags.add(key);
+    public ItemEntryBuilder<I, P> tag(TagKey<Item> key) {
+        tagStorage.add(key);
         return this;
     }
 
