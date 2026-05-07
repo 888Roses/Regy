@@ -1,10 +1,10 @@
 package dev.rosenoire.regy.pipeline;
 
-import dev.rosenoire.regy.pipeline.datagen.ConflictMode;
-import dev.rosenoire.regy.pipeline.datagen.DatagenTarget;
-import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
-import dev.rosenoire.regy.pipeline.datagen.ProviderType;
-import dev.rosenoire.regy.pipeline.datagen.provider.RegyDatagenProvider;
+import dev.rosenoire.regy.pipeline.datagen.v1.ConflictMode;
+import dev.rosenoire.regy.pipeline.datagen.v1.DatagenTarget;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderContext;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderType;
+import dev.rosenoire.regy.pipeline.datagen.v1.provider.RegyDatagenProvider;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractRegistryEntry;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;

@@ -1,4 +1,4 @@
-package dev.rosenoire.regy.pipeline.datagen;
+package dev.rosenoire.regy.pipeline.datagen.v1;
 
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;

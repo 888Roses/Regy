@@ -1,7 +1,7 @@
 package dev.rosenoire.regy.pipeline.registration;
 
 import dev.rosenoire.regy.pipeline.AbstractRegy;
-import dev.rosenoire.regy.pipeline.datagen.DatagenTarget;
+import dev.rosenoire.regy.pipeline.datagen.v1.DatagenTarget;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 

@@ -1,6 +1,6 @@
-package dev.rosenoire.regy.pipeline.datagen.provider.recipe;
+package dev.rosenoire.regy.pipeline.datagen.v1.provider.recipe;
 
-import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderContext;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.recipes.RecipeOutput;

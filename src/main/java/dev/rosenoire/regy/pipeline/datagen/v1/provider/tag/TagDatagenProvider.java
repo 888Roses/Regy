@@ -1,8 +1,8 @@
-package dev.rosenoire.regy.pipeline.datagen.provider.tag;
+package dev.rosenoire.regy.pipeline.datagen.v1.provider.tag;
 
-import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
-import dev.rosenoire.regy.pipeline.datagen.ProviderType;
-import dev.rosenoire.regy.pipeline.datagen.provider.DefaultDatagenProvider;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderContext;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderType;
+import dev.rosenoire.regy.pipeline.datagen.v1.provider.DefaultDatagenProvider;
 import dev.rosenoire.regy.pipeline.registration.Entry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;

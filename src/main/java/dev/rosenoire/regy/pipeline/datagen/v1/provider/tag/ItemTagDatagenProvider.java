@@ -1,7 +1,7 @@
-package dev.rosenoire.regy.pipeline.datagen.provider.tag;
+package dev.rosenoire.regy.pipeline.datagen.v1.provider.tag;
 
-import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
-import dev.rosenoire.regy.pipeline.datagen.ProviderType;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderContext;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderType;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;

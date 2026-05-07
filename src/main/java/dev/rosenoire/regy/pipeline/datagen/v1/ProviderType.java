@@ -1,9 +1,9 @@
-package dev.rosenoire.regy.pipeline.datagen;
+package dev.rosenoire.regy.pipeline.datagen.v1;
 
-import dev.rosenoire.regy.pipeline.datagen.provider.lang.LangDatagenProvider;
-import dev.rosenoire.regy.pipeline.datagen.provider.model.ModelDatagenProvider;
-import dev.rosenoire.regy.pipeline.datagen.provider.recipe.RecipeDatagenProvider;
-import dev.rosenoire.regy.pipeline.datagen.provider.tag.ItemTagDatagenProvider;
+import dev.rosenoire.regy.pipeline.datagen.v1.provider.lang.LangDatagenProvider;
+import dev.rosenoire.regy.pipeline.datagen.v1.provider.model.ModelDatagenProvider;
+import dev.rosenoire.regy.pipeline.datagen.v1.provider.recipe.RecipeDatagenProvider;
+import dev.rosenoire.regy.pipeline.datagen.v1.provider.tag.ItemTagDatagenProvider;
 import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.NonNull;
 

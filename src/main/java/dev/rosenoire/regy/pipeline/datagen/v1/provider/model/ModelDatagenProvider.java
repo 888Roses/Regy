@@ -1,9 +1,9 @@
-package dev.rosenoire.regy.pipeline.datagen.provider.model;
+package dev.rosenoire.regy.pipeline.datagen.v1.provider.model;
 
 import com.mojang.datafixers.util.Either;
-import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
-import dev.rosenoire.regy.pipeline.datagen.ProviderType;
-import dev.rosenoire.regy.pipeline.datagen.provider.DefaultDatagenProvider;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderContext;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderType;
+import dev.rosenoire.regy.pipeline.datagen.v1.provider.DefaultDatagenProvider;
 import dev.rosenoire.regy.pipeline.registration.AbstractRegistryEntry;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.minecraft.client.data.models.BlockModelGenerators;

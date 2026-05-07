@@ -3,7 +3,7 @@ package dev.rosenoire.regy.pipeline.registration.item.group;
 import dev.rosenoire.regy.api.data.NonNullSupplier;
 import dev.rosenoire.regy.api.data.RegistryUtils;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
-import dev.rosenoire.regy.pipeline.datagen.provider.lang.DatagenTranslatable;
+import dev.rosenoire.regy.pipeline.datagen.v1.provider.lang.DatagenTranslatable;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;

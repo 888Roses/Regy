@@ -1,8 +1,8 @@
 package dev.rosenoire.regy.pipeline.registration.item.material;
 
 import dev.rosenoire.regy.pipeline.AbstractRegy;
-import dev.rosenoire.regy.pipeline.datagen.ProviderType;
-import dev.rosenoire.regy.pipeline.datagen.provider.tag.DatagenTagTarget;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderType;
+import dev.rosenoire.regy.pipeline.datagen.v1.provider.tag.DatagenTagTarget;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;

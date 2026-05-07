@@ -1,6 +1,6 @@
-package dev.rosenoire.regy.pipeline.datagen.provider.recipe;
+package dev.rosenoire.regy.pipeline.datagen.v1.provider.recipe;
 
-import dev.rosenoire.regy.pipeline.datagen.DatagenTarget;
+import dev.rosenoire.regy.pipeline.datagen.v1.DatagenTarget;
 
 import java.util.List;
 

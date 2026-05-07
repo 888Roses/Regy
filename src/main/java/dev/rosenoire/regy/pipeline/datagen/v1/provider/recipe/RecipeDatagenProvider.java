@@ -1,8 +1,8 @@
-package dev.rosenoire.regy.pipeline.datagen.provider.recipe;
+package dev.rosenoire.regy.pipeline.datagen.v1.provider.recipe;
 
-import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
-import dev.rosenoire.regy.pipeline.datagen.ProviderType;
-import dev.rosenoire.regy.pipeline.datagen.provider.DefaultDatagenProvider;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderContext;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderType;
+import dev.rosenoire.regy.pipeline.datagen.v1.provider.DefaultDatagenProvider;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.HolderLookup;

@@ -1,7 +1,7 @@
-package dev.rosenoire.regy.pipeline.datagen.provider.model;
+package dev.rosenoire.regy.pipeline.datagen.v1.provider.model;
 
-import dev.rosenoire.regy.pipeline.datagen.DatagenTarget;
-import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
+import dev.rosenoire.regy.pipeline.datagen.v1.DatagenTarget;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderContext;
 import dev.rosenoire.regy.pipeline.registration.AbstractRegistryEntry;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import net.minecraft.client.data.models.BlockModelGenerators;

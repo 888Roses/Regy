@@ -1,4 +1,4 @@
-package dev.rosenoire.regy.pipeline.datagen.provider;
+package dev.rosenoire.regy.pipeline.datagen.v1.provider;
 
 import net.minecraft.data.DataProvider;
 

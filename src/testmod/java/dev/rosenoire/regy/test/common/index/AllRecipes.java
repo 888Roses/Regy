@@ -1,6 +1,6 @@
 package dev.rosenoire.regy.test.common.index;
 
-import dev.rosenoire.regy.pipeline.datagen.provider.recipe.RecipeInstruction;
+import dev.rosenoire.regy.pipeline.datagen.v1.provider.recipe.RecipeInstruction;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;

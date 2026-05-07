@@ -1,16 +1,13 @@
-package dev.rosenoire.regy.pipeline.datagen.provider.tag;
+package dev.rosenoire.regy.pipeline.datagen.v1.provider.tag;
 
-import dev.rosenoire.regy.pipeline.datagen.DatagenTarget;
-import dev.rosenoire.regy.pipeline.datagen.ProviderType;
-import dev.rosenoire.regy.pipeline.registration.Entry;
+import dev.rosenoire.regy.pipeline.datagen.v1.DatagenTarget;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderType;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.tags.TagAppender;
 import net.minecraft.tags.TagKey;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface DatagenTagTarget extends DatagenTarget {

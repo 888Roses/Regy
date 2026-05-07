@@ -1,11 +1,11 @@
-package dev.rosenoire.regy.pipeline.datagen.provider.lang;
+package dev.rosenoire.regy.pipeline.datagen.v1.provider.lang;
 
 import com.google.gson.JsonObject;
 import dev.rosenoire.regy.api.data.NonNullType;
 import dev.rosenoire.regy.common.RegyCommon;
-import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
-import dev.rosenoire.regy.pipeline.datagen.ProviderType;
-import dev.rosenoire.regy.pipeline.datagen.provider.DefaultDatagenProvider;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderContext;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderType;
+import dev.rosenoire.regy.pipeline.datagen.v1.provider.DefaultDatagenProvider;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;

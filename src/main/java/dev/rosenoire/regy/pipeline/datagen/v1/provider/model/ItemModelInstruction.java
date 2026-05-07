@@ -1,14 +1,10 @@
-package dev.rosenoire.regy.pipeline.datagen.provider.model;
+package dev.rosenoire.regy.pipeline.datagen.v1.provider.model;
 
-import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderContext;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.renderer.item.ItemModel;
-import net.minecraft.client.renderer.item.ItemModels;
-import net.minecraft.client.renderer.item.properties.conditional.IsUsingItem;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import org.jspecify.annotations.NonNull;
 
