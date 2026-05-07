@@ -136,6 +136,7 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
      *      - AttributeEntryBuilder attribute(String name)
      *      [X] - CreativeTabEntryBuilder creativeTab(String name)
      *      - ToolMaterialEntryBuilder material(String name)
+     *      - DamageType
      *
      *  **Client Side:**
      *      - <O extends ParticleOptions> ClientParticleEntryBuilder<O> particle(ParticleEntry<O> entry)

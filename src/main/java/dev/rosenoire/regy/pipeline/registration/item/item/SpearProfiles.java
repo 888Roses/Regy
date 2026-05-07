@@ -1,0 +1,105 @@
+package dev.rosenoire.regy.pipeline.registration.item.item;
+
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.Item;
+
+@SuppressWarnings("unused")
+public interface SpearProfiles {
+    SpearSettingsBuilder.Properties<Item, ?> WOODEN_SPEAR = SpearSettingsBuilder.Properties.virtual()
+            .swingAnimationSeconds(0.65F)
+            .chargeDamageMultiplier(0.7F)
+            .chargeDelaySeconds(0.75F)
+            .maxDurationForDismountSeconds(5.0F)
+            .minSpeedForDismount(14.0F)
+            .maxDurationForChargeKnockbackInSeconds(10.0F)
+            .minSpeedForChargeKnockback(5.1F)
+            .maxDurationForChargeDamageInSeconds(15.0F)
+            .minRelativeSpeedForChargeDamage(4.6F)
+            .useSound(SoundEvents.SPEAR_WOOD_USE)
+            .hitSound(SoundEvents.SPEAR_WOOD_HIT)
+            .attackSound(SoundEvents.SPEAR_WOOD_ATTACK);
+
+    SpearSettingsBuilder.Properties<Item, ?> STONE_SPEAR = SpearSettingsBuilder.Properties.virtual()
+            .swingAnimationSeconds(0.75F)
+            .chargeDamageMultiplier(0.82F)
+            .chargeDelaySeconds(0.7F)
+            .maxDurationForDismountSeconds(4.5F)
+            .minSpeedForDismount(10.0F)
+            .maxDurationForChargeKnockbackInSeconds(9.0F)
+            .minSpeedForChargeKnockback(5.1F)
+            .maxDurationForChargeDamageInSeconds(13.75F)
+            .minRelativeSpeedForChargeDamage(4.6F)
+            .useSound(SoundEvents.SPEAR_USE)
+            .hitSound(SoundEvents.SPEAR_HIT)
+            .attackSound(SoundEvents.SPEAR_ATTACK);
+
+    SpearSettingsBuilder.Properties<Item, ?> COPPER_SPEAR = SpearSettingsBuilder.Properties.virtual()
+            .swingAnimationSeconds(0.85F)
+            .chargeDamageMultiplier(0.82F)
+            .chargeDelaySeconds(0.65F)
+            .maxDurationForDismountSeconds(4.0F)
+            .minSpeedForDismount(9.0F)
+            .maxDurationForChargeKnockbackInSeconds(8.25F)
+            .minSpeedForChargeKnockback(5.1F)
+            .maxDurationForChargeDamageInSeconds(12.5F)
+            .minRelativeSpeedForChargeDamage(4.6F)
+            .useSound(SoundEvents.SPEAR_USE)
+            .hitSound(SoundEvents.SPEAR_HIT)
+            .attackSound(SoundEvents.SPEAR_ATTACK);
+
+    SpearSettingsBuilder.Properties<Item, ?> IRON_SPEAR = SpearSettingsBuilder.Properties.virtual()
+            .swingAnimationSeconds(0.95F)
+            .chargeDamageMultiplier(0.95F)
+            .chargeDelaySeconds(0.6F)
+            .maxDurationForDismountSeconds(2.5F)
+            .minSpeedForDismount(8.0F)
+            .maxDurationForChargeKnockbackInSeconds(6.75F)
+            .minSpeedForChargeKnockback(5.1F)
+            .maxDurationForChargeDamageInSeconds(11.25F)
+            .minRelativeSpeedForChargeDamage(4.6F)
+            .useSound(SoundEvents.SPEAR_USE)
+            .hitSound(SoundEvents.SPEAR_HIT)
+            .attackSound(SoundEvents.SPEAR_ATTACK);
+
+    SpearSettingsBuilder.Properties<Item, ?> GOLD_SPEAR = SpearSettingsBuilder.Properties.virtual()
+            .swingAnimationSeconds(0.95F)
+            .chargeDamageMultiplier(0.7F)
+            .chargeDelaySeconds(0.7F)
+            .maxDurationForDismountSeconds(3.5F)
+            .minSpeedForDismount(10.0F)
+            .maxDurationForChargeKnockbackInSeconds(8.5F)
+            .minSpeedForChargeKnockback(5.1F)
+            .maxDurationForChargeDamageInSeconds(13.75F)
+            .minRelativeSpeedForChargeDamage(4.6F)
+            .useSound(SoundEvents.SPEAR_USE)
+            .hitSound(SoundEvents.SPEAR_HIT)
+            .attackSound(SoundEvents.SPEAR_ATTACK);
+
+    SpearSettingsBuilder.Properties<Item, ?> DIAMOND_SPEAR = SpearSettingsBuilder.Properties.virtual()
+            .swingAnimationSeconds(1.05F)
+            .chargeDamageMultiplier(1.075F)
+            .chargeDelaySeconds(0.5F)
+            .maxDurationForDismountSeconds(3.0F)
+            .minSpeedForDismount(7.5F)
+            .maxDurationForChargeKnockbackInSeconds(6.5F)
+            .minSpeedForChargeKnockback(5.1F)
+            .maxDurationForChargeDamageInSeconds(10.0F)
+            .minRelativeSpeedForChargeDamage(4.6F)
+            .useSound(SoundEvents.SPEAR_USE)
+            .hitSound(SoundEvents.SPEAR_HIT)
+            .attackSound(SoundEvents.SPEAR_ATTACK);
+
+    SpearSettingsBuilder.Properties<Item, ?> NETHERITE_SPEAR = SpearSettingsBuilder.Properties.virtual()
+            .swingAnimationSeconds(1.15F)
+            .chargeDamageMultiplier(1.2F)
+            .chargeDelaySeconds(0.4F)
+            .maxDurationForDismountSeconds(2.5F)
+            .minSpeedForDismount(7.0F)
+            .maxDurationForChargeKnockbackInSeconds(5.5F)
+            .minSpeedForChargeKnockback(5.1F)
+            .maxDurationForChargeDamageInSeconds(8.75F)
+            .minRelativeSpeedForChargeDamage(4.6F)
+            .useSound(SoundEvents.SPEAR_USE)
+            .hitSound(SoundEvents.SPEAR_HIT)
+            .attackSound(SoundEvents.SPEAR_ATTACK);
+}

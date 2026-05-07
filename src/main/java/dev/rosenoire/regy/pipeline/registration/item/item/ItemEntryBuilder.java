@@ -1,6 +1,5 @@
 package dev.rosenoire.regy.pipeline.registration.item.item;
 
-import dev.rosenoire.regy.api.data.NonNullSupplier;
 import dev.rosenoire.regy.api.data.RegistryUtils;
 import dev.rosenoire.regy.api.model.ModelUtils;
 import dev.rosenoire.regy.api.text.NamingConventions;
@@ -12,6 +11,7 @@ import dev.rosenoire.regy.pipeline.datagen.impl.generator.*;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntry;
+import dev.rosenoire.regy.pipeline.registration.item.material.MaterialEntry;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
@@ -86,7 +86,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         RegyCommon.log.info("  Adding data-gen data...");
         getRegy().dataGeneration().addData(this);
 
-        var entry = new ItemEntry<>(item, resourceKey, toolMaterial());
+        var entry = new ItemEntry<>(item, resourceKey, material());
         RegyCommon.log.info("  Adding entry...");
         entry = getRegy().entry(entry);
         RegyCommon.log.info("Finished registration for entry builder: '{}'...", identifier());
@@ -103,7 +103,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return creativeTab;
     }
 
-    public @Nullable ToolMaterial toolMaterial() {
+    public @Nullable ToolMaterial material() {
         return toolMaterial;
     }
 
@@ -281,14 +281,18 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return this.attribute(new ItemAttributeModifiers.Entry(holder, attributeModifier, equipmentSlotGroup, display));
     }
 
-    public ItemEntryBuilder<I, P> toolMaterial(ToolMaterial toolMaterial) {
-        this.toolMaterial = toolMaterial;
+    public ItemEntryBuilder<I, P> material(MaterialEntry materialEntry) {
+        return this.material(materialEntry.get());
+    }
 
-        if (toolMaterial != null) {
+    public ItemEntryBuilder<I, P> material(ToolMaterial material) {
+        this.toolMaterial = material;
+
+        if (material != null) {
             return this.properties(properties -> properties
-                    .durability(toolMaterial.durability())
-                    .repairable(toolMaterial.repairItems())
-                    .enchantable(toolMaterial.enchantmentValue()));
+                    .durability(material.durability())
+                    .repairable(material.repairItems())
+                    .enchantable(material.enchantmentValue()));
         }
 
         return this;
@@ -316,6 +320,10 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     public ToolSettingsBuilder<I, P> tool() {
         return new ToolSettingsBuilder<>(this);
+    }
+
+    public SpearSettingsBuilder<I, P> spear() {
+        return new SpearSettingsBuilder<>(this);
     }
 
     public ItemEntryBuilder<I, P> tool(Function<HolderGetter<Block>, Tool> func) {

@@ -88,7 +88,7 @@ public class ToolSettingsBuilder<I extends Item, P> {
     public ItemEntryBuilder<I, P> build() {
         return owner
                 .map(builder -> this.toolFunction == null ? builder : this.toolFunction.apply(builder))
-                .toolMaterial(material)
+                .material(material)
                 .attackDamage(attackDamage)
                 .attackSpeed(attackSpeed)
                 .weaponComponent(durabilityDamage, blockingDisableTimeSeconds);

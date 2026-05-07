@@ -2,6 +2,7 @@ package dev.rosenoire.regy.test.common.index;
 
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemMaps;
+import dev.rosenoire.regy.pipeline.registration.item.item.SpearProfiles;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.Item;
@@ -10,6 +11,17 @@ import net.minecraft.world.item.Rarity;
 import static dev.rosenoire.regy.test.common.TestModCommon.REGY;
 
 public interface AllItems {
+    ItemEntry<Item> FAKE_SPEAR = REGY
+            .item("fake_spear")
+            .material(AllMaterials.ELDEN)
+            .spear()
+            .properties()
+            .copy(SpearProfiles.NETHERITE_SPEAR)
+            .build()
+            .build()
+            .tag(ItemTags.SPEARS)
+            .register();
+
     ItemEntry<Item> ELDRITCH_BLESSING = REGY
             .item("eldritch_blessing")
             .properties(properties -> properties.rarity(Rarity.UNCOMMON))
