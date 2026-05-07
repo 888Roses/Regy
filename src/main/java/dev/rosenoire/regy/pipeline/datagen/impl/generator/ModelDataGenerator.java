@@ -1,7 +1,7 @@
-package dev.rosenoire.regy.pipeline.datagen.v2.impl.generator;
+package dev.rosenoire.regy.pipeline.datagen.impl.generator;
 
 import dev.rosenoire.regy.api.data.NonNullSupplier;
-import dev.rosenoire.regy.pipeline.datagen.v2.DataGenerator;
+import dev.rosenoire.regy.pipeline.datagen.DataGenerator;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -39,6 +39,6 @@ public class ModelDataGenerator extends FabricModelProvider implements DataGener
 
     @Override
     public @NonNull String getName() {
-        return "model";
+        return DataGenerators.MODELS;
     }
 }

@@ -1,8 +1,9 @@
-package dev.rosenoire.regy.pipeline.datagen.v2;
+package dev.rosenoire.regy.pipeline.datagen;
 
 import dev.rosenoire.regy.common.RegyCommon;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.RegyOwnable;
+import dev.rosenoire.regy.pipeline.datagen.impl.generator.DataGenerators;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.data.DataProvider;
 import org.jspecify.annotations.NonNull;
@@ -117,6 +118,7 @@ public class DataGeneration implements RegyOwnable {
     /// type as it is saved in the stored generators map of this [DataGeneration] into
     /// the [T] type that was given. This means that if the searched generator is not of
     /// the given type, an exception will be thrown.
+    /// @see DataGenerators
     @NullMarked
     @SuppressWarnings("unchecked")
     public <T extends DataGenerator & DataProvider> Optional<T> getGeneratorOptional(String name) {

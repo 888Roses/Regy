@@ -1,12 +1,12 @@
-package dev.rosenoire.regy.pipeline.datagen.v2.impl.generator;
+package dev.rosenoire.regy.pipeline.datagen.impl.generator;
 
-import dev.rosenoire.regy.pipeline.datagen.v2.DataGenerator;
+import dev.rosenoire.regy.pipeline.datagen.DataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.tags.TagAppender;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
@@ -14,10 +14,10 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 
-public class ItemTagDataGenerator extends FabricTagProvider.ItemTagProvider implements DataGenerator {
-    private final Map<TagKey<Item>, UnaryOperator<TagAppender<Item, Item>>> tagStorage = new HashMap<>();
+public class BlockEntityTagDataGenerator extends FabricTagProvider.BlockEntityTypeTagProvider implements DataGenerator {
+    private final Map<TagKey<BlockEntityType<?>>, UnaryOperator<TagAppender<BlockEntityType<?>, BlockEntityType<?>>>> tagStorage = new HashMap<>();
 
-    public ItemTagDataGenerator(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+    public BlockEntityTagDataGenerator(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 
@@ -26,13 +26,13 @@ public class ItemTagDataGenerator extends FabricTagProvider.ItemTagProvider impl
         this.tagStorage.forEach((tag, func) -> func.apply(valueLookupBuilder(tag)));
     }
 
-    public ItemTagDataGenerator tag(TagKey<Item> tag, UnaryOperator<TagAppender<Item, Item>> func) {
+    public BlockEntityTagDataGenerator tag(TagKey<BlockEntityType<?>> tag, UnaryOperator<TagAppender<BlockEntityType<?>, BlockEntityType<?>>> func) {
         this.tagStorage.put(tag, func);
         return this;
     }
 
     @Override
     public @NonNull String getName() {
-        return "item_tag";
+        return DataGenerators.BLOCK_ENTITY_TAGS;
     }
 }

@@ -2,6 +2,8 @@ package dev.rosenoire.regy.test.common.index;
 
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemMaps;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
@@ -20,10 +22,12 @@ public interface AllItems {
             .item("eldern_prosecutor")
             .map(ItemMaps::singleStackSize)
             .swordSettings()
-            .material(ToolMaterial.NETHERITE)
+            .material(AllMaterials.ELDEN)
             .attackDamage(6f)
             .attackSpeed(1.8f)
             .build()
+            .tag(ItemTags.SWORDS)
+            .tag(ItemTags.SHARP_WEAPON_ENCHANTABLE)
             .handheldModel()
             .register();
 
@@ -31,24 +35,24 @@ public interface AllItems {
             .item("eldern_verdict")
             .map(ItemMaps::singleStackSize)
             .swordSettings()
-            .material(ToolMaterial.NETHERITE)
+            .material(AllMaterials.ELDEN)
             .attackDamage(9.5F)
             .attackSpeed(1)
             .blockingDisableTime(5f)
             .build()
-            .tag(ItemTags.SWORDS)
+            .tag(ItemTags.AXES)
             .tag(ItemTags.SHARP_WEAPON_ENCHANTABLE)
             .handheldModel()
             .register();
 
     ItemEntry<Item> ELDEN_INGOT = REGY
             .item("elden_ingot")
-            // .recipe(AllRecipes::eldenNuggetsToEldenIngot)
+            .recipe(AllRecipes::eldenNuggetsToEldenIngot)
             .register();
 
     ItemEntry<Item> ELDEN_NUGGET = REGY
             .item("elden_nugget")
-            // .recipe(AllRecipes::eldenIngotToEldenNuggets)
+            .recipe(AllRecipes::eldenIngotToEldenNuggets)
             .register();
 
     static void register() {

@@ -1,5 +1,6 @@
 package dev.rosenoire.regy.pipeline.registration.item.item;
 
+import dev.rosenoire.regy.pipeline.registration.item.material.MaterialEntry;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ToolMaterial;
 import org.jetbrains.annotations.Nullable;
@@ -19,6 +20,10 @@ public class SwordSettingsBuilder<I extends Item, P> {
     public SwordSettingsBuilder<I, P> material(ToolMaterial toolMaterial) {
         this.material = toolMaterial;
         return this;
+    }
+
+    public SwordSettingsBuilder<I, P> material(MaterialEntry material) {
+        return this.material(material.get());
     }
 
     public SwordSettingsBuilder<I, P> attackDamage(float attackDamage) {

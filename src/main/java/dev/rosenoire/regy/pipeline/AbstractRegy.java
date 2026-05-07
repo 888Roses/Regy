@@ -1,25 +1,23 @@
 package dev.rosenoire.regy.pipeline;
 
 import dev.rosenoire.regy.api.event.WrappingValueEvent;
-import dev.rosenoire.regy.pipeline.datagen.v1.ConflictMode;
-import dev.rosenoire.regy.pipeline.datagen.v1.DatagenTarget;
-import dev.rosenoire.regy.pipeline.datagen.v1.provider.RegyDatagenProvider;
-import dev.rosenoire.regy.pipeline.datagen.v2.DataGeneration;
+import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.registration.Entry;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabMapper;
+import dev.rosenoire.regy.pipeline.registration.item.material.ToolMaterialEntryBuilder;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -29,8 +27,6 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
     /// Namespace of the mod this Regy getOwner represents.
     protected final String modNamespace;
 
-    public final Map<DatagenTarget, Object> datagenTargets = new HashMap<>();
-    protected final List<RegyDatagenProvider> datagenProviders = new ArrayList<>();
     private final List<Entry<?>> entries = new ArrayList<>();
     public final CreativeTabMapper creativeTabMapper = new CreativeTabMapper(this);
 
@@ -150,6 +146,10 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
         return item(identifier, Item::new);
     }
 
+    public ToolMaterialEntryBuilder<AbstractRegy<R>> material(String identifier) {
+        return new ToolMaterialEntryBuilder<>(this, this, identifier);
+    }
+
     // endregion
 
     // region datagen
@@ -159,7 +159,7 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
 
     /// Represents the [FabricDataGenerator.Pack] data-gen pack targeted by this
     /// [AbstractRegy] instance after
-    /// [#setupDatagen(FabricDataGenerator.Pack, ConflictMode)] was called.
+    /// [#setupDatagen(FabricDataGenerator.Pack)] was called.
     public FabricDataGenerator.Pack pack() {
         return datagenPack;
     }
@@ -169,14 +169,10 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
         return this.dataGeneration;
     }
 
-    public void setupDatagen(FabricDataGenerator.Pack datagenPack, ConflictMode conflictMode) {
+    public void setupDatagen(FabricDataGenerator.Pack datagenPack) {
         this.onSetupDatagen.before().accept(self());
         this.datagenPack = datagenPack;
         this.onSetupDatagen.after().accept(self());
-    }
-
-    public void setupDatagen(FabricDataGenerator.Pack datagenPack) {
-        this.setupDatagen(datagenPack, ConflictMode.THROW);
     }
 
     // endregion

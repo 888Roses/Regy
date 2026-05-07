@@ -5,12 +5,9 @@ import dev.rosenoire.regy.api.data.RegistryUtils;
 import dev.rosenoire.regy.api.model.ModelUtils;
 import dev.rosenoire.regy.api.text.NamingConventions;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
-import dev.rosenoire.regy.pipeline.datagen.v1.provider.recipe.RecipeInstruction;
-import dev.rosenoire.regy.pipeline.datagen.v2.DataGenObject;
-import dev.rosenoire.regy.pipeline.datagen.v2.DataGeneration;
-import dev.rosenoire.regy.pipeline.datagen.v2.impl.generator.ItemTagDataGenerator;
-import dev.rosenoire.regy.pipeline.datagen.v2.impl.generator.LangDataGenerator;
-import dev.rosenoire.regy.pipeline.datagen.v2.impl.generator.ModelDataGenerator;
+import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
+import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
+import dev.rosenoire.regy.pipeline.datagen.impl.generator.*;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntry;
@@ -25,8 +22,10 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -37,7 +36,6 @@ import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.component.Weapon;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
@@ -59,7 +57,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     private @Nullable ToolMaterial toolMaterial;
     private NonNullSupplier<ItemAttributeModifiers.Builder> attributesBuilder = null;
     private final List<TagKey<Item>> tagStorage = new ArrayList<>();
-    private final List<RecipeInstruction> recipeStorage = new ArrayList<>();
+    private final List<Recipe<I>> recipeStorage = new ArrayList<>();
 
     public ItemEntryBuilder(@NonNull AbstractRegy<?> owner, P parent, String identifier, ItemFactory<I> itemFactory) {
         super(owner, parent, identifier);
@@ -80,7 +78,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         var item = itemFactory.bake(this.properties);
         Registry.register(BuiltInRegistries.ITEM, resourceKey, item);
 
-        dataGenData = new DatagenData<I>(item);
+        dataGenData = new DatagenData<>(item, this.resourceKey, this.path());
         getRegy().dataGeneration().addData(this);
 
         var entry = new ItemEntry<>(item, resourceKey, toolMaterial());
@@ -112,34 +110,47 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     @Override
     public void collectDataGenProviders(DataGenProviderConsumer collector) {
-        collector.addProvider(dataGen ->
-                dataGen.<LangDataGenerator>getGeneratorOptional("lang").ifPresent(generator ->
-                        generator.add(descriptionId(), this.generatedName)
-                )
-        );
+        collector.addProvider(this::dataGenLangProvider);
+        collector.addProvider(this::dataGenModelProvider);
+        collector.addProvider(this::dataGenItemTagProvider);
+        collector.addProvider(this::dataGenRecipeProvider);
+    }
 
-        collector.addProvider(dataGen ->
-                dataGen.<ModelDataGenerator>getGeneratorOptional("model").ifPresent(generator ->
-                        generator.addItemModel(() -> itemModelGenerator ->
-                                modelInstruction.generateModel(dataGen, itemModelGenerator, dataGenData)
-                        )
-                )
-        );
-
-        collector.addProvider(dataGen ->
-                dataGen.<ItemTagDataGenerator>getGeneratorOptional("item_tag").ifPresent(generator -> {
-                            for (var tag : this.tagStorage) {
-                                generator.tag(tag, builder -> builder
-                                        .add(dataGenData.item())
-                                        .setReplace(false)
-                                );
-                            }
-                        }
+    private void dataGenRecipeProvider(DataGeneration gen) {
+        gen.<RecipeDataGenerator>getGeneratorOptional(DataGenerators.RECIPES).ifPresent(recipes ->
+                this.recipeStorage.forEach(instruction ->
+                        recipes.registerRecipe((provider, output) ->
+                                instruction.generateRecipe(gen, provider, output, this.dataGenData))
                 )
         );
     }
 
-    public record DatagenData<I extends Item>(I item) {
+    private void dataGenItemTagProvider(DataGeneration gen) {
+        gen.<ItemTagDataGenerator>getGeneratorOptional(DataGenerators.ITEM_TAGS).ifPresent(tags -> {
+            synchronized (this.tagStorage) {
+                this.tagStorage.forEach(tag -> tags.tag(
+                        tag,
+                        builder -> builder.add(dataGenData.item()).setReplace(false)
+                ));
+            }
+        });
+    }
+
+    private void dataGenModelProvider(DataGeneration gen) {
+        gen.<ModelDataGenerator>getGeneratorOptional(DataGenerators.MODELS).ifPresent(models ->
+                models.addItemModel(() -> itemModelGenerator ->
+                        modelInstruction.generateModel(gen, itemModelGenerator, dataGenData)
+                )
+        );
+    }
+
+    private void dataGenLangProvider(DataGeneration gen) {
+        gen.<LangDataGenerator>getGeneratorOptional(DataGenerators.LANG).ifPresent(lang ->
+                lang.add(descriptionId(), this.generatedName)
+        );
+    }
+
+    public record DatagenData<I extends Item>(I item, ResourceKey<Item> resourceKey, String name) {
     }
 
     @FunctionalInterface
@@ -157,6 +168,11 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
                 generators.itemModelOutput.accept(data.item(), ItemModelGenerators.createFlatModelDispatch(gui, handheld));
             };
         }
+    }
+
+    @FunctionalInterface
+    public interface Recipe<I extends Item> {
+        void generateRecipe(DataGeneration dataGeneration, RecipeProvider provider, RecipeOutput output, DatagenData<I> data);
     }
 
     // endregion
@@ -277,6 +293,11 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     public ItemEntryBuilder<I, P> tag(TagKey<Item> key) {
         tagStorage.add(key);
+        return this;
+    }
+
+    public ItemEntryBuilder<I, P> recipe(Recipe<I> recipe) {
+        this.recipeStorage.add(recipe);
         return this;
     }
 

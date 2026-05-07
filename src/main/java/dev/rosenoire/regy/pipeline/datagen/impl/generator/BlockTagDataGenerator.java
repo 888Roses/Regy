@@ -1,6 +1,6 @@
-package dev.rosenoire.regy.pipeline.datagen.v2.impl.generator;
+package dev.rosenoire.regy.pipeline.datagen.impl.generator;
 
-import dev.rosenoire.regy.pipeline.datagen.v2.DataGenerator;
+import dev.rosenoire.regy.pipeline.datagen.DataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
@@ -33,6 +33,6 @@ public class BlockTagDataGenerator extends FabricTagProvider.BlockTagProvider im
 
     @Override
     public @NonNull String getName() {
-        return "block_tag";
+        return DataGenerators.BLOCK_TAGS;
     }
 }

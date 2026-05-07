@@ -1,12 +1,12 @@
-package dev.rosenoire.regy.pipeline.datagen.v2.impl.generator;
+package dev.rosenoire.regy.pipeline.datagen.impl.generator;
 
-import dev.rosenoire.regy.pipeline.datagen.v2.DataGenerator;
+import dev.rosenoire.regy.pipeline.datagen.DataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.tags.TagAppender;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.entity.EntityType;
 import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
@@ -14,10 +14,10 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 
-public class FluidTagDataGenerator extends FabricTagProvider.FluidTagProvider implements DataGenerator {
-    private final Map<TagKey<Fluid>, UnaryOperator<TagAppender<Fluid, Fluid>>> tagStorage = new HashMap<>();
+public class EntityTypeTagDataGenerator extends FabricTagProvider.EntityTypeTagProvider implements DataGenerator {
+    private final Map<TagKey<EntityType<?>>, UnaryOperator<TagAppender<EntityType<?>, EntityType<?>>>> tagStorage = new HashMap<>();
 
-    public FluidTagDataGenerator(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+    public EntityTypeTagDataGenerator(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 
@@ -26,13 +26,13 @@ public class FluidTagDataGenerator extends FabricTagProvider.FluidTagProvider im
         this.tagStorage.forEach((tag, func) -> func.apply(valueLookupBuilder(tag)));
     }
 
-    public FluidTagDataGenerator tag(TagKey<Fluid> tag, UnaryOperator<TagAppender<Fluid, Fluid>> func) {
+    public EntityTypeTagDataGenerator tag(TagKey<EntityType<?>> tag, UnaryOperator<TagAppender<EntityType<?>, EntityType<?>>> func) {
         this.tagStorage.put(tag, func);
         return this;
     }
 
     @Override
     public @NonNull String getName() {
-        return "fluid_tag";
+        return DataGenerators.ENTITY_TYPE_TAGS;
     }
 }

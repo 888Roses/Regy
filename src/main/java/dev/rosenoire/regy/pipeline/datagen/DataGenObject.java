@@ -1,4 +1,4 @@
-package dev.rosenoire.regy.pipeline.datagen.v2;
+package dev.rosenoire.regy.pipeline.datagen;
 
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.RegyOwnable;

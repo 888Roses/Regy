@@ -3,7 +3,9 @@ package dev.rosenoire.regy.pipeline.registration.item.group;
 import dev.rosenoire.regy.api.data.NonNullSupplier;
 import dev.rosenoire.regy.api.data.RegistryUtils;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
-import dev.rosenoire.regy.pipeline.datagen.v1.provider.lang.DatagenTranslatable;
+import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
+import dev.rosenoire.regy.pipeline.datagen.impl.generator.DataGenerators;
+import dev.rosenoire.regy.pipeline.datagen.impl.generator.LangDataGenerator;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
@@ -21,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
-public class CreativeTabEntryBuilder<P> extends AbstractEntryBuilder<CreativeTabEntry, P> implements DatagenTranslatable {
+public class CreativeTabEntryBuilder<P> extends AbstractEntryBuilder<CreativeTabEntry, P> implements DataGenObject {
     private static final Identifier DEFAULT_BACKGROUND_TEXTURE = CreativeModeTab.createTextureLocation("items");
 
     private final ResourceKey<CreativeModeTab> resourceKey;
@@ -62,7 +64,7 @@ public class CreativeTabEntryBuilder<P> extends AbstractEntryBuilder<CreativeTab
 
     // region modifiers
 
-    public CreativeTabEntryBuilder<P> main() {
+    public CreativeTabEntryBuilder<P> mainTab() {
         this.registerAsMainTab = true;
         return this;
     }
@@ -103,13 +105,17 @@ public class CreativeTabEntryBuilder<P> extends AbstractEntryBuilder<CreativeTab
 
     // endregion
 
-    // region processing
+    // region data generation
 
     @Override
-    public Translation getDatagenTranslation() {
-        return Optional.ofNullable(translatableTitle)
-                .map(title -> new Translation(RegistryUtils.toDescriptionId(resourceKey), title))
-                .orElse(null);
+    public void collectDataGenProviders(DataGenProviderConsumer collector) {
+        if (translatableTitle != null) {
+            collector.addProvider(dataGen ->
+                    dataGen.<LangDataGenerator>getGeneratorOptional(DataGenerators.LANG).ifPresent(generator ->
+                            generator.add(RegistryUtils.toDescriptionId(resourceKey), translatableTitle)
+                    )
+            );
+        }
     }
 
     // endregion
