@@ -5,12 +5,15 @@ import dev.rosenoire.regy.api.data.RegistryUtils;
 import dev.rosenoire.regy.api.model.ModelUtils;
 import dev.rosenoire.regy.api.text.NamingConventions;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
+import dev.rosenoire.regy.pipeline.datagen.v1.ProviderType;
 import dev.rosenoire.regy.pipeline.datagen.v1.provider.lang.DatagenTranslatable;
 import dev.rosenoire.regy.pipeline.datagen.v1.provider.model.DatagenModelTarget;
 import dev.rosenoire.regy.pipeline.datagen.v1.provider.model.ItemModelInstruction;
 import dev.rosenoire.regy.pipeline.datagen.v1.provider.recipe.DatagenRecipeTarget;
 import dev.rosenoire.regy.pipeline.datagen.v1.provider.recipe.RecipeInstruction;
 import dev.rosenoire.regy.pipeline.datagen.v1.provider.tag.DatagenTagTarget;
+import dev.rosenoire.regy.pipeline.datagen.v2.DataGenObject;
+import dev.rosenoire.regy.pipeline.datagen.v2.impl.generator.LangDataGenerator;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntry;
@@ -47,7 +50,7 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 @SuppressWarnings("UnusedReturnValue")
-public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<ItemEntry<I>, P> implements DatagenTranslatable, DatagenModelTarget.ItemTarget, DatagenTagTarget, DatagenRecipeTarget<ItemEntryBuilder<I, P>> {
+public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<ItemEntry<I>, P> implements DataGenObject {
     private final ItemFactory<I> itemFactory;
     private final ResourceKey<Item> resourceKey;
     private Item.Properties properties;
@@ -77,8 +80,12 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
         return Optional.of(itemFactory.bake(this.properties))
                 .map(item -> Registry.register(BuiltInRegistries.ITEM, resourceKey, item))
+                .map(registered -> {
+                    getRegy().dataGeneration().addData(this);
+                    return registered;
+                })
                 .map(registered -> new ItemEntry<>(registered, resourceKey, toolMaterial()))
-                .map(entry -> getRegy().process(this, entry))
+                .map(getRegy()::entry)
                 .orElseThrow(this::throwRegisterNullEntryException);
     }
 
@@ -100,28 +107,17 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     // region datagen
 
-    @Override
-    public ItemModelInstruction getInstruction() {
-        return currentInstruction;
-    }
-
-    @Override
-    public List<TagKey<?>> getAllTags() {
-        return this.tags;
-    }
-
-    @Override
-    public List<RecipeInstruction> recipeStorage() {
-        return this.recipeStorage;
-    }
-
     public String descriptionId() {
         return RegistryUtils.toDescriptionId(this.resourceKey());
     }
 
     @Override
-    public Translation getDatagenTranslation() {
-        return new Translation(this.descriptionId(), this.generatedName);
+    public void collectDataGenProviders(DataGenProviderConsumer collector) {
+        collector.addProvider(dataGen ->
+                dataGen.<LangDataGenerator>getGeneratorOptional("lang").ifPresent(generator ->
+                        generator.add(descriptionId(), this.generatedName)
+                )
+        );
     }
 
     // endregion

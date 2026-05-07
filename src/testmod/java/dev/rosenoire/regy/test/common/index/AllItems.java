@@ -43,12 +43,12 @@ public interface AllItems {
 
     ItemEntry<Item> ELDEN_INGOT = REGY
             .item("elden_ingot")
-            .recipe(AllRecipes::eldenNuggetsToEldenIngot)
+            // .recipe(AllRecipes::eldenNuggetsToEldenIngot)
             .register();
 
     ItemEntry<Item> ELDEN_NUGGET = REGY
             .item("elden_nugget")
-            .recipe(AllRecipes::eldenIngotToEldenNuggets)
+            // .recipe(AllRecipes::eldenIngotToEldenNuggets)
             .register();
 
     static void register() {

@@ -1,6 +1,7 @@
 package dev.rosenoire.regy.pipeline.registration;
 
 import dev.rosenoire.regy.pipeline.AbstractRegy;
+import dev.rosenoire.regy.pipeline.RegyOwnable;
 import dev.rosenoire.regy.pipeline.datagen.v1.DatagenTarget;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
@@ -8,7 +9,7 @@ import org.jspecify.annotations.NonNull;
 /// Represents an abstract builder of an [AbstractRegistryEntry] representing a value registered in a Minecraft registry.
 /// @param <T> Type of the value represented by this entry builder.
 /// @param <P> Represents the type of the parent of this [AbstractEntryBuilder] if it has one. Usually also an [AbstractEntryBuilder] but doesn't have to be.
-public abstract class AbstractEntryBuilder<T extends Entry<?>, P> implements DatagenTarget {
+public abstract class AbstractEntryBuilder<T extends Entry<?>, P> implements RegyOwnable, DatagenTarget {
     private final @NonNull AbstractRegy<?> regy;
     private final P parent;
     private final String identifier;
@@ -19,8 +20,7 @@ public abstract class AbstractEntryBuilder<T extends Entry<?>, P> implements Dat
         this.identifier = identifier;
     }
 
-    /// [AbstractRegy] getOwner that created this entry builder.
-    protected final @NonNull AbstractRegy<?> getRegy() {
+    public final @NonNull AbstractRegy<?> getRegy() {
         return this.regy;
     }
 

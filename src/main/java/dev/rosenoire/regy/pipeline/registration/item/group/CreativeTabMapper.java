@@ -50,7 +50,7 @@ public class CreativeTabMapper {
 
         if (creativeModeTab.equals(mainTab)) {
             synchronized (this.owner) {
-                this.owner.entries.stream()
+                this.owner.entries().stream()
                         .filter(entry -> entry instanceof ItemEntry<? extends Item>)
                         .map(entry -> (ItemEntry<? extends Item>) entry)
                         .map(ItemEntry::get)
