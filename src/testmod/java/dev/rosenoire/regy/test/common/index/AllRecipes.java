@@ -12,7 +12,7 @@ import static dev.rosenoire.regy.test.common.index.AllItems.*;
 public interface AllRecipes {
     static void eldenIngotToEldenNuggets(DataGeneration dataGeneration, RecipeProvider provider, RecipeOutput output, ItemDataState<Item> data) {
         provider.shapeless(RecipeCategory.MISC, data.item(), 9)
-                .requires(ELDEN_NUGGET.get())
+                .requires(ELDEN_INGOT.get())
                 .unlockedBy(RecipeProvider.getHasName(data.item()), provider.has(data.item()))
                 .save(output);
     }
