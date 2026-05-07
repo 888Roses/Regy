@@ -48,7 +48,7 @@ import java.util.function.UnaryOperator;
 
 @SuppressWarnings("UnusedReturnValue")
 public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<ItemEntry<I>, P> implements DatagenTranslatable, DatagenModelTarget.ItemTarget, DatagenTagTarget, DatagenRecipeTarget<ItemEntryBuilder<I, P>> {
-    private final ItemFactory<I> factory;
+    private final ItemFactory<I> itemFactory;
     private final ResourceKey<Item> resourceKey;
     private Item.Properties properties;
     private @Nullable String generatedName;
@@ -59,9 +59,9 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     private final List<TagKey<?>> tags = new ArrayList<>();
     private final List<RecipeInstruction> recipeStorage = new ArrayList<>();
 
-    public ItemEntryBuilder(@NonNull AbstractRegy<?> owner, P parent, String identifier, ItemFactory<I> factory) {
+    public ItemEntryBuilder(@NonNull AbstractRegy<?> owner, P parent, String identifier, ItemFactory<I> itemFactory) {
         super(owner, parent, identifier);
-        this.factory = factory;
+        this.itemFactory = itemFactory;
         this.resourceKey = ResourceKey.create(Registries.ITEM, identifier());
         this.properties = new Item.Properties().setId(resourceKey);
 
@@ -75,12 +75,56 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
             this.properties = this.properties.attributes(this.attributesBuilder.get().build());
         }
 
-        return Optional.of(factory.bake(this.properties))
+        return Optional.of(itemFactory.bake(this.properties))
                 .map(item -> Registry.register(BuiltInRegistries.ITEM, resourceKey, item))
-                .map(registered -> new ItemEntry<>(registered, resourceKey))
+                .map(registered -> new ItemEntry<>(registered, resourceKey, toolMaterial()))
                 .map(entry -> getRegy().process(this, entry))
                 .orElseThrow(this::throwRegisterNullEntryException);
     }
+
+    // region accessors
+
+    public ResourceKey<Item> resourceKey() {
+        return this.resourceKey;
+    }
+
+    public @Nullable CreativeTabEntry creativeTab() {
+        return creativeTab;
+    }
+
+    public @Nullable ToolMaterial toolMaterial() {
+        return toolMaterial;
+    }
+
+    // endregion
+
+    // region datagen
+
+    @Override
+    public ItemModelInstruction getInstruction() {
+        return currentInstruction;
+    }
+
+    @Override
+    public List<TagKey<?>> getAllTags() {
+        return this.tags;
+    }
+
+    @Override
+    public List<RecipeInstruction> recipeStorage() {
+        return this.recipeStorage;
+    }
+
+    public String descriptionId() {
+        return RegistryUtils.toDescriptionId(this.resourceKey());
+    }
+
+    @Override
+    public Translation getDatagenTranslation() {
+        return new Translation(this.descriptionId(), this.generatedName);
+    }
+
+    // endregion
 
     // region modifiers
 
@@ -199,42 +243,6 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     public ItemEntryBuilder<I, P> tag(TagKey<? extends ItemLike> key) {
         tags.add(key);
         return this;
-    }
-
-    // endregion
-
-    // region processing
-
-    @Override
-    public Translation getDatagenTranslation() {
-        return new Translation(RegistryUtils.toDescriptionId(resourceKey), this.generatedName);
-    }
-
-    public ResourceKey<Item> getResourceKey() {
-        return resourceKey;
-    }
-
-    public @Nullable CreativeTabEntry getCreativeTab() {
-        return creativeTab;
-    }
-
-    @Override
-    public ItemModelInstruction getInstruction() {
-        return currentInstruction;
-    }
-
-    public @Nullable ToolMaterial getToolMaterial() {
-        return toolMaterial;
-    }
-
-    @Override
-    public List<TagKey<?>> getAllTags() {
-        return this.tags;
-    }
-
-    @Override
-    public List<RecipeInstruction> recipeStorage() {
-        return this.recipeStorage;
     }
 
     // endregion
