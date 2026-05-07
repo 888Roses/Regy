@@ -8,6 +8,8 @@ import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.datagen.provider.lang.DatagenTranslatable;
 import dev.rosenoire.regy.pipeline.datagen.provider.model.DatagenModelTarget;
 import dev.rosenoire.regy.pipeline.datagen.provider.model.ItemModelInstruction;
+import dev.rosenoire.regy.pipeline.datagen.provider.recipe.DatagenRecipeTarget;
+import dev.rosenoire.regy.pipeline.datagen.provider.recipe.RecipeInstruction;
 import dev.rosenoire.regy.pipeline.datagen.provider.tag.DatagenTagTarget;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntry;
@@ -46,7 +48,7 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 @SuppressWarnings("UnusedReturnValue")
-public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<ItemEntry<I>, P> implements DatagenTranslatable, DatagenModelTarget.ItemTarget, DatagenTagTarget {
+public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<ItemEntry<I>, P> implements DatagenTranslatable, DatagenModelTarget.ItemTarget, DatagenTagTarget, DatagenRecipeTarget<ItemEntryBuilder<I, P>> {
     private final ItemFactory<I> factory;
     private final ResourceKey<Item> resourceKey;
     private Item.Properties properties;
@@ -56,6 +58,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     private @Nullable ToolMaterial toolMaterial;
     private NonNullSupplier<ItemAttributeModifiers.Builder> attributesBuilder = null;
     private final List<TagKey<?>> tags = new ArrayList<>();
+    private final List<RecipeInstruction> recipeStorage = new ArrayList<>();
 
     public ItemEntryBuilder(@NonNull AbstractRegy<?> owner, P parent, String identifier, ItemFactory<I> factory) {
         super(owner, parent, identifier);
@@ -224,6 +227,11 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     @Override
     public List<TagKey<?>> getAllTags() {
         return this.tags;
+    }
+
+    @Override
+    public List<RecipeInstruction> recipeStorage() {
+        return this.recipeStorage;
     }
 
     // endregion

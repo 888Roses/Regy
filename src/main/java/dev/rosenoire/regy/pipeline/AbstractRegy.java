@@ -89,6 +89,10 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
         return new ItemEntryBuilder<>(this, this, identifier, factory);
     }
 
+    public ItemEntryBuilder<Item, AbstractRegy<R>> item(String identifier) {
+        return item(identifier, Item::new);
+    }
+
     // region datagen
 
     public void setupDatagen(FabricDataGenerator.Pack datagenPack, ConflictMode conflictMode) {
