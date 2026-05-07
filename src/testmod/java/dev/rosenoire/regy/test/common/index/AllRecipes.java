@@ -1,7 +1,7 @@
 package dev.rosenoire.regy.test.common.index;
 
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
-import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
+import dev.rosenoire.regy.pipeline.registration.item.item.ItemDataState;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
@@ -10,14 +10,14 @@ import net.minecraft.world.item.Item;
 import static dev.rosenoire.regy.test.common.index.AllItems.*;
 
 public interface AllRecipes {
-    static void eldenIngotToEldenNuggets(DataGeneration dataGeneration, RecipeProvider provider, RecipeOutput output, ItemEntryBuilder.DatagenData<Item> data) {
+    static void eldenIngotToEldenNuggets(DataGeneration dataGeneration, RecipeProvider provider, RecipeOutput output, ItemDataState<Item> data) {
         provider.shapeless(RecipeCategory.MISC, data.item(), 9)
                 .requires(ELDEN_NUGGET.get())
                 .unlockedBy(RecipeProvider.getHasName(data.item()), provider.has(data.item()))
                 .save(output);
     }
 
-    static void eldenNuggetsToEldenIngot(DataGeneration dataGeneration, RecipeProvider provider, RecipeOutput output, ItemEntryBuilder.DatagenData<Item> data) {
+    static void eldenNuggetsToEldenIngot(DataGeneration dataGeneration, RecipeProvider provider, RecipeOutput output, ItemDataState<Item> data) {
         provider.shaped(RecipeCategory.MISC, data.item(), 1)
                 .pattern("###")
                 .pattern("###")

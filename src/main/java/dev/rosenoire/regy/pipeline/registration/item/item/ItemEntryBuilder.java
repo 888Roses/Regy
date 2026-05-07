@@ -24,7 +24,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -46,18 +45,16 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-@SuppressWarnings("UnusedReturnValue")
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<ItemEntry<I>, P> implements DataGenObject {
     private final ItemFactory<I> itemFactory;
     private final ResourceKey<Item> resourceKey;
+
     private Item.Properties properties;
-    private @Nullable String generatedName;
-    private @Nullable CreativeTabEntry creativeTab;
-    private @NonNull ModelInstruction<I> modelInstruction = ModelInstruction.simple();
-    private @Nullable ToolMaterial toolMaterial;
     private NonNullSupplier<ItemAttributeModifiers.Builder> attributesBuilder = null;
-    private final List<TagKey<Item>> tagStorage = new ArrayList<>();
-    private final List<Recipe<I>> recipeStorage = new ArrayList<>();
+
+    private @Nullable CreativeTabEntry creativeTab;
+    private @Nullable ToolMaterial toolMaterial;
 
     public ItemEntryBuilder(@NonNull AbstractRegy<?> owner, P parent, String identifier, ItemFactory<I> itemFactory) {
         super(owner, parent, identifier);
@@ -78,7 +75,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         var item = itemFactory.bake(this.properties);
         Registry.register(BuiltInRegistries.ITEM, resourceKey, item);
 
-        dataGenData = new DatagenData<>(item, this.resourceKey, this.path());
+        itemDataState = new ItemDataState<>(item, this.resourceKey, this.path());
         getRegy().dataGeneration().addData(this);
 
         var entry = new ItemEntry<>(item, resourceKey, toolMaterial());
@@ -102,9 +99,28 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     // endregion
 
     // region datagen
-    private DatagenData<I> dataGenData;
 
-    public String descriptionId() {
+    /// `String` representing the name to generate for this item entry. Can be null. If
+    /// null, no name should be generated for this item.
+    private @Nullable String generatedName;
+    /// [ModelInstruction] of [I] representing the model to generate for that item. Can
+    /// be null. If null, the model generation process should be skipped entirely.
+    private @Nullable ModelInstruction<I> modelInstruction = ModelInstruction.simple();
+    /// [List] of [TagKey] of [Item] representing every tag the built item entry should
+    /// be made part of when running data-gen.
+    private final List<TagKey<Item>> tagStorage = new ArrayList<>();
+    /// [List] of [Recipe] of [I] representing every recipe related to this item entry.
+    private final List<Recipe<I>> recipeStorage = new ArrayList<>();
+
+    /// @apiNote Should not be used raw! This variable is ALWAYS right up until
+    /// [#register()] is called. Then, all the data-gen related methods are called, for
+    /// which this data state system was created, and then it is discarded. For that
+    /// reason, it should NEVER be used as a source of information.
+    private ItemDataState<I> itemDataState;
+
+    /// Represents the translation key for this item entry generated using its
+    /// [#resourceKey()].
+    protected String descriptionId() {
         return RegistryUtils.toDescriptionId(this.resourceKey());
     }
 
@@ -120,7 +136,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         gen.<RecipeDataGenerator>getGeneratorOptional(DataGenerators.RECIPES).ifPresent(recipes ->
                 this.recipeStorage.forEach(instruction ->
                         recipes.registerRecipe((provider, output) ->
-                                instruction.generateRecipe(gen, provider, output, this.dataGenData))
+                                instruction.generateRecipe(gen, provider, output, this.itemDataState))
                 )
         );
     }
@@ -130,16 +146,20 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
             synchronized (this.tagStorage) {
                 this.tagStorage.forEach(tag -> tags.tag(
                         tag,
-                        builder -> builder.add(dataGenData.item()).setReplace(false)
+                        builder -> builder.add(itemDataState.item()).setReplace(false)
                 ));
             }
         });
     }
 
     private void dataGenModelProvider(DataGeneration gen) {
+        if (this.modelInstruction == null) {
+            return;
+        }
+
         gen.<ModelDataGenerator>getGeneratorOptional(DataGenerators.MODELS).ifPresent(models ->
                 models.addItemModel(() -> itemModelGenerator ->
-                        modelInstruction.generateModel(gen, itemModelGenerator, dataGenData)
+                        modelInstruction.generateModel(gen, itemModelGenerator, itemDataState)
                 )
         );
     }
@@ -150,29 +170,24 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         );
     }
 
-    public record DatagenData<I extends Item>(I item, ResourceKey<Item> resourceKey, String name) {
-    }
-
     @FunctionalInterface
     public interface ModelInstruction<I extends Item> {
-        void generateModel(DataGeneration dataGen, ItemModelGenerators generators, DatagenData<I> data);
+        void generateModel(DataGeneration dataGen, ItemModelGenerators generators, ItemDataState<I> data);
 
         static <I extends Item> ModelInstruction<I> simple() {
-            return (dataGen, generators, data) -> {
-                generators.generateFlatItem(data.item(), ModelTemplates.FLAT_ITEM);
-            };
+            return (dataGen, generators, data) ->
+                    generators.generateFlatItem(data.item(), ModelTemplates.FLAT_ITEM);
         }
 
         static <I extends Item> ModelInstruction<I> handheld(ItemModel.Unbaked gui, ItemModel.Unbaked handheld) {
-            return (dataGen, generators, data) -> {
-                generators.itemModelOutput.accept(data.item(), ItemModelGenerators.createFlatModelDispatch(gui, handheld));
-            };
+            return (dataGen, generators, data) ->
+                    generators.itemModelOutput.accept(data.item(), ItemModelGenerators.createFlatModelDispatch(gui, handheld));
         }
     }
 
     @FunctionalInterface
     public interface Recipe<I extends Item> {
-        void generateRecipe(DataGeneration dataGeneration, RecipeProvider provider, RecipeOutput output, DatagenData<I> data);
+        void generateRecipe(DataGeneration dataGeneration, RecipeProvider provider, RecipeOutput output, ItemDataState<I> data);
     }
 
     // endregion
@@ -206,17 +221,22 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return this;
     }
 
-    public ItemEntryBuilder<I, P> customModel(ModelInstruction instruction) {
+    public ItemEntryBuilder<I, P> customModel() {
+        this.modelInstruction = null;
+        return this;
+    }
+
+    public ItemEntryBuilder<I, P> model(@NonNull ModelInstruction<I> instruction) {
         this.modelInstruction = instruction;
         return this;
     }
 
     public ItemEntryBuilder<I, P> simpleModel() {
-        return customModel(ModelInstruction.simple());
+        return model(ModelInstruction.simple());
     }
 
     public ItemEntryBuilder<I, P> handheldModel(ItemModel.Unbaked gui, ItemModel.Unbaked handheld) {
-        return customModel(ModelInstruction.handheld(gui, handheld));
+        return model(ModelInstruction.handheld(gui, handheld));
     }
 
     public ItemEntryBuilder<I, P> handheldModel(String guiSuffix, String handheldSuffix) {
@@ -303,3 +323,4 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     // endregion
 }
+
