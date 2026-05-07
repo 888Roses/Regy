@@ -5,19 +5,17 @@ import dev.rosenoire.regy.api.data.RegistryUtils;
 import dev.rosenoire.regy.api.model.ModelUtils;
 import dev.rosenoire.regy.api.text.NamingConventions;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
-import dev.rosenoire.regy.pipeline.datagen.v1.ProviderType;
-import dev.rosenoire.regy.pipeline.datagen.v1.provider.lang.DatagenTranslatable;
-import dev.rosenoire.regy.pipeline.datagen.v1.provider.model.DatagenModelTarget;
-import dev.rosenoire.regy.pipeline.datagen.v1.provider.model.ItemModelInstruction;
-import dev.rosenoire.regy.pipeline.datagen.v1.provider.recipe.DatagenRecipeTarget;
 import dev.rosenoire.regy.pipeline.datagen.v1.provider.recipe.RecipeInstruction;
-import dev.rosenoire.regy.pipeline.datagen.v1.provider.tag.DatagenTagTarget;
 import dev.rosenoire.regy.pipeline.datagen.v2.DataGenObject;
+import dev.rosenoire.regy.pipeline.datagen.v2.DataGeneration;
 import dev.rosenoire.regy.pipeline.datagen.v2.impl.generator.LangDataGenerator;
+import dev.rosenoire.regy.pipeline.datagen.v2.impl.generator.ModelDataGenerator;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntry;
+import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
@@ -45,7 +43,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -56,7 +53,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     private Item.Properties properties;
     private @Nullable String generatedName;
     private @Nullable CreativeTabEntry creativeTab;
-    private @NonNull ItemModelInstruction currentInstruction = ItemModelInstruction.SIMPLE;
+    private @NonNull ModelInstruction<I> modelInstruction = ModelInstruction.simple();
     private @Nullable ToolMaterial toolMaterial;
     private NonNullSupplier<ItemAttributeModifiers.Builder> attributesBuilder = null;
     private final List<TagKey<?>> tags = new ArrayList<>();
@@ -78,15 +75,14 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
             this.properties = this.properties.attributes(this.attributesBuilder.get().build());
         }
 
-        return Optional.of(itemFactory.bake(this.properties))
-                .map(item -> Registry.register(BuiltInRegistries.ITEM, resourceKey, item))
-                .map(registered -> {
-                    getRegy().dataGeneration().addData(this);
-                    return registered;
-                })
-                .map(registered -> new ItemEntry<>(registered, resourceKey, toolMaterial()))
-                .map(getRegy()::entry)
-                .orElseThrow(this::throwRegisterNullEntryException);
+        var item = itemFactory.bake(this.properties);
+        Registry.register(BuiltInRegistries.ITEM, resourceKey, item);
+
+        datagenData = new DatagenData<I>(item);
+        getRegy().dataGeneration().addData(this);
+
+        var entry = new ItemEntry<>(item, resourceKey, toolMaterial());
+        return getRegy().entry(entry);
     }
 
     // region accessors
@@ -106,6 +102,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     // endregion
 
     // region datagen
+    private DatagenData<I> datagenData;
 
     public String descriptionId() {
         return RegistryUtils.toDescriptionId(this.resourceKey());
@@ -118,6 +115,34 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
                         generator.add(descriptionId(), this.generatedName)
                 )
         );
+
+        collector.addProvider(dataGen ->
+                dataGen.<ModelDataGenerator>getGeneratorOptional("model").ifPresent(generator ->
+                        generator.addItemModel(() -> itemModelGenerator ->
+                                modelInstruction.generateModel(dataGen, itemModelGenerator, datagenData)
+                        )
+                )
+        );
+    }
+
+    public record DatagenData<I extends Item>(I item) {
+    }
+
+    @FunctionalInterface
+    public interface ModelInstruction<I extends Item> {
+        void generateModel(DataGeneration dataGen, ItemModelGenerators generators, DatagenData<I> data);
+
+        static <I extends Item> ModelInstruction<I> simple() {
+            return (dataGen, generators, data) -> {
+                generators.generateFlatItem(data.item(), ModelTemplates.FLAT_ITEM);
+            };
+        }
+
+        static <I extends Item> ModelInstruction<I> handheld(ItemModel.Unbaked gui, ItemModel.Unbaked handheld) {
+            return (dataGen, generators, data) -> {
+                generators.itemModelOutput.accept(data.item(), ItemModelGenerators.createFlatModelDispatch(gui, handheld));
+            };
+        }
     }
 
     // endregion
@@ -151,17 +176,17 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return this;
     }
 
-    public ItemEntryBuilder<I, P> customModel(ItemModelInstruction instruction) {
-        this.currentInstruction = instruction;
+    public ItemEntryBuilder<I, P> customModel(ModelInstruction instruction) {
+        this.modelInstruction = instruction;
         return this;
     }
 
     public ItemEntryBuilder<I, P> simpleModel() {
-        return customModel(ItemModelInstruction.SIMPLE);
+        return customModel(ModelInstruction.simple());
     }
 
     public ItemEntryBuilder<I, P> handheldModel(ItemModel.Unbaked gui, ItemModel.Unbaked handheld) {
-        return customModel(ItemModelInstruction.HANDHELD_MODEL.apply(gui, handheld));
+        return customModel(ModelInstruction.handheld(gui, handheld));
     }
 
     public ItemEntryBuilder<I, P> handheldModel(String guiSuffix, String handheldSuffix) {

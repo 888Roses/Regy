@@ -13,7 +13,8 @@ import java.util.*;
 public class DataGeneration implements RegyOwnable {
     private final AbstractRegy<?> regy;
     private final Map<String, DataGenerator> generatorStorage = new HashMap<>();
-    private final List<FabricDataGenerator.Pack.RegistryDependentFactory<? extends @NonNull DataGenerator>> generatorFunctionStorage = new ArrayList<>();
+    private final List<FabricDataGenerator.Pack.Factory<? extends @NonNull DataGenerator>> generatorFunctionStorage = new ArrayList<>();
+    private final List<FabricDataGenerator.Pack.RegistryDependentFactory<? extends @NonNull DataGenerator>> registryDependentGeneratorFunctionStorage = new ArrayList<>();
     private final List<DataGenProvider> providerStorage = new ArrayList<>();
 
     /// Represents whether the game is currently generating data-gen or not.
@@ -47,6 +48,20 @@ public class DataGeneration implements RegyOwnable {
             throw new IllegalStateException("Tried adding a data generating while the game was already generating data! This is not allowed!\nFor more information on how to fix this issue, please check the wiki section about data generation and what are the best practices.");
         }
 
+        this.registryDependentGeneratorFunctionStorage.add(factory);
+        return this;
+    }
+
+    // TODO: Documentation!
+    public <T extends DataGenerator & DataProvider> DataGeneration addGenerator(FabricDataGenerator.Pack.Factory<@NonNull T> factory) {
+        if (this.isGeneratingData) {
+            // If we're currently generating data-gen, we don't want to add any more
+            // generator to the pack since it might invalidate the already generated
+            // data. Throw an error;
+            // TODO: Add a setting to configure the severity of the exception SOMEWHERE.
+            throw new IllegalStateException("Tried adding a data generating while the game was already generating data! This is not allowed!\nFor more information on how to fix this issue, please check the wiki section about data generation and what are the best practices.");
+        }
+
         this.generatorFunctionStorage.add(factory);
         return this;
     }
@@ -54,7 +69,15 @@ public class DataGeneration implements RegyOwnable {
     /// Called just after the [AbstractRegy] instance sets up datagen.
     /// Adds every added generator to the pack and clears the
     /// [#generatorFunctionStorage].
+    @SuppressWarnings("LoggingSimilarMessage")
     protected void destockFunctionStorage() {
+        for (var function : this.registryDependentGeneratorFunctionStorage) {
+            var generator = this.pack().addProvider(function);
+            var name = generator.getName();
+            this.generatorStorage.put(name, generator);
+            RegyCommon.log.info("Successfully destocked generator '{}' of type '{}'!", name, generator.getClass().getSimpleName());
+        }
+
         for (var function : this.generatorFunctionStorage) {
             var generator = this.pack().addProvider(function);
             var name = generator.getName();
