@@ -1,6 +1,6 @@
 {
 	"parent": "minecraft:item/generated",
 	"textures": {
-		"layer0": "eldritch_testimony:item/eldern_verdict"
+		"layer0": "regy_test_mod:item/eldern_prosecutor"
 	}
 }

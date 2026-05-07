@@ -1,4 +1,4 @@
-package dev.rosenoire.regy.pipeline.datagen.filter;
+package dev.rosenoire.regy.pipeline.datagen.provider.lang;
 
 public interface DatagenTranslatable {
     Translation getDatagenTranslation();

@@ -1,8 +1,8 @@
 package dev.rosenoire.regy.pipeline.datagen;
 
-import dev.rosenoire.regy.pipeline.datagen.provider.AbstractDatagenProvider;
+import dev.rosenoire.regy.pipeline.datagen.provider.RegyDatagenProvider;
 
 @FunctionalInterface
 public interface ProviderFactory {
-    AbstractDatagenProvider bake(ProviderContext ctx);
+    RegyDatagenProvider bake(ProviderContext ctx);
 }

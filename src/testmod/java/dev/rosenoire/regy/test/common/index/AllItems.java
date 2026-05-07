@@ -1,9 +1,8 @@
 package dev.rosenoire.regy.test.common.index;
 
 import dev.rosenoire.regy.pipeline.AbstractRegy;
-import dev.rosenoire.regy.pipeline.registration.ItemEntry;
-import dev.rosenoire.regy.pipeline.registration.ItemEntryBuilder;
-import dev.rosenoire.regy.test.common.TestModCommon;
+import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
+import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 
@@ -14,6 +13,12 @@ public interface AllItems {
             .item("eldritch_blessing", Item::new)
             .properties(properties -> properties.rarity(Rarity.UNCOMMON))
             .transform(AllItems::singleStackSize)
+            .register();
+
+    ItemEntry<Item> ELDERN_PROSECUTOR = REGY
+            .item("eldern_prosecutor", Item::new)
+            .transform(AllItems::singleStackSize)
+            .handheldModel()
             .register();
 
     static void register() {

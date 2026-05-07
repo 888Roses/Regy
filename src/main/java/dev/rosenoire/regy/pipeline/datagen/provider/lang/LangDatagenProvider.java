@@ -1,11 +1,11 @@
-package dev.rosenoire.regy.pipeline.datagen.provider;
+package dev.rosenoire.regy.pipeline.datagen.provider.lang;
 
 import com.google.gson.JsonObject;
+import dev.rosenoire.regy.api.data.NonNullType;
 import dev.rosenoire.regy.common.RegyCommon;
-import dev.rosenoire.regy.pipeline.Regy;
 import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
 import dev.rosenoire.regy.pipeline.datagen.ProviderType;
-import dev.rosenoire.regy.pipeline.datagen.filter.DatagenTranslatable;
+import dev.rosenoire.regy.pipeline.datagen.provider.DefaultDatagenProvider;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -16,12 +16,13 @@ import java.nio.file.Path;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
-public class LangDatagenProvider extends AbstractDatagenProvider {
+public class LangDatagenProvider implements DefaultDatagenProvider {
+    private final ProviderContext ctx;
     // TODO: Implement additional language support.
     private final String languageCode = "en_us";
 
     public LangDatagenProvider(ProviderContext providerContext) {
-        super(providerContext);
+        this.ctx = providerContext;
     }
 
     @Override
@@ -29,14 +30,16 @@ public class LangDatagenProvider extends AbstractDatagenProvider {
         var translationEntries = new TreeMap<String, String>();
 
         return this.ctx.registryLookup().thenCompose(lookup -> {
-            ctx.owner().datagenTargets.stream()
+            ctx.getOwner()
+                    .datagenTargets
+                    .keySet()
+                    .stream()
                     .filter(target -> target instanceof DatagenTranslatable)
                     .map(target -> (DatagenTranslatable) target)
                     .map(DatagenTranslatable::getDatagenTranslation)
                     .forEach(trans -> translationEntries.put(trans.key(), trans.value()));
 
             var json = new JsonObject();
-
             for (var entry : translationEntries.entrySet()) {
                 RegyCommon.log.info("Generating entry - \"{}\" : \"{}\"", entry.getKey(), entry.getValue());
                 json.addProperty(entry.getKey(), entry.getValue());
@@ -53,7 +56,7 @@ public class LangDatagenProvider extends AbstractDatagenProvider {
     }
 
     @Override
-    public @NonNull String getName() {
-        return ProviderType.LANG.getSerializedName();
+    public @NonNullType ProviderType getType() {
+        return ProviderType.LANG;
     }
 }

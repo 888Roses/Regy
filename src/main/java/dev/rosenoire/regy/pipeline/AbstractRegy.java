@@ -1,13 +1,14 @@
 package dev.rosenoire.regy.pipeline;
 
-import dev.rosenoire.regy.pipeline.datagen.filter.DatagenTarget;
+import dev.rosenoire.regy.pipeline.datagen.ConflictMode;
+import dev.rosenoire.regy.pipeline.datagen.DatagenTarget;
 import dev.rosenoire.regy.pipeline.datagen.ProviderContext;
 import dev.rosenoire.regy.pipeline.datagen.ProviderType;
-import dev.rosenoire.regy.pipeline.datagen.provider.AbstractDatagenProvider;
+import dev.rosenoire.regy.pipeline.datagen.provider.RegyDatagenProvider;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntry;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
-import dev.rosenoire.regy.pipeline.registration.ItemEntryBuilder;
+import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabMapper;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -16,17 +17,21 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractRegy<R extends AbstractRegy<R>> {
-    /// Namespace of the mod this Regy owner represents.
+    /// Namespace of the mod this Regy getOwner represents.
     protected final String modNamespace;
     protected FabricDataGenerator.Pack datagenPack;
 
-    public final List<DatagenTarget> datagenTargets = new ArrayList<>();
-    protected final List<AbstractDatagenProvider> datagenProviders = new ArrayList<>();
+    public final Map<DatagenTarget, Object> datagenTargets = new HashMap<>();
+    protected final List<RegyDatagenProvider> datagenProviders = new ArrayList<>();
     public final List<AbstractEntry<?, ?>> entries = new ArrayList<>();
     public final CreativeTabMapper creativeTabMapper = new CreativeTabMapper(this);
+
+    protected ConflictMode conflictMode = ConflictMode.THROW; // TODO
 
     protected AbstractRegy(String modNamespace) {
         this.modNamespace = modNamespace;
@@ -36,7 +41,7 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
         ItemGroupEvents.MODIFY_ENTRIES_ALL.register(this.creativeTabMapper::modifyEntriesAll);
     }
 
-    /// Represents the namespace of the mod this Regy owner represents.
+    /// Represents the namespace of the mod this Regy getOwner represents.
     public String modNamespace() {
         return this.modNamespace;
     }
@@ -50,12 +55,16 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
      *  TODO: Expected Features:
      *  **Server Side:**
      *      - <I extends Item> ItemEntryBuilder<I> item(String name, ItemFactory<I> factory)
+     *        - <E, T extends ComponentType<E>> ItemEntryBuilder<I> component(E value)
+     *        - ItemEntryBuilder<I> attackDamage(float attackDamage)
+     *        - ItemEntryBuilder<I> attackSpeed(float attackSpeed)
+     *
      *      - <B extends Block> BlockEntryBuilder<B> block(String name, BlockFactory<B> factory)
      *      - <F extends Fluid> FluidEntryBuilder<F> fluid(String name, FluidFactory<F> factory)
      *      - <E extends Entity> EntityEntryBuilder<E> entity(String name, EntityFactory<E> factory)
      *      - SoundEntryBuilder sound(String name)
      *      - CommandEntryBuilder command(String name, String root)
-     *      - HudElementEntryBuilder<H> <H extends HudElement> hudElement(String path, H owner)
+     *      - HudElementEntryBuilder<H> <H extends HudElement> hudElement(String path, H getOwner)
      *      - ParticleEntryBuilder<O> <O extends ParticleOptions> particle(String name, O options)
      *      - AttributeEntryBuilder attribute(String name)
      *      - CreativeTabEntryBuilder creativeTab(String name)
@@ -65,8 +74,10 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
      */
 
     public <A, B, E extends AbstractEntry<A, B>> E process(AbstractEntryBuilder<?, ?> builder, E entry) {
-        this.datagenTargets.add(builder);
+        this.datagenTargets.put(builder, entry);
         this.entries.add(entry);
+
+        // TODO: Implement postprocessors
         return entry;
     }
 
@@ -80,7 +91,7 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
 
     // region datagen
 
-    public void setupDatagen(FabricDataGenerator.Pack datagenPack) {
+    public void setupDatagen(FabricDataGenerator.Pack datagenPack, ConflictMode conflictMode) {
         this.datagenPack = datagenPack;
 
         for (var value : ProviderType.values()) {
@@ -89,6 +100,20 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
                 return value.getProviderFactory().bake(ctx);
             });
         }
+
+        this.setConflictMode(conflictMode);
+    }
+
+    public void setupDatagen(FabricDataGenerator.Pack datagenPack) {
+        this.setupDatagen(datagenPack, ConflictMode.THROW);
+    }
+
+    public void setConflictMode(ConflictMode conflictMode) {
+        this.conflictMode = conflictMode;
+    }
+
+    public ConflictMode getConflictMode() {
+        return conflictMode;
     }
 
     // endregion

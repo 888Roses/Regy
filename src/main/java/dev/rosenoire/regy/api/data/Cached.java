@@ -18,7 +18,7 @@ public class Cached<V> implements Supplier<V> {
     /// the next [#get()] call.
     protected volatile @Nullable V cached;
 
-    /// Creates a new owner of a [Cached] value.
+    /// Creates a new getOwner of a [Cached] value.
     /// @param provider [NonNullSupplier] providing the cached value every time
     /// [#get()] is called and [#cached] is null.
     /// @param precompute whether to call [#get()] in the constructor or not.
@@ -31,7 +31,7 @@ public class Cached<V> implements Supplier<V> {
         }
     }
 
-    /// Creates a new owner of a [Cached] value.
+    /// Creates a new getOwner of a [Cached] value.
     /// @param provider [NonNullSupplier] providing the cached value every time
     /// [#get()] is called and the cached value is `null`.
     /// @param precompute whether to call [#get()] in the constructor or not.
@@ -39,7 +39,7 @@ public class Cached<V> implements Supplier<V> {
         return new Cached<>(provider, precompute);
     }
 
-    /// Creates a new owner of a [Cached] value.
+    /// Creates a new getOwner of a [Cached] value.
     /// @param provider [NonNullSupplier] providing the cached value every time
     /// [#get()] is called and the cached value is `null`.
     /// @implNote this is a shortcut of:

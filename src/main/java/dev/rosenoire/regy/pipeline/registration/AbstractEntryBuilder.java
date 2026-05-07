@@ -1,11 +1,9 @@
 package dev.rosenoire.regy.pipeline.registration;
 
 import dev.rosenoire.regy.pipeline.AbstractRegy;
-import dev.rosenoire.regy.pipeline.datagen.filter.DatagenTarget;
+import dev.rosenoire.regy.pipeline.datagen.DatagenTarget;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
-
-import java.util.function.Function;
 
 /// Represents an abstract builder of an [AbstractEntry] representing a value registered in a Minecraft registry.
 /// @param <T> Type of the value represented by this entry builder.
@@ -21,7 +19,7 @@ public abstract class AbstractEntryBuilder<T extends AbstractEntry<?, ?>, P> imp
         this.identifier = identifier;
     }
 
-    /// [AbstractRegy] owner that created this entry builder.
+    /// [AbstractRegy] getOwner that created this entry builder.
     protected final @NonNull AbstractRegy<?> getOwner() {
         return this.owner;
     }
@@ -36,7 +34,7 @@ public abstract class AbstractEntryBuilder<T extends AbstractEntry<?, ?>, P> imp
         return identifier;
     }
 
-    /// Returns an [Identifier] representing this [AbstractEntryBuilder] using its owner
+    /// Returns an [Identifier] representing this [AbstractEntryBuilder] using its getOwner
     /// [AbstractRegy]'s [AbstractRegy#id(String)] and the [#path()].
     public final Identifier identifier() {
         return getOwner().id(path());

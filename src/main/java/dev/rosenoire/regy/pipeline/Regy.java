@@ -8,7 +8,7 @@ public final class Regy extends AbstractRegy<Regy> {
         super(modNamespace);
     }
 
-    /// Creates a new owner of the default Regy class using the given `namespace`
+    /// Creates a new getOwner of the default Regy class using the given `namespace`
     /// as the mod namespace for registration, etc.
     public static Regy create(String modNamespace) {
         return new Regy(modNamespace);

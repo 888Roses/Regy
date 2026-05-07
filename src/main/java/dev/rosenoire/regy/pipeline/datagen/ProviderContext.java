@@ -6,5 +6,5 @@ import net.minecraft.core.HolderLookup;
 
 import java.util.concurrent.CompletableFuture;
 
-public record ProviderContext(AbstractRegy<?> owner, FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+public record ProviderContext(AbstractRegy<?> getOwner, FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
 }
