@@ -57,6 +57,21 @@ public class Cached<V> implements Supplier<V> {
         this.cached = null;
     }
 
+    /// Returns the cached value of this [Cached], or null if it doesn't have one.
+    /// @implNote While [#get()] generates the cached value if it's `null` should **not** act on the actual cached value.
+    /// @apiNote The returned value is synchronized across threads.
+    public @Nullable V peek() {
+        var value = this.cached;
+        if (value != null) return value;
+
+        synchronized (this) {
+            value = this.cached;
+            if (value != null) return value;
+        }
+
+        return value;
+    }
+
     /// If this [Cached] has a cached value, returns it. Otherwise, computes it from the
     /// [NonNullSupplier] provider given during its construction and assigns the result
     /// to the cached value for future calls.

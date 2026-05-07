@@ -53,12 +53,11 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
 
     /*
      *  TODO: Expected Features:
-     *  **Server Side:**
+     *  **Common Side:**
      *      - <I extends Item> ItemEntryBuilder<I> item(String name, ItemFactory<I> factory)
-     *        - <E, T extends ComponentType<E>> ItemEntryBuilder<I> component(E value)
-     *        - ItemEntryBuilder<I> attackDamage(float attackDamage)
-     *        - ItemEntryBuilder<I> attackSpeed(float attackSpeed)
-     *
+     *          - <E, T extends ComponentType<E>> ItemEntryBuilder<I> component(E value)
+     *          - ItemEntryBuilder<I> attackDamage(float attackDamage)
+     *          - ItemEntryBuilder<I> attackSpeed(float attackSpeed)
      *      - <B extends Block> BlockEntryBuilder<B> block(String name, BlockFactory<B> factory)
      *      - <F extends Fluid> FluidEntryBuilder<F> fluid(String name, FluidFactory<F> factory)
      *      - <E extends Entity> EntityEntryBuilder<E> entity(String name, EntityFactory<E> factory)
@@ -67,7 +66,8 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
      *      - HudElementEntryBuilder<H> <H extends HudElement> hudElement(String path, H getOwner)
      *      - ParticleEntryBuilder<O> <O extends ParticleOptions> particle(String name, O options)
      *      - AttributeEntryBuilder attribute(String name)
-     *      - CreativeTabEntryBuilder creativeTab(String name)
+     *      [X] - CreativeTabEntryBuilder creativeTab(String name)
+     *      - ToolMaterialEntryBuilder material(String name)
      *
      *  **Client Side:**
      *      - <O extends ParticleOptions> ClientParticleEntryBuilder<O> particle(ParticleEntry<O> entry)

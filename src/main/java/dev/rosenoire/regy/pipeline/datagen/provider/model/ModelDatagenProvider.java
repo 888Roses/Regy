@@ -35,8 +35,8 @@ public class ModelDatagenProvider extends FabricModelProvider implements Default
 
     private void generateEitherModels(Either<ItemModelGenerators, BlockModelGenerators> generators) {
         for (var entry : ctx.getOwner().datagenTargets.entrySet()) {
-            if (entry.getKey() instanceof DatagenModelTarget.ItemTarget modelTarget && entry.getValue() instanceof AbstractEntry<?, ?> itemEntry) {
-                generators.ifLeft(left -> modelTarget.internal$generate(ctx, itemEntry, left, null));
+            if (entry.getKey() instanceof DatagenModelTarget.ItemTarget modelTarget && entry.getValue() instanceof AbstractEntry<?, ?> abstractEntry) {
+                generators.ifLeft(left -> modelTarget.internal$generate(ctx, abstractEntry, left, null));
             }
         }
     }
