@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "regy_test_mod:item/eldritch_blessing"
+  }
+}
