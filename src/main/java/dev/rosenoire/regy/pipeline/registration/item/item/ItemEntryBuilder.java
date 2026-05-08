@@ -221,6 +221,11 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return name(NamingConventions.HUMAN_TEXT.transform(path()));
     }
 
+    public ItemEntryBuilder<I, P> customName() {
+        this.generatedName = null;
+        return this;
+    }
+
     public ItemEntryBuilder<I, P> properties(@NotNull Item.Properties properties) {
         this.properties = properties;
         return this;
