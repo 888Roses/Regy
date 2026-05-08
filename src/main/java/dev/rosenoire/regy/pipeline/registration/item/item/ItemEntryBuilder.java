@@ -1,5 +1,6 @@
 package dev.rosenoire.regy.pipeline.registration.item.item;
 
+import dev.rosenoire.regy.api.data.NonNullType;
 import dev.rosenoire.regy.api.data.RegistryUtils;
 import dev.rosenoire.regy.api.model.ModelUtils;
 import dev.rosenoire.regy.api.text.NamingConventions;
@@ -11,6 +12,8 @@ import dev.rosenoire.regy.pipeline.datagen.impl.generator.*;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntry;
+import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabGroup;
+import dev.rosenoire.regy.pipeline.registration.item.group.VanillaCreativeTab;
 import dev.rosenoire.regy.pipeline.registration.item.material.MaterialEntry;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
@@ -31,32 +34,32 @@ import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.level.block.Block;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<ItemEntry<I>, P> implements DataGenObject {
-    private final ItemFactory<I> itemFactory;
-    private final ResourceKey<Item> resourceKey;
+    protected final ItemFactory<I> itemFactory;
+    protected final ResourceKey<Item> resourceKey;
 
-    private Item.Properties properties;
-    private ItemAttributeModifiers.Builder attributesBuilder = null;
+    protected Item.Properties properties;
+    protected ItemAttributeModifiers.Builder attributesBuilder = null;
 
-    private @Nullable CreativeTabEntry creativeTab;
-    private @Nullable ToolMaterial toolMaterial;
+    protected final CreativeTabGroup.Builder creativeTabBuilder = new CreativeTabGroup.Builder();
+    protected @Nullable ToolMaterial toolMaterial;
 
     public ItemEntryBuilder(@NonNull AbstractRegy<?> owner, P parent, String identifier, ItemFactory<I> itemFactory) {
         super(owner, parent, identifier);
@@ -86,7 +89,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         RegyCommon.log.info("  Adding data-gen data...");
         getRegy().dataGeneration().addData(this);
 
-        var entry = new ItemEntry<>(item, resourceKey, material());
+        var entry = new ItemEntry<>(item, resourceKey, material(), creativeTabBuilder.build());
         RegyCommon.log.info("  Adding entry...");
         entry = getRegy().entry(entry);
         RegyCommon.log.info("Finished registration for entry builder: '{}'...", identifier());
@@ -99,8 +102,8 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return this.resourceKey;
     }
 
-    public @Nullable CreativeTabEntry creativeTab() {
-        return creativeTab;
+    public CreativeTabGroup.Builder creativeTabs() {
+        return creativeTabBuilder;
     }
 
     public @Nullable ToolMaterial material() {
@@ -113,24 +116,21 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     /// `String` representing the name to generate for this item entry. Can be null. If
     /// null, no name should be generated for this item.
-    private @Nullable String generatedName;
+    protected @Nullable String generatedName;
     /// [ModelInstruction] of [I] representing the model to generate for that item. Can
     /// be null. If null, the model generation process should be skipped entirely.
-    private @Nullable ModelInstruction<I> modelInstruction = ModelInstruction.simple();
+    protected @Nullable ModelInstruction<I> modelInstruction = ModelInstruction.simple();
     /// [List] of [TagKey] of [Item] representing every tag the built item entry should
     /// be made part of when running data-gen.
-    private final List<TagKey<Item>> tagStorage = new ArrayList<>();
+    protected final List<TagKey<Item>> tagStorage = new ArrayList<>();
     /// [List] of [Recipe] of [I] representing every recipe related to this item entry.
-    private final List<Recipe<I>> recipeStorage = new ArrayList<>();
+    protected final List<Recipe<I>> recipeStorage = new ArrayList<>();
 
     /// @apiNote Should not be used raw! This variable is ALWAYS right up until
-    ///                                                 [#register()] is called. Then, all the data-gen related methods are
-    ///         called,
-    ///                 for
-    ///                                                 which this data state system was created, and then it is discarded.
-    ///         For that
-    ///                                                 reason, it should NEVER be used as a source of information.
-    private ItemDataState<I> itemDataState;
+    /// [#register()] is called. Then, all the data-gen related methods are called, for
+    /// which this data state system was created, and then it is discarded. For that
+    /// reason, it should NEVER be used as a source of information.
+    protected ItemDataState<I> itemDataState;
 
     /// Represents the translation key for this item entry generated using its
     /// [#resourceKey()].
@@ -146,7 +146,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         collector.addProvider(this::dataGenRecipeProvider);
     }
 
-    private void dataGenRecipeProvider(DataGeneration gen) {
+    protected void dataGenRecipeProvider(DataGeneration gen) {
         gen.<RecipeDataGenerator>getGeneratorOptional(DataGenerators.RECIPES).ifPresent(recipes ->
                 this.recipeStorage.forEach(instruction ->
                         recipes.registerRecipe((provider, output) ->
@@ -155,7 +155,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         );
     }
 
-    private void dataGenItemTagProvider(DataGeneration gen) {
+    protected void dataGenItemTagProvider(DataGeneration gen) {
         gen.<ItemTagDataGenerator>getGeneratorOptional(DataGenerators.ITEM_TAGS).ifPresent(tags -> {
             synchronized (this.tagStorage) {
                 this.tagStorage.forEach(tag -> tags.tag(
@@ -166,7 +166,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         });
     }
 
-    private void dataGenModelProvider(DataGeneration gen) {
+    protected void dataGenModelProvider(DataGeneration gen) {
         if (this.modelInstruction == null) {
             return;
         }
@@ -178,7 +178,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         );
     }
 
-    private void dataGenLangProvider(DataGeneration gen) {
+    protected void dataGenLangProvider(DataGeneration gen) {
         gen.<LangDataGenerator>getGeneratorOptional(DataGenerators.LANG).ifPresent(lang ->
                 lang.add(descriptionId(), this.generatedName)
         );
@@ -186,22 +186,22 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     @FunctionalInterface
     public interface ModelInstruction<I extends Item> {
-        void generateModel(DataGeneration dataGen, ItemModelGenerators generators, ItemDataState<I> data);
+        void generateModel(DataGeneration dataGen, ItemModelGenerators generators, ItemDataState<I> state);
 
         static <I extends Item> ModelInstruction<I> simple() {
-            return (dataGen, generators, data) ->
-                    generators.generateFlatItem(data.item(), ModelTemplates.FLAT_ITEM);
+            return (dataGen, generators, state) ->
+                    generators.generateFlatItem(state.item(), ModelTemplates.FLAT_ITEM);
         }
 
         static <I extends Item> ModelInstruction<I> handheld(ItemModel.Unbaked gui, ItemModel.Unbaked handheld) {
-            return (dataGen, generators, data) ->
-                    generators.itemModelOutput.accept(data.item(), ItemModelGenerators.createFlatModelDispatch(gui, handheld));
+            return (dataGen, generators, state) ->
+                    generators.itemModelOutput.accept(state.item(), ItemModelGenerators.createFlatModelDispatch(gui, handheld));
         }
     }
 
     @FunctionalInterface
     public interface Recipe<I extends Item> {
-        void generateRecipe(DataGeneration dataGeneration, RecipeProvider provider, RecipeOutput output, ItemDataState<I> data);
+        void generateRecipe(DataGeneration dataGeneration, RecipeProvider provider, RecipeOutput output, ItemDataState<I> state);
     }
 
     // endregion
@@ -212,7 +212,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return mapper.apply(this);
     }
 
-    public ItemEntryBuilder<I, P> name(@NotNull String name) {
+    public ItemEntryBuilder<I, P> name(@NonNull String name) {
         this.generatedName = name;
         return this;
     }
@@ -226,27 +226,44 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return this;
     }
 
-    public ItemEntryBuilder<I, P> properties(@NotNull Item.Properties properties) {
+    public ItemEntryBuilder<I, P> properties(Item.@NonNull Properties properties) {
         this.properties = properties;
         return this;
     }
 
-    public ItemEntryBuilder<I, P> properties(UnaryOperator<Item.Properties> mod) {
-        return properties(mod.apply(this.properties));
+    public ItemEntryBuilder<I, P> properties(@NonNull UnaryOperator<Item.@NonNull Properties> map) {
+        return properties(map.apply(this.properties));
     }
 
-    public ItemEntryBuilder<I, P> tab(@NonNull CreativeTabEntry creativeTab) {
-        this.creativeTab = creativeTab;
+    public ItemEntryBuilder<I, P> tab(@Nullable CreativeModeTab creativeTab) {
+        this.creativeTabBuilder.addTab(creativeTab);
         return this;
     }
 
-    public ItemEntryBuilder<I, P> customModel() {
-        this.modelInstruction = null;
+    public ItemEntryBuilder<I, P> tab(@Nullable VanillaCreativeTab vanillaTab) {
+        this.creativeTabBuilder.addTab(vanillaTab);
+        return this;
+    }
+
+    public ItemEntryBuilder<I, P> tab(@Nullable CreativeTabEntry entry) {
+        return Optional.ofNullable(entry)
+                .map(CreativeTabEntry::get)
+                .map(this::tab)
+                .orElse(this);
+    }
+
+    public ItemEntryBuilder<I, P> hideFromMainTab() {
+        this.creativeTabBuilder.showInMainTab(false);
         return this;
     }
 
     public ItemEntryBuilder<I, P> model(@NonNull ModelInstruction<I> instruction) {
         this.modelInstruction = instruction;
+        return this;
+    }
+
+    public ItemEntryBuilder<I, P> customModel() {
+        this.modelInstruction = null;
         return this;
     }
 
@@ -269,7 +286,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return handheldModel("", "handheld");
     }
 
-    public ItemEntryBuilder<I, P> attribute(ItemAttributeModifiers.Entry entry) {
+    public ItemEntryBuilder<I, P> attribute(ItemAttributeModifiers.@NonNull Entry entry) {
         if (this.attributesBuilder == null) {
             this.attributesBuilder = ItemAttributeModifiers.builder();
         }
@@ -278,28 +295,32 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return this;
     }
 
-    public ItemEntryBuilder<I, P> attribute(Holder<Attribute> holder, AttributeModifier attributeModifier, EquipmentSlotGroup equipmentSlotGroup) {
+    public ItemEntryBuilder<I, P> attribute(@NonNull Holder<@NonNull Attribute> holder, @NonNull AttributeModifier attributeModifier, @NonNull EquipmentSlotGroup equipmentSlotGroup) {
         return this.attribute(new ItemAttributeModifiers.Entry(holder, attributeModifier, equipmentSlotGroup));
     }
 
-    public ItemEntryBuilder<I, P> attribute(Holder<Attribute> holder, AttributeModifier attributeModifier, EquipmentSlotGroup equipmentSlotGroup, ItemAttributeModifiers.Display display) {
+    public ItemEntryBuilder<I, P> attribute(@NonNull Holder<@NonNull Attribute> holder, @NonNull AttributeModifier attributeModifier, @NonNull EquipmentSlotGroup equipmentSlotGroup, ItemAttributeModifiers.@NonNull Display display) {
         return this.attribute(new ItemAttributeModifiers.Entry(holder, attributeModifier, equipmentSlotGroup, display));
     }
 
-    public ItemEntryBuilder<I, P> material(MaterialEntry materialEntry) {
-        return this.material(materialEntry.get());
+    public ItemEntryBuilder<I, P> material(@NonNull MaterialEntry entry) {
+        return this.material(entry.get());
     }
 
-    public ItemEntryBuilder<I, P> material(ToolMaterial material) {
+    public ItemEntryBuilder<I, P> material(@NonNull ToolMaterial material) {
+        return this.material(material, false);
+    }
+
+    public ItemEntryBuilder<I, P> material(@NonNull ToolMaterial material, boolean discrete) {
         this.toolMaterial = material;
+        return this.properties(properties -> discrete ? properties : properties
+                                                                     .durability(material.durability())
+                                                                     .repairable(material.repairItems())
+                                                                     .enchantable(material.enchantmentValue()));
+    }
 
-        if (material != null) {
-            return this.properties(properties -> properties
-                    .durability(material.durability())
-                    .repairable(material.repairItems())
-                    .enchantable(material.enchantmentValue()));
-        }
-
+    public ItemEntryBuilder<I, P> noMaterial() {
+        this.toolMaterial = null;
         return this;
     }
 
@@ -315,32 +336,16 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return this.attribute(Attributes.ATTACK_SPEED, attributeModifier, EquipmentSlotGroup.MAINHAND);
     }
 
-    public <T> ItemEntryBuilder<I, P> component(DataComponentType<T> dataComponentType, T object) {
+    public <@NonNullType T> ItemEntryBuilder<I, P> component(@NonNull DataComponentType<T> dataComponentType, @NonNull T object) {
         return properties(properties -> properties.component(dataComponentType, object));
     }
 
-    public <T> ItemEntryBuilder<I, P> removeComponent(DataComponentType<T> dataComponentType) {
+    public <@NonNullType T> ItemEntryBuilder<I, P> removeComponent(@NonNull DataComponentType<T> dataComponentType) {
         return properties(properties -> properties.component(dataComponentType, null));
-    }
-
-    public ToolSettingsBuilder<I, P> tool() {
-        return new ToolSettingsBuilder<>(this);
     }
 
     public SpearSettingsBuilder<I, P> spear() {
         return new SpearSettingsBuilder<>(this);
-    }
-
-    public ItemEntryBuilder<I, P> tool(Function<HolderGetter<Block>, Tool> func) {
-        return map(builder -> {
-            HolderGetter<Block> blockRegistry = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
-            return builder.component(DataComponents.TOOL, func.apply(blockRegistry));
-        });
-    }
-
-    @FunctionalInterface
-    public interface ToolRuleCollector {
-        void collect(HolderGetter<Block> lookup, Consumer<Tool.Rule> collector);
     }
 
     public ItemEntryBuilder<I, P> tool(float defaultMiningSpeed, int damagePerBlock, boolean canDestroyBlocksInCreativeMode, ToolRuleCollector collector) {
@@ -350,6 +355,10 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
             collector.collect(blockRegistry, toolRules::add);
             return builder.component(DataComponents.TOOL, new Tool(toolRules, defaultMiningSpeed, damagePerBlock, canDestroyBlocksInCreativeMode));
         });
+    }
+
+    public ToolSettingsBuilder<I, P> tool() {
+        return new ToolSettingsBuilder<>(this);
     }
 
     public ItemEntryBuilder<I, P> weaponComponent(int itemDamagePerAttack, float disableBlockForSeconds) {
@@ -364,7 +373,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return weaponComponent(1);
     }
 
-    public ItemEntryBuilder<I, P> tag(TagKey<Item> key) {
+    public ItemEntryBuilder<I, P> tag(@NonNull TagKey<Item> key) {
         tagStorage.add(key);
         return this;
     }

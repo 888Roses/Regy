@@ -89,7 +89,7 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
     // region setup
 
     public void initializeEvents() {
-        ItemGroupEvents.MODIFY_ENTRIES_ALL.register(this.creativeTabMapper::modifyEntriesAll);
+        this.creativeTabMapper.initializeEvents();
     }
 
     // endregion

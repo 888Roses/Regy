@@ -4,15 +4,13 @@ import dev.rosenoire.regy.api.data.DataUtils;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class CreativeTabMapper {
     public final AbstractRegy<?> owner;
@@ -21,6 +19,15 @@ public class CreativeTabMapper {
 
     public CreativeTabMapper(AbstractRegy<?> owner) {
         this.owner = owner;
+    }
+
+    public void initializeEvents() {
+        ItemGroupEvents.MODIFY_ENTRIES_ALL.register(this::modifyEntriesAll);
+
+        for (VanillaCreativeTab vanillaTab : VanillaCreativeTab.values()) {
+            ItemGroupEvents.modifyEntriesEvent(vanillaTab.resourceKey())
+                    .register(entries -> this.modifyVanillaTab(vanillaTab, entries));
+        }
     }
 
     public void setMainTab(@NonNull CreativeModeTab tab) {
@@ -32,31 +39,39 @@ public class CreativeTabMapper {
     }
 
     public void modifyEntriesAll(CreativeModeTab creativeModeTab, FabricItemGroupEntries fabricItemGroupEntries) {
-        var addedItems = new HashSet<Item>();
-
         map.computeIfPresent(creativeModeTab, (tab, entries) -> {
             entries.forEach(entry -> {
-                var item = entry.get().asItem();
-                fabricItemGroupEntries.accept(item);
-                addedItems.add(item);
+                fabricItemGroupEntries.accept(entry.get());
             });
 
             return entries;
         });
 
-        if (mainTab == null) {
-            return;
-        }
+        synchronized (this.owner) {
+            this.owner.entries().stream()
+                    .map(entry -> entry instanceof ItemEntry<? extends Item> itemEntry ? itemEntry : null)
+                    .filter(Objects::nonNull)
+                    .filter(itemEntry -> {
+                        if (!itemEntry.tabGroup.showInMainTab()) return false;
+                        if (mainTab != null && mainTab.equals(creativeModeTab)) {
+                            fabricItemGroupEntries.accept(itemEntry.get());
+                        }
 
-        if (creativeModeTab.equals(mainTab)) {
-            synchronized (this.owner) {
-                this.owner.entries().stream()
-                        .filter(entry -> entry instanceof ItemEntry<? extends Item>)
-                        .map(entry -> (ItemEntry<? extends Item>) entry)
-                        .map(ItemEntry::get)
-                        .filter(item -> !addedItems.contains(item))
-                        .forEach(fabricItemGroupEntries::accept);
-            }
+                        return !itemEntry.tabGroup.vanillaTabs().isEmpty() || !itemEntry.tabGroup.tabs().isEmpty();
+                    })
+                    .filter(itemEntry -> itemEntry.tabGroup.tabs().contains(creativeModeTab))
+                    .forEach(itemEntry -> fabricItemGroupEntries.accept(itemEntry.get()));
+        }
+    }
+
+    private void modifyVanillaTab(VanillaCreativeTab vanillaTab, FabricItemGroupEntries entries) {
+        synchronized (this.owner) {
+            this.owner.entries().stream()
+                    .map(entry -> entry instanceof ItemEntry<? extends Item> itemEntry ? itemEntry : null)
+                    .filter(Objects::nonNull)
+                    .filter(itemEntry -> !itemEntry.tabGroup.vanillaTabs().isEmpty() || !itemEntry.tabGroup.tabs().isEmpty())
+                    .filter(itemEntry -> itemEntry.tabGroup.vanillaTabs().contains(vanillaTab))
+                    .forEach(itemEntry -> entries.accept(itemEntry.get()));
         }
     }
 }
