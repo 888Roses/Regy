@@ -4,6 +4,7 @@
   "package": "dev.rosenoire.regy.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "CreativeModeTabMixinSquared",
     "ItemPropertiesMixin"
   ],
   "client": [

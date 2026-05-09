@@ -1,33 +1,54 @@
 package dev.rosenoire.regy.pipeline.registration.item.group;
 
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 
-public record CreativeTabGroup(HashSet<CreativeModeTab> tabs, HashSet<VanillaCreativeTab> vanillaTabs, boolean showInMainTab) {
+// TODO: Documentation!
+public record CreativeTabGroup(HashSet<CreativeModeTab> tabs, HashSet<ResourceKey<CreativeModeTab>> tabResourceKeys, boolean showInMainTab) {
+    // TODO: Documentation!
     public static class Builder {
         private final HashSet<CreativeModeTab> tabs = new HashSet<>();
-        private final HashSet<VanillaCreativeTab> vanillaTabs = new HashSet<>();
+        private final HashSet<ResourceKey<CreativeModeTab>> tabResourceKeys = new HashSet<>();
         private boolean showInMainTab = true;
 
-        public void showInMainTab(boolean inMainTab) {
-            this.showInMainTab = inMainTab;
+        // TODO: Documentation!
+        public void showInMainTab(boolean display) {
+            this.showInMainTab = display;
         }
 
-        public void addTab(CreativeModeTab tab) {
-            if (tab != null) {
-                tabs.add(tab);
+        // TODO: Documentation!
+        public void addTab(@Nullable CreativeModeTab tab) {
+            if (tab == null) {
+                return;
             }
+
+            tabs.add(tab);
         }
 
-        public void addTab(VanillaCreativeTab tab) {
-            if (tab != null) {
-                vanillaTabs.add(tab);
+        // TODO: Documentation!
+        public void addTab(@Nullable VanillaCreativeTab tab) {
+            if (tab == null) {
+                return;
             }
+
+            addTab(tab.resourceKey());
         }
 
+        // TODO: Documentation!
+        public void addTab(@Nullable ResourceKey<CreativeModeTab> resourceKey) {
+            if (resourceKey == null) {
+                return;
+            }
+
+            tabResourceKeys.add(resourceKey);
+        }
+
+        // TODO: Documentation!
         public CreativeTabGroup build() {
-            return new CreativeTabGroup(this.tabs, this.vanillaTabs, this.showInMainTab);
+            return new CreativeTabGroup(this.tabs, this.tabResourceKeys, this.showInMainTab);
         }
     }
 }
