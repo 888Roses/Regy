@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 public abstract class AbstractRegy<R extends AbstractRegy<R>> {
     // region internal
 
