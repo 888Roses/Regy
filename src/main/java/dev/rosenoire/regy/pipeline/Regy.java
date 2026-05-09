@@ -18,6 +18,7 @@ public final class Regy extends AbstractRegy<Regy> {
                 .addGenerator(BlockEntityTagDataGenerator::new)
                 .addGenerator(FluidTagDataGenerator::new)
                 .addGenerator(EntityTypeTagDataGenerator::new)
+                .addGenerator(SoundDataGenerator::new)
         );
     }
 

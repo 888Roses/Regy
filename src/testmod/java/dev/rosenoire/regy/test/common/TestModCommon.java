@@ -4,6 +4,7 @@ import dev.rosenoire.regy.pipeline.Regy;
 import dev.rosenoire.regy.test.common.index.AllCreativeTabs;
 import dev.rosenoire.regy.test.common.index.AllItems;
 import dev.rosenoire.regy.test.common.index.AllMaterials;
+import dev.rosenoire.regy.test.common.index.AllSounds;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,5 +24,6 @@ public class TestModCommon implements ModInitializer {
         AllItems.register();
         AllMaterials.register();
         AllCreativeTabs.register();
+        AllSounds.register();
     }
 }

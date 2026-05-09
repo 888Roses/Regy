@@ -87,6 +87,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
         itemDataState = new ItemDataState<>(item, this.resourceKey, this.path());
         RegyCommon.log.info("  Adding data-gen data...");
+        // TODO: Automatize!
         getRegy().dataGeneration().addData(this);
 
         var entry = new ItemEntry<>(item, resourceKey, material(), creativeTabBuilder.build());
@@ -208,6 +209,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     // region modifiers
 
+    // TODO: Rename to transform
     public <B> B map(Function<ItemEntryBuilder<I, P>, B> mapper) {
         return mapper.apply(this);
     }

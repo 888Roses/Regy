@@ -9,4 +9,5 @@ public interface DataGenerators {
     String BLOCK_TAGS = "block_tags";
     String BLOCK_ENTITY_TAGS = "block_entity_tags";
     String RECIPES = "recipes";
+    String SOUNDS = "sounds";
 }

@@ -11,6 +11,8 @@ import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntryBuild
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabMapper;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemMaps;
 import dev.rosenoire.regy.pipeline.registration.item.material.ToolMaterialEntryBuilder;
+import dev.rosenoire.regy.pipeline.registration.sound.SoundEntry;
+import dev.rosenoire.regy.pipeline.registration.sound.SoundEntryBuilder;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.component.DataComponentType;
@@ -129,7 +131,7 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
      *      - <B extends Block> BlockEntryBuilder<B> block(String name, BlockFactory<B> factory)
      *      - <F extends Fluid> FluidEntryBuilder<F> fluid(String name, FluidFactory<F> factory)
      *      - <E extends Entity> EntityEntryBuilder<E> entity(String name, EntityFactory<E> factory)
-     *      - SoundEntryBuilder sound(String name)
+     *      - [x] SoundEntryBuilder sound(String name)
      *      - CommandEntryBuilder command(String name, String root)
      *      - HudElementEntryBuilder<H> <H extends HudElement> hudElement(String path, H getOwner)
      *      - ParticleEntryBuilder<O> <O extends ParticleOptions> particle(String name, O options)
@@ -139,16 +141,18 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
      *      - DamageType
      *      - Packets?
      *      - Trims
-     * 
+     *
      *
      *  **Client Side:**
      *      - <O extends ParticleOptions> ClientParticleEntryBuilder<O> particle(ParticleEntry<O> entry)
      */
 
+    // TODO: Replace `this` as the parent for `self()`.
     public CreativeTabEntryBuilder<AbstractRegy<R>> tab(String identifier) {
         return new CreativeTabEntryBuilder<>(this, this, identifier);
     }
 
+    // TODO: Replace `this` as the parent for `self()`.
     public <I extends Item> ItemEntryBuilder<I, AbstractRegy<R>> item(String identifier, ItemFactory<I> factory) {
         return new ItemEntryBuilder<>(this, this, identifier, factory);
     }
@@ -165,8 +169,13 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
         return item(identifier, factory);
     }
 
+    // TODO: Replace `this` as the parent for `self()`.
     public ToolMaterialEntryBuilder<AbstractRegy<R>> material(String identifier) {
         return new ToolMaterialEntryBuilder<>(this, this, identifier);
+    }
+
+    public SoundEntryBuilder<R> sound(String identifier) {
+        return new SoundEntryBuilder<>(self(), self(), identifier);
     }
 
     // endregion

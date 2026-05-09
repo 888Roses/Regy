@@ -14,7 +14,13 @@ public enum NamingConventions implements StringRepresentable {
     HUMAN_TEXT("human_text", input ->
             Arrays.stream(input.toLowerCase(Locale.ROOT).split("_"))
                     .map(StringUtils::capitalize)
-                    .collect(Collectors.joining(" "))),
+                    .collect(Collectors.joining(" "))
+    ),
+    SENTENCE("sentence", input -> String
+            .join(" ", input.toLowerCase(Locale.ROOT).split("_"))
+            .transform(StringUtils::capitalize)
+    ),
+
     ;
 
     private final String name;
