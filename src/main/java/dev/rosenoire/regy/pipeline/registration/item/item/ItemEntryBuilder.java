@@ -240,11 +240,6 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         return this;
     }
 
-    public ItemEntryBuilder<I, P> tab(@Nullable VanillaCreativeTab vanillaTab) {
-        this.creativeTabBuilder.addTab(vanillaTab);
-        return this;
-    }
-
     public ItemEntryBuilder<I, P> tab(@Nullable CreativeTabEntry entry) {
         return Optional.ofNullable(entry)
                 .map(CreativeTabEntry::get)
@@ -252,8 +247,23 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
                 .orElse(this);
     }
 
+    public ItemEntryBuilder<I, P> tab(@Nullable VanillaCreativeTab vanillaTab) {
+        this.creativeTabBuilder.addTab(vanillaTab);
+        return this;
+    }
+
+    public ItemEntryBuilder<I, P> tab(@Nullable ResourceKey<CreativeModeTab> resourceKey) {
+        this.creativeTabBuilder.addTab(resourceKey);
+        return this;
+    }
+
     public ItemEntryBuilder<I, P> hideFromMainTab() {
         this.creativeTabBuilder.showInMainTab(false);
+        return this;
+    }
+
+    public ItemEntryBuilder<I, P> showInMainTab() {
+        this.creativeTabBuilder.showInMainTab(true);
         return this;
     }
 
