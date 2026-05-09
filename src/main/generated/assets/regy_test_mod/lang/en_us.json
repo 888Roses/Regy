@@ -1,4 +1,7 @@
 {
+  "item.minecraft.lingering_potion.effect.sigma": "Lingering Potion of Sigma",
+  "item.minecraft.potion.effect.sigma": "Potion of Sigma",
+  "item.minecraft.splash_potion.effect.sigma": "Splash Potion of Sigma",
   "item.regy_test_mod.elden_ingot": "Elden Ingot",
   "item.regy_test_mod.elden_nugget": "Elden Nugget",
   "item.regy_test_mod.eldern_prosecutor": "Eldern Prosecutor",

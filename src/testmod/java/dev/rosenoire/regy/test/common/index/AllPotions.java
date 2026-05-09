@@ -8,7 +8,7 @@ import static dev.rosenoire.regy.test.common.TestModCommon.REGY;
 public interface AllPotions {
     PotionEntry SIGMA = REGY
             .potion("sigma", "sigma")
-            .effect(MobEffects.ABSORPTION).durationSeconds(3f).amplifier(1).visible().build()
+            .effect(MobEffects.STRENGTH).durationSeconds(3f).amplifier(1).visible().build()
             .register();
 
     static void register() {
