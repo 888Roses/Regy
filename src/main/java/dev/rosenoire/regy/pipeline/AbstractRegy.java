@@ -10,6 +10,7 @@ import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabMapper;
 import dev.rosenoire.regy.pipeline.registration.item.material.ToolMaterialEntryBuilder;
+import dev.rosenoire.regy.pipeline.registration.item.potion.PotionEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.sound.SoundEntryBuilder;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.resources.Identifier;
@@ -114,32 +115,6 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
 
     // region registry
 
-    /*
-     *  TODO: Expected Features:
-     *  **Common Side:**
-     *      [~] - <I extends Item> ItemEntryBuilder<I> item(String name, ItemFactory<I> factory)
-     *          [X] - <E, T extends ComponentType<E>> ItemEntryBuilder<I> component(E value)
-     *          [X] - ItemEntryBuilder<I> attackDamage(float attackDamage)
-     *          [X] - ItemEntryBuilder<I> attackSpeed(float attackSpeed)
-     *      - <B extends Block> BlockEntryBuilder<B> block(String name, BlockFactory<B> factory)
-     *      - <F extends Fluid> FluidEntryBuilder<F> fluid(String name, FluidFactory<F> factory)
-     *      - <E extends Entity> EntityEntryBuilder<E> entity(String name, EntityFactory<E> factory)
-     *      - [x] SoundEntryBuilder sound(String name)
-     *      - CommandEntryBuilder command(String name, String root)
-     *      - HudElementEntryBuilder<H> <H extends HudElement> hudElement(String path, H getOwner)
-     *      - ParticleEntryBuilder<O> <O extends ParticleOptions> particle(String name, O options)
-     *      - AttributeEntryBuilder attribute(String name)
-     *      [X] - CreativeTabEntryBuilder creativeTab(String name)
-     *      - ToolMaterialEntryBuilder material(String name)
-     *      - DamageType
-     *      - Packets?
-     *      - Trims
-     *
-     *
-     *  **Client Side:**
-     *      - <O extends ParticleOptions> ClientParticleEntryBuilder<O> particle(ParticleEntry<O> entry)
-     */
-
     public CreativeTabEntryBuilder<R> tab(String identifier) {
         return new CreativeTabEntryBuilder<>(self(), self(), identifier);
     }
@@ -166,6 +141,10 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
 
     public SoundEntryBuilder<R> sound(String identifier) {
         return new SoundEntryBuilder<>(self(), self(), identifier);
+    }
+
+    public PotionEntryBuilder<R> potion(String identifier, String name) {
+        return new PotionEntryBuilder<>(self(), self(), identifier, name);
     }
 
     // endregion

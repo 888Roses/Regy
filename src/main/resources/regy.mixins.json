@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "CreativeModeTabMixinSquared",
-    "ItemPropertiesMixin"
+    "ItemPropertiesMixin",
+    "MobEffectInstanceMixin",
+    "PotionMixin"
   ],
   "client": [
   ],

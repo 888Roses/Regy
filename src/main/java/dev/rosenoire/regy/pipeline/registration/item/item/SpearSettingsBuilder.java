@@ -1,6 +1,6 @@
 package dev.rosenoire.regy.pipeline.registration.item.item;
 
-import dev.rosenoire.regy.api.RegyM;
+import dev.rosenoire.regy.api.MathUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvent;
@@ -40,7 +40,7 @@ public class SpearSettingsBuilder<I extends Item, P> {
                 .component(DataComponents.PIERCING_WEAPON, createPiercingWeapon())
                 .component(DataComponents.ATTACK_RANGE, createAttackRange())
                 .component(DataComponents.MINIMUM_ATTACK_CHARGE, advancedProperties.minimumAttackCharge)
-                .component(DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, RegyM.secToTicks(properties.swingAnimationSeconds)));
+                .component(DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, MathUtils.secs2ticks(properties.swingAnimationSeconds)));
 
         var material = value.material();
         if (material != null) {
@@ -64,10 +64,10 @@ public class SpearSettingsBuilder<I extends Item, P> {
     private @NonNull KineticWeapon createKineticWeapon() {
         return new KineticWeapon(
                 advancedProperties.contactCooldownTicks,
-                RegyM.secToTicks(properties.chargeDelaySeconds),
-                KineticWeapon.Condition.ofAttackerSpeed(RegyM.secToTicks(properties.maxDurationForDismountSeconds), properties.minSpeedForDismount),
-                KineticWeapon.Condition.ofAttackerSpeed(RegyM.secToTicks(properties.maxDurationForChargeKnockbackInSeconds), properties.minSpeedForChargeKnockback),
-                KineticWeapon.Condition.ofRelativeSpeed(RegyM.secToTicks(properties.maxDurationForChargeDamageInSeconds), properties.minRelativeSpeedForChargeDamage),
+                MathUtils.secs2ticks(properties.chargeDelaySeconds),
+                KineticWeapon.Condition.ofAttackerSpeed(MathUtils.secs2ticks(properties.maxDurationForDismountSeconds), properties.minSpeedForDismount),
+                KineticWeapon.Condition.ofAttackerSpeed(MathUtils.secs2ticks(properties.maxDurationForChargeKnockbackInSeconds), properties.minSpeedForChargeKnockback),
+                KineticWeapon.Condition.ofRelativeSpeed(MathUtils.secs2ticks(properties.maxDurationForChargeDamageInSeconds), properties.minRelativeSpeedForChargeDamage),
                 advancedProperties.forwardMovement,
                 properties.chargeDamageMultiplier,
                 Optional.of(properties.useSound),
