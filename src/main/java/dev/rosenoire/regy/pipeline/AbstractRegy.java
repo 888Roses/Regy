@@ -82,8 +82,8 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
     }
 
     // TODO: Documentation!
-    public <B extends RegyOwnable> B map(Function<AbstractRegy<R>, B> mapper) {
-        return mapper.apply(this);
+    public <B extends RegyOwnable> B map(Function<R, B> mapper) {
+        return mapper.apply(self());
     }
 
     // endregion
@@ -147,31 +147,28 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
      *      - <O extends ParticleOptions> ClientParticleEntryBuilder<O> particle(ParticleEntry<O> entry)
      */
 
-    // TODO: Replace `this` as the parent for `self()`.
-    public CreativeTabEntryBuilder<AbstractRegy<R>> tab(String identifier) {
-        return new CreativeTabEntryBuilder<>(this, this, identifier);
+    public CreativeTabEntryBuilder<R> tab(String identifier) {
+        return new CreativeTabEntryBuilder<>(self(), self(), identifier);
     }
 
-    // TODO: Replace `this` as the parent for `self()`.
-    public <I extends Item> ItemEntryBuilder<I, AbstractRegy<R>> item(String identifier, ItemFactory<I> factory) {
-        return new ItemEntryBuilder<>(this, this, identifier, factory);
+    public <I extends Item> ItemEntryBuilder<I, R> item(String identifier, ItemFactory<I> factory) {
+        return new ItemEntryBuilder<>(self(), self(), identifier, factory);
     }
 
-    public <I extends Item> ItemEntryBuilder<I, AbstractRegy<R>> item(String identifier, SimpleItemFactory<I> factory) {
+    public <I extends Item> ItemEntryBuilder<I, R> item(String identifier, SimpleItemFactory<I> factory) {
         return item(identifier, (ItemFactory<I>) factory);
     }
 
-    public ItemEntryBuilder<Item, AbstractRegy<R>> item(String identifier) {
+    public ItemEntryBuilder<Item, R> item(String identifier) {
         return item(identifier, Item::new);
     }
 
-    public <I extends AxeItem> ItemEntryBuilder<I, AbstractRegy<R>> axe(String identifier, AxeItemFactory<I> factory) {
+    public <I extends AxeItem> ItemEntryBuilder<I, R> axe(String identifier, AxeItemFactory<I> factory) {
         return item(identifier, factory);
     }
 
-    // TODO: Replace `this` as the parent for `self()`.
-    public ToolMaterialEntryBuilder<AbstractRegy<R>> material(String identifier) {
-        return new ToolMaterialEntryBuilder<>(this, this, identifier);
+    public ToolMaterialEntryBuilder<R> material(String identifier) {
+        return new ToolMaterialEntryBuilder<>(self(), self(), identifier);
     }
 
     public SoundEntryBuilder<R> sound(String identifier) {
