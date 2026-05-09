@@ -4,6 +4,7 @@ import dev.rosenoire.regy.pipeline.registration.item.group.VanillaCreativeTab;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemMaps;
 import dev.rosenoire.regy.pipeline.registration.item.item.SpearProfiles;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -15,8 +16,7 @@ import static dev.rosenoire.regy.test.common.TestModCommon.REGY;
 public interface AllItems {
     ItemEntry<Item> SWORD_OF_DESPAIR = REGY
             .item("sword_of_despair")
-            .attackDamage(7)
-            .tab(VanillaCreativeTab.COMBAT)
+
             .register();
 
     ItemEntry<Item> FAKE_SPEAR = REGY

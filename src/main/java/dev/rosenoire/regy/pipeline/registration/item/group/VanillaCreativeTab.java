@@ -6,6 +6,7 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -35,7 +36,7 @@ public enum VanillaCreativeTab implements StringRepresentable {
     ;
 
     public static final Codec<VanillaCreativeTab> CODEC = StringRepresentable.fromEnum(VanillaCreativeTab::values);
-    public static final Function<String, VanillaCreativeTab> LOOKUP = StringRepresentable.createNameLookup(values());
+    public static final Function<String, @Nullable VanillaCreativeTab> LOOKUP = StringRepresentable.createNameLookup(values());
 
     private final @NonNull ResourceKey<CreativeModeTab> resourceKey;
     private final @NonNull String name;
@@ -50,8 +51,7 @@ public enum VanillaCreativeTab implements StringRepresentable {
         return resourceKey;
     }
 
-    @Override
-    public @NonNull String getSerializedName() {
+    public @Override @NonNull String getSerializedName() {
         return this.name;
     }
 }
