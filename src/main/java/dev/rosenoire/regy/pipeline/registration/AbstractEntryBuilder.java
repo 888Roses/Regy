@@ -3,7 +3,10 @@ package dev.rosenoire.regy.pipeline.registration;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.RegyOwnable;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import org.jspecify.annotations.NonNull;
+
+import java.util.Optional;
 
 /// Represents an abstract builder of an [AbstractRegistryEntry] representing a value registered in a Minecraft registry.
 /// @param <T> Type of the value represented by this entry builder.
@@ -42,6 +45,25 @@ public abstract class AbstractEntryBuilder<T extends Entry<?>, P> implements Reg
     /// Registers this builder in the Minecraft registries and returns an [AbstractRegistryEntry]
     /// representing the registered value.
     public abstract @NonNull T register();
+
+    protected abstract Identifier regyIdentifier();
+
+    protected Identifier getRegyIdentifierFromRegistry(ResourceKey<?> resourceKey) {
+        return this.identifier().withPrefix(resourceKey.registry().getPath() + "/");
+    }
+
+    /// Cannot be called before registration!
+    public Optional<T> entry() {
+        return getRegy().entryByIdentifier(this.regyIdentifier()).map(entry -> {
+            try {
+                //noinspection unchecked
+                return (T) entry;
+            }
+            catch (Exception ignoredException) {
+                return null;
+            }
+        });
+    }
 
     /// Registers this builder in the Minecraft registries and returns the parent of this
     /// builder.

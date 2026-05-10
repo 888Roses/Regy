@@ -15,7 +15,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class ModelDataGenerator extends FabricModelProvider implements DataGenerator {
-    private final List<Consumer<ItemModelGenerators>> itemInstructionStorage = new ArrayList<>();
+    private final List<Consumer<@NonNull ItemModelGenerators>> itemInstructionStorage = new ArrayList<>();
+    private final List<Consumer<@NonNull BlockModelGenerators>> blockInstructionStorage = new ArrayList<>();
 
     public ModelDataGenerator(FabricDataOutput output) {
         super(output);
@@ -23,6 +24,9 @@ public class ModelDataGenerator extends FabricModelProvider implements DataGener
 
     @Override
     public void generateBlockStateModels(@NonNull BlockModelGenerators blockStateModelGenerator) {
+        for (var instruction : this.blockInstructionStorage) {
+            instruction.accept(blockStateModelGenerator);
+        }
     }
 
     @Override
@@ -33,8 +37,14 @@ public class ModelDataGenerator extends FabricModelProvider implements DataGener
     }
 
     // TODO: Documentation!
-    public ModelDataGenerator addItemModel(NonNullSupplier<Consumer<ItemModelGenerators>> consumer) {
+    public ModelDataGenerator addItemModel(NonNullSupplier<Consumer<@NonNull ItemModelGenerators>> consumer) {
         this.itemInstructionStorage.add(consumer.get());
+        return this;
+    }
+
+    // TODO: Documentation!
+    public ModelDataGenerator addBlockModel(NonNullSupplier<Consumer<@NonNull BlockModelGenerators>> consumer) {
+        this.blockInstructionStorage.add(consumer.get());
         return this;
     }
 

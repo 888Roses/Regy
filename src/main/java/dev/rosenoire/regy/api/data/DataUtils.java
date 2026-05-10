@@ -17,4 +17,21 @@ public interface DataUtils {
 
         map.get(key).add(value);
     }
+
+    static <A> int containedCount(List<A> a, List<A> b) {
+        var i = 0;
+        for (var v : a) for (var v2 : b) if (v.equals(v2)) i++;
+        return i;
+    }
+
+    static <A> int containedCountInStrictOrder(List<A> a, List<A> b) {
+        var i = 0;
+
+        for (var v : a) for (var v2 : b) {
+            if (v.equals(v2)) i++;
+            else break;
+        }
+
+        return i;
+    }
 }

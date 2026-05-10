@@ -6,6 +6,8 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 public interface ItemPropertiesExtension {
     boolean regy$isLocked();
 
+    String regy$getEffectiveDescriptionId();
+
     void regy$setLocked(boolean isLocked);
 
     default Item.Properties forceSetAttributes(ItemAttributeModifiers itemAttributeModifiers) {

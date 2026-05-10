@@ -1,5 +1,6 @@
 package dev.rosenoire.regy.pipeline.registration;
 
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import org.jspecify.annotations.NonNull;
 
@@ -7,7 +8,7 @@ public abstract class AbstractRegistryEntry<T, K> extends AbstractSimpleEntry<T>
     protected final ResourceKey<K> resourceKey;
 
     public AbstractRegistryEntry(@NonNull T value, ResourceKey<K> resourceKey) {
-        super(value);
+        super(value, resourceKey.identifier().withPrefix(resourceKey.registry().getPath() + "/"));
         this.resourceKey = resourceKey;
     }
 

@@ -2,6 +2,7 @@ package dev.rosenoire.regy.pipeline.registration.item.material;
 
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -37,7 +38,12 @@ public class ToolMaterialEntryBuilder<P> extends AbstractEntryBuilder<MaterialEn
         }
 
         var material = new ToolMaterial(incorrectBlocksForDrops, durability, speed, attackDamageBonus, enchantmentValue, repairItems);
-        return getRegy().entry(new MaterialEntry(material));
+        return getRegy().entry(new MaterialEntry(material, this.identifier()));
+    }
+
+    @Override
+    protected Identifier regyIdentifier() {
+        return identifier().withPrefix("tool_material/");
     }
 
     // region modifiers

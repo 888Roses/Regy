@@ -11,6 +11,7 @@ import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.*;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
+import dev.rosenoire.regy.pipeline.registration.block.BlockEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntry;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabGroup;
 import dev.rosenoire.regy.pipeline.registration.item.group.VanillaCreativeTab;
@@ -28,6 +29,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -65,7 +67,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         super(owner, parent, identifier);
         this.itemFactory = itemFactory;
         this.resourceKey = ResourceKey.create(Registries.ITEM, identifier());
-        this.properties = new Item.Properties().setId(resourceKey);
+        this.properties = new Item.Properties();
 
         this.simpleName();
         this.simpleModel();
@@ -82,6 +84,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
             }
         }
 
+        this.properties = this.properties.setId(resourceKey);
         var item = itemFactory.bake(this, this.properties);
         Registry.register(BuiltInRegistries.ITEM, resourceKey, item);
 
@@ -90,11 +93,22 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         // TODO: Automatize!
         getRegy().dataGeneration().addData(this);
 
-        var entry = new ItemEntry<>(item, resourceKey, material(), creativeTabBuilder.build());
+        var entry = new ItemEntry<>(item, resourceKey, material(), creativeTabBuilder.build(), this.tagStorage);
         RegyCommon.log.info("  Adding entry...");
         entry = getRegy().entry(entry);
         RegyCommon.log.info("Finished registration for entry builder: '{}'...", identifier());
         return entry;
+    }
+
+    @Override
+    protected Identifier regyIdentifier() {
+        return getRegyIdentifierFromRegistry(this.resourceKey);
+    }
+
+    @Override
+    public P build() {
+        if (this.getParent() instanceof BlockEntryBuilder<?, ?>) return getParent();
+        return super.build();
     }
 
     // region accessors
@@ -136,7 +150,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     /// Represents the translation key for this item entry generated using its
     /// [#resourceKey()].
     protected String descriptionId() {
-        return RegistryUtils.toDescriptionId(this.resourceKey());
+        return ((ItemPropertiesExtension) properties).regy$getEffectiveDescriptionId();
     }
 
     @Override

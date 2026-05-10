@@ -62,6 +62,11 @@ public class CreativeTabEntryBuilder<P> extends AbstractEntryBuilder<CreativeTab
                 .orElseThrow(this::throwRegisterNullEntryException);
     }
 
+    @Override
+    protected Identifier regyIdentifier() {
+        return getRegyIdentifierFromRegistry(this.resourceKey);
+    }
+
     // region modifiers
 
     public CreativeTabEntryBuilder<P> mainTab() {

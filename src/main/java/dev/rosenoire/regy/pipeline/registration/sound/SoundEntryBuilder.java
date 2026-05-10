@@ -48,7 +48,12 @@ public class SoundEntryBuilder<P> extends AbstractEntryBuilder<SoundEntry, P> im
 
         // TODO: Automatize!
         getRegy().dataGeneration().addData(this);
-        return new SoundEntry(soundEvent);
+        return new SoundEntry(soundEvent, this.identifier());
+    }
+
+    @Override
+    protected Identifier regyIdentifier() {
+        return identifier().withPrefix("sound_event/");
     }
 
     // region modifiers

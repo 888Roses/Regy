@@ -11,6 +11,7 @@ import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.flag.FeatureFlag;
@@ -47,7 +48,12 @@ public class PotionEntryBuilder<P> extends AbstractEntryBuilder<PotionEntry, P> 
         Registry.register(BuiltInRegistries.POTION, identifier(), potion);
         getRegy().dataGeneration().addData(this);
 
-        return new PotionEntry(potion);
+        return new PotionEntry(potion, this.identifier());
+    }
+
+    @Override
+    protected Identifier regyIdentifier() {
+        return identifier().withPrefix("potion/");
     }
 
     // region modifiers

@@ -6,16 +6,24 @@ import dev.rosenoire.regy.pipeline.registration.item.item.ItemPropertiesExtensio
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(Item.Properties.class)
-public class ItemPropertiesMixin implements ItemPropertiesExtension {
+public abstract class ItemPropertiesMixin implements ItemPropertiesExtension {
+    @Shadow protected abstract String effectiveDescriptionId();
+
     @Unique
     private boolean regy$isLocked;
 
     @Override
     public boolean regy$isLocked() {
         return regy$isLocked;
+    }
+
+    @Override
+    public String regy$getEffectiveDescriptionId() {
+        return effectiveDescriptionId();
     }
 
     @Override

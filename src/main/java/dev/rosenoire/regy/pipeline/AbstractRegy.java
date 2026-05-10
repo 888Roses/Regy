@@ -3,9 +3,11 @@ package dev.rosenoire.regy.pipeline;
 import dev.rosenoire.regy.api.event.WrappingValueEvent;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.factory.AxeItemFactory;
+import dev.rosenoire.regy.pipeline.factory.BlockFactory;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.factory.SimpleItemFactory;
 import dev.rosenoire.regy.pipeline.registration.Entry;
+import dev.rosenoire.regy.pipeline.registration.block.BlockEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabMapper;
@@ -16,33 +18,29 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-public abstract class AbstractRegy<R extends AbstractRegy<R>> {
+public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstance<R> {
     // region internal
-
-    /// Namespace of the mod this Regy getOwner represents.
-    protected final String modNamespace;
-
-    private final List<Entry<?>> entries = new ArrayList<>();
+    private final HashMap<Identifier, Entry<?>> entries = new HashMap<>();
     public final CreativeTabMapper creativeTabMapper = new CreativeTabMapper(this);
 
     protected final WrappingValueEvent<R> onSetupDatagen = WrappingValueEvent.create();
     protected final WrappingValueEvent<Entry<?>> onEntryAdded = WrappingValueEvent.create();
 
     protected AbstractRegy(String modNamespace) {
-        this.modNamespace = modNamespace;
+        super(modNamespace);
     }
 
     public <A, E extends Entry<A>> E entry(@NonNull E entry) {
         this.onEntryAdded.before().accept(entry);
-        this.entries.add(entry);
+        this.entries.put(entry.regyIdentifier(), entry);
         this.onEntryAdded.after().accept(entry);
         return entry;
     }
@@ -92,11 +90,6 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
 
     // region access
 
-    @SuppressWarnings("unchecked")
-    public R self() {
-        return (R) this;
-    }
-
     /// Represents the namespace of the mod this Regy getOwner represents.
     public String modNamespace() {
         return this.modNamespace;
@@ -107,8 +100,12 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
         return Identifier.fromNamespaceAndPath(modNamespace(), path);
     }
 
-    public List<Entry<?>> entries() {
-        return this.entries;
+    public Collection<Entry<?>> entries() {
+        return this.entries.values();
+    }
+
+    public Optional<Entry<?>> entryByIdentifier(Identifier identifier) {
+        return Optional.ofNullable(this.entries.getOrDefault(identifier, null));
     }
 
     // endregion
@@ -119,8 +116,12 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
         return new CreativeTabEntryBuilder<>(self(), self(), identifier);
     }
 
+    public <I extends Item, P> ItemEntryBuilder<I, P> item(String identifier, P parent, ItemFactory<I> factory) {
+        return new ItemEntryBuilder<>(self(), parent, identifier, factory);
+    }
+
     public <I extends Item> ItemEntryBuilder<I, R> item(String identifier, ItemFactory<I> factory) {
-        return new ItemEntryBuilder<>(self(), self(), identifier, factory);
+        return item(identifier, self(), factory);
     }
 
     public <I extends Item> ItemEntryBuilder<I, R> item(String identifier, SimpleItemFactory<I> factory) {
@@ -145,6 +146,14 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> {
 
     public PotionEntryBuilder<R> potion(String identifier, String name) {
         return new PotionEntryBuilder<>(self(), self(), identifier, name);
+    }
+
+    public <B extends Block> BlockEntryBuilder<B, R> block(String identifier, BlockFactory<B> factory) {
+        return new BlockEntryBuilder<>(self(), self(), identifier, factory);
+    }
+
+    public BlockEntryBuilder<Block, R> block(String identifier) {
+        return block(identifier, Block::new);
     }
 
     // endregion

@@ -1,7 +1,13 @@
 {
+  "block.regy_test_mod.elden_bars": "Elden Bars",
+  "block.regy_test_mod.elden_block": "Elden Block",
+  "block.regy_test_mod.elden_chains": "Elden Chains",
+  "block.regy_test_mod.elden_pillar": "Elden Pillar",
+  "block.regy_test_mod.elden_tiles": "Elden Tiles",
   "item.minecraft.lingering_potion.effect.sigma": "Lingering Potion of Sigma",
   "item.minecraft.potion.effect.sigma": "Potion of Sigma",
   "item.minecraft.splash_potion.effect.sigma": "Splash Potion of Sigma",
+  "item.minecraft.tipped_arrow.effect.sigma": "Arrow of Sigma",
   "item.regy_test_mod.elden_ingot": "Elden Ingot",
   "item.regy_test_mod.elden_nugget": "Elden Nugget",
   "item.regy_test_mod.eldern_prosecutor": "Eldern Prosecutor",
