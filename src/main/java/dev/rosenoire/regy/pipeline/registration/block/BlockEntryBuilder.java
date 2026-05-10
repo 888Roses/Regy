@@ -6,15 +6,12 @@ import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.BlockTagDataGenerator;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.DataGenerators;
-import dev.rosenoire.regy.pipeline.datagen.impl.generator.LangDataGenerator;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.ModelDataGenerator;
 import dev.rosenoire.regy.pipeline.factory.BlockFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import net.minecraft.client.data.models.BlockModelGenerators;
-import net.minecraft.client.data.models.MultiVariant;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.TexturedModel;
+import net.minecraft.client.data.models.model.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -23,16 +20,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -47,7 +40,7 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
     protected BlockBehaviour.@NonNull Properties properties;
     protected @Nullable ItemEntryBuilder<?, BlockEntryBuilder<B, P>> child;
     protected @NonNull BlockRenderMode renderMode = BlockRenderMode.SOLID;
-    private final List<TagKey<Block>> tagStorage = new ArrayList<>();
+    private final HashSet<TagKey<Block>> tagStorage = new HashSet<>();
 
     public BlockEntryBuilder(AbstractRegy<?> regy, P parent, String identifier, BlockFactory<B> factory) {
         super(regy, parent, identifier);
@@ -191,15 +184,66 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
                 var stairsOuter = BlockModelGenerators.plainVariant(ModelTemplates.STAIRS_OUTER.create(block, mapping, generators.modelOutput));
                 generators.blockStateOutput.accept(BlockModelGenerators.createStairs(block, stairsInner, BlockModelGenerators.plainVariant(stairsStraight), stairsOuter));
                 generators.registerSimpleItemModel(block, stairsStraight);
-            }
-            else {
+            } else {
                 throw new IllegalStateException("Cannot generate stairs model for block that doesn't extend StairBlock! " + block);
             }
         });
     }
 
+    public BlockEntryBuilder<B, P> slabModel(Block source) {
+        return basicModel((generators, block) -> {
+            var textureMapping = TextureMapping.cube(source);
+            var full = BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(source));
+            var bottom = BlockModelGenerators.plainVariant(ModelTemplates.SLAB_BOTTOM.create(block, textureMapping, generators.modelOutput));
+            var top = BlockModelGenerators.plainVariant(ModelTemplates.SLAB_TOP.create(block, textureMapping, generators.modelOutput));
+            generators.blockStateOutput.accept(BlockModelGenerators.createSlab(block, bottom, top, full));
+        });
+    }
+
+    public BlockEntryBuilder<B, P> slabModel(BlockEntry<?> source) {
+        return slabModel(source.get());
+    }
+
+    public BlockEntryBuilder<B, P> wallModel(Block source) {
+        return basicModel((generators, block) -> {
+            var texturedModel = TexturedModel.CUBE.get(source);
+            var mapping = texturedModel.getMapping();
+
+            var post = BlockModelGenerators.plainVariant(ModelTemplates.WALL_POST.create(block, mapping, generators.modelOutput));
+            var lowSide = BlockModelGenerators.plainVariant(ModelTemplates.WALL_LOW_SIDE.create(block, mapping, generators.modelOutput));
+            var tallSide = BlockModelGenerators.plainVariant(ModelTemplates.WALL_TALL_SIDE.create(block, mapping, generators.modelOutput));
+            generators.blockStateOutput.accept(BlockModelGenerators.createWall(block, post, lowSide, tallSide));
+
+            var inventory = ModelTemplates.WALL_INVENTORY.create(block, mapping, generators.modelOutput);
+            generators.registerSimpleItemModel(block, inventory);
+        });
+    }
+
+    public BlockEntryBuilder<B, P> wallModel(BlockEntry<?> source) {
+        return wallModel(source.get());
+    }
+
     public BlockEntryBuilder<B, P> barsModel() {
         return basicModel(BlockModelGenerators::createBarsAndItem);
+    }
+
+    public BlockEntryBuilder<B, P> trapdoorModel(boolean isOrientable) {
+        return basicModel((generators, block) -> {
+            if (isOrientable) {
+                generators.createOrientableTrapdoor(block);
+                return;
+            }
+
+            generators.createTrapdoor(block);
+        });
+    }
+
+    public BlockEntryBuilder<B, P> doorModel() {
+        return basicModel(BlockModelGenerators::createDoor);
+    }
+
+    public BlockEntryBuilder<B, P> trapdoorModel() {
+        return trapdoorModel(true);
     }
 
     public BlockEntryBuilder<B, P> chainsModel() {
@@ -226,6 +270,10 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
     // region tags
 
     public BlockEntryBuilder<B, P> tag(TagKey<Block> tag) {
+        if (this.tagStorage.contains(tag)) {
+            return this;
+        }
+
         this.tagStorage.add(tag);
         return this;
     }

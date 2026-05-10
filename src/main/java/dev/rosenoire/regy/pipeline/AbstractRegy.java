@@ -17,16 +17,20 @@ import dev.rosenoire.regy.pipeline.registration.item.potion.PotionEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.sound.SoundEntryBuilder;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import static dev.rosenoire.regy.pipeline.content.BlockTransformers.nonFullBlock;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstance<R> {
@@ -159,16 +163,32 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
         return block(identifier, Block::new);
     }
 
-    public BlockEntryBuilder<Block, R> stairs(String identifier, BlockState source) {
-        return block(identifier, properties -> new StairBlock(source, properties));
+    public BlockEntryBuilder<StairBlock, R> stairs(String identifier, BlockState source) {
+        return block(identifier, properties -> new StairBlock(source, properties)).tag(BlockTags.STAIRS);
     }
 
-    public BlockEntryBuilder<Block, R> stairs(String identifier, Block source) {
+    public BlockEntryBuilder<StairBlock, R> stairs(String identifier, Block source) {
         return stairs(identifier, source.defaultBlockState());
     }
 
-    public BlockEntryBuilder<Block, R> stairs(String identifier, BlockEntry<?> source) {
+    public BlockEntryBuilder<StairBlock, R> stairs(String identifier, BlockEntry<?> source) {
         return stairs(identifier, source.get());
+    }
+
+    public BlockEntryBuilder<TrapDoorBlock, R> trapdoor(String identifier, BlockSetType blockSetType) {
+        return block(identifier, properties -> new TrapDoorBlock(blockSetType, properties))
+                .transform(nonFullBlock())
+                .tag(BlockTags.TRAPDOORS)
+                .trapdoorModel()
+                .cutout();
+    }
+
+    public BlockEntryBuilder<DoorBlock, R> door(String identifier, BlockSetType blockSetType) {
+        return block(identifier, properties -> new DoorBlock(blockSetType, properties))
+                .transform(nonFullBlock())
+                .tag(BlockTags.DOORS)
+                .doorModel()
+                .cutout();
     }
 
     // endregion
