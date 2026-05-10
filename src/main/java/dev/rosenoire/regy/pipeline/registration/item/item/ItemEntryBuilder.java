@@ -1,11 +1,11 @@
 package dev.rosenoire.regy.pipeline.registration.item.item;
 
 import dev.rosenoire.regy.api.data.NonNullType;
-import dev.rosenoire.regy.api.data.RegistryUtils;
 import dev.rosenoire.regy.api.model.ModelUtils;
 import dev.rosenoire.regy.api.text.NamingConventions;
 import dev.rosenoire.regy.common.RegyCommon;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
+import dev.rosenoire.regy.pipeline.content.ItemTransformers;
 import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.*;
@@ -224,7 +224,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     // region modifiers
 
     // TODO: Rename to transform
-    public <B> B map(Function<ItemEntryBuilder<I, P>, B> mapper) {
+    public <B> B transform(Function<ItemEntryBuilder<I, P>, B> mapper) {
         return mapper.apply(this);
     }
 
@@ -375,7 +375,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     }
 
     public ItemEntryBuilder<I, P> tool(float defaultMiningSpeed, int damagePerBlock, boolean canDestroyBlocksInCreativeMode, ToolRuleCollector collector) {
-        return map(builder -> {
+        return transform(builder -> {
             HolderGetter<Block> blockRegistry = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
             var toolRules = new ArrayList<Tool.Rule>();
             collector.collect(blockRegistry, toolRules::add);
@@ -383,8 +383,53 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         });
     }
 
-    public ToolSettingsBuilder<I, P> tool() {
-        return new ToolSettingsBuilder<>(this);
+    public ToolSettingsBuilder<I, P> tool(ToolMaterial material, @NonNull UnaryOperator<ItemEntryBuilder<I, P>> toolFunction) {
+        return new ToolSettingsBuilder<>(this, material).toolFunction(toolFunction);
+    }
+
+    public ToolSettingsBuilder<I, P> tool(MaterialEntry material, @NonNull UnaryOperator<ItemEntryBuilder<I, P>> toolFunction) {
+        return tool(material.get(), toolFunction);
+    }
+
+    public ToolSettingsBuilder<I, P> pickaxeTool(ToolMaterial material) {
+        return tool(material, builder -> ItemTransformers.pickaxe(builder, material));
+    }
+
+    public ToolSettingsBuilder<I, P> pickaxeTool(MaterialEntry material) {
+        return hoeTool(material.get());
+    }
+
+    public ToolSettingsBuilder<I, P> hoeTool(ToolMaterial material) {
+        return tool(material, builder -> ItemTransformers.hoe(builder, material));
+    }
+
+    public ToolSettingsBuilder<I, P> hoeTool(MaterialEntry material) {
+        return hoeTool(material.get());
+    }
+
+    public ToolSettingsBuilder<I, P> shovelTool(ToolMaterial material) {
+        return tool(material, builder -> ItemTransformers.shovel(builder, material));
+    }
+
+    public ToolSettingsBuilder<I, P> shovelTool(MaterialEntry material) {
+        return shovelTool(material.get());
+    }
+
+    public ToolSettingsBuilder<I, P> axeTool(ToolMaterial material) {
+        return tool(material, builder -> ItemTransformers.pickaxe(builder, material))
+                .map(builder -> builder.blockingDisableTime(5f));
+    }
+
+    public ToolSettingsBuilder<I, P> axeTool(MaterialEntry material) {
+        return axeTool(material.get());
+    }
+
+    public ToolSettingsBuilder<I, P> swordTool(ToolMaterial material) {
+        return tool(material, ItemTransformers::sword);
+    }
+
+    public ToolSettingsBuilder<I, P> swordTool(MaterialEntry material) {
+        return swordTool(material.get());
     }
 
     public ItemEntryBuilder<I, P> weaponComponent(int itemDamagePerAttack, float disableBlockForSeconds) {

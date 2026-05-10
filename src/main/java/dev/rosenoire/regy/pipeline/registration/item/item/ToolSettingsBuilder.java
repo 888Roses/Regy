@@ -18,11 +18,9 @@ public class ToolSettingsBuilder<I extends Item, P> {
     private float blockingDisableTimeSeconds = 0f;
     private @Nullable UnaryOperator<ItemEntryBuilder<I, P>> toolFunction;
 
-    private boolean hasSetBlockingDisableTimeSeconds = false;
-
-    public ToolSettingsBuilder(ItemEntryBuilder<I, P> owner) {
+    public ToolSettingsBuilder(ItemEntryBuilder<I, P> owner, @NonNull ToolMaterial material) {
         this.owner = owner;
-        material(ToolMaterial.IRON);
+        this.material = material;
     }
 
     public ToolSettingsBuilder<I, P> material(@NonNull ToolMaterial toolMaterial) {
@@ -51,34 +49,12 @@ public class ToolSettingsBuilder<I extends Item, P> {
 
     public ToolSettingsBuilder<I, P> blockingDisableTime(float blockingDisableTimeSeconds) {
         this.blockingDisableTimeSeconds = blockingDisableTimeSeconds;
-        this.hasSetBlockingDisableTimeSeconds = true;
         return this;
     }
 
-    public ToolSettingsBuilder<I, P> tool(@NonNull UnaryOperator<ItemEntryBuilder<I, P>> toolFunction) {
+    public ToolSettingsBuilder<I, P> toolFunction(@NonNull UnaryOperator<ItemEntryBuilder<I, P>> toolFunction) {
         this.toolFunction = toolFunction;
         return this;
-    }
-
-    public ToolSettingsBuilder<I, P> pickaxe() {
-        return tool(builder -> ItemMaps.pickaxe(builder, this.material));
-    }
-
-    public ToolSettingsBuilder<I, P> hoe() {
-        return tool(builder -> ItemMaps.hoe(builder, this.material));
-    }
-
-    public ToolSettingsBuilder<I, P> shovel() {
-        return tool(builder -> ItemMaps.shovel(builder, this.material));
-    }
-
-    public ToolSettingsBuilder<I, P> axe() {
-        return tool(builder -> ItemMaps.pickaxe(builder, this.material))
-                .map(builder -> builder.hasSetBlockingDisableTimeSeconds ? builder : builder.blockingDisableTime(5f));
-    }
-
-    public ToolSettingsBuilder<I, P> sword() {
-        return tool(ItemMaps::sword);
     }
 
     public <B> B map(Function<ToolSettingsBuilder<I, P>, B> mapper) {
@@ -87,7 +63,7 @@ public class ToolSettingsBuilder<I extends Item, P> {
 
     public ItemEntryBuilder<I, P> build() {
         return owner
-                .map(builder -> this.toolFunction == null ? builder : this.toolFunction.apply(builder))
+                .transform(builder -> this.toolFunction == null ? builder : this.toolFunction.apply(builder))
                 .material(material)
                 .attackDamage(attackDamage)
                 .attackSpeed(attackSpeed)

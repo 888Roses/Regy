@@ -10,6 +10,7 @@
   "block.regy_test_mod.elden_tile_stairs": "Elden Tile Stairs",
   "block.regy_test_mod.elden_tile_wall": "Elden Tile Wall",
   "block.regy_test_mod.elden_tiles": "Elden Tiles",
+  "block.regy_test_mod.gilded_glass": "Gilded Glass",
   "item.minecraft.lingering_potion.effect.sigma": "Lingering Potion of Sigma",
   "item.minecraft.potion.effect.sigma": "Potion of Sigma",
   "item.minecraft.splash_potion.effect.sigma": "Splash Potion of Sigma",
@@ -19,7 +20,5 @@
   "item.regy_test_mod.eldern_prosecutor": "Eldern Prosecutor",
   "item.regy_test_mod.eldern_verdict": "Eldern Verdict",
   "item.regy_test_mod.eldritch_blessing": "Eldritch Blessing",
-  "item.regy_test_mod.fake_spear": "Fake Spear",
-  "item.regy_test_mod.sword_of_despair": "Sword Of Despair",
   "subtitles.regy_test_mod.jump": "Jump"
 }

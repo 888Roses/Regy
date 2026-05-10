@@ -1,7 +1,5 @@
 package dev.rosenoire.regy.pipeline.content;
 
-import dev.rosenoire.regy.pipeline.AbstractRegy;
-import dev.rosenoire.regy.pipeline.Regy;
 import dev.rosenoire.regy.pipeline.registration.block.BlockEntryBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -14,7 +12,7 @@ import java.util.function.UnaryOperator;
 
 @ApiStatus.NonExtendable
 public interface BlockTransformers {
-    static <B extends Block, R extends AbstractRegy<R>> UnaryOperator<BlockEntryBuilder<B, R>> nonFullBlock() {
+    static <B extends Block, P> UnaryOperator<BlockEntryBuilder<B, P>> nonFullBlock() {
         return builder -> builder.properties(properties -> properties
                 .noOcclusion()
                 .isValidSpawn(Blocks::never)
@@ -23,7 +21,7 @@ public interface BlockTransformers {
     }
 
     @SafeVarargs
-    static <B extends Block, R extends AbstractRegy<R>> UnaryOperator<BlockEntryBuilder<B, R>> taggedItem(TagKey<Item>... tags) {
+    static <B extends Block, P> UnaryOperator<BlockEntryBuilder<B, P>> taggedItem(TagKey<Item>... tags) {
         return builder -> {
             var itemBuilder = builder.item();
             for (var tag : tags) itemBuilder.tag(tag);

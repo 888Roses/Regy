@@ -6,7 +6,6 @@ import dev.rosenoire.regy.pipeline.registration.block.BlockEntryBuilder;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 
 import java.util.function.UnaryOperator;
@@ -115,6 +114,15 @@ public interface AllBlocks {
             .transform(nonFullBlock())
             .properties(requiresCorrectToolForDrops())
             .transform(taggedItem(ItemTags.PIGLIN_LOVED, ItemTags.DOORS))
+            .register();
+
+    BlockEntry<WaterloggedTransparentBlock> GILDED_GLASS = REGY
+            .block("gilded_glass", WaterloggedTransparentBlock::new)
+            .transform(eldenProperties())
+            .transform(nonFullBlock())
+            .properties(requiresCorrectToolForDrops())
+            .transform(taggedItem(ItemTags.PIGLIN_LOVED))
+            .cutout()
             .register();
 
     static void register() {

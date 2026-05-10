@@ -1,24 +1,21 @@
-package dev.rosenoire.regy.pipeline.registration.item.item;
+package dev.rosenoire.regy.pipeline.content;
 
+import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ToolMaterial;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.function.UnaryOperator;
+
 @SuppressWarnings("deprecation")
 @ApiStatus.NonExtendable
-public interface ItemMaps {
-    static <I extends Item, P> ItemEntryBuilder<I, P> singleStackSize(ItemEntryBuilder<I, P> entryBuilder) {
-        return entryBuilder.properties(properties -> properties.stacksTo(1));
-    }
-
+public interface ItemTransformers {
     static <I extends Item, P> ItemEntryBuilder<I, P> sword(ItemEntryBuilder<I, P> entryBuilder) {
         return entryBuilder.tool(1, 2, false, (lookup, collector) -> {
             collector.accept(Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.builtInRegistryHolder()), 15.0F));
@@ -48,5 +45,9 @@ public interface ItemMaps {
 
     static <I extends Item, P> ItemEntryBuilder<I, P> shovel(ItemEntryBuilder<I, P> entryBuilder, ToolMaterial toolMaterial) {
         return tool(entryBuilder, BlockTags.MINEABLE_WITH_SHOVEL, toolMaterial);
+    }
+
+    static UnaryOperator<Item.Properties> single() {
+        return properties -> properties.stacksTo(1);
     }
 }
