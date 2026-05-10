@@ -1,29 +1,38 @@
 package dev.rosenoire.regy.pipeline.registration.block;
 
+import dev.rosenoire.regy.foundation.extensions.StairBlockExtension;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
+import dev.rosenoire.regy.pipeline.datagen.impl.generator.BlockTagDataGenerator;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.DataGenerators;
+import dev.rosenoire.regy.pipeline.datagen.impl.generator.LangDataGenerator;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.ModelDataGenerator;
 import dev.rosenoire.regy.pipeline.factory.BlockFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -38,6 +47,7 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
     protected BlockBehaviour.@NonNull Properties properties;
     protected @Nullable ItemEntryBuilder<?, BlockEntryBuilder<B, P>> child;
     protected @NonNull BlockRenderMode renderMode = BlockRenderMode.SOLID;
+    private final List<TagKey<Block>> tagStorage = new ArrayList<>();
 
     public BlockEntryBuilder(AbstractRegy<?> regy, P parent, String identifier, BlockFactory<B> factory) {
         super(regy, parent, identifier);
@@ -56,7 +66,7 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
         var instance = this.factory.bake(this.properties);
         Registry.register(BuiltInRegistries.BLOCK, resourceKey, instance);
 
-        var entry = new BlockEntry<>(instance, resourceKey, renderMode);
+        var entry = new BlockEntry<>(instance, resourceKey, renderMode, tagStorage);
         entry = getRegy().entry(entry);
 
         this.dataState = new BlockDataState<>(instance, resourceKey, this.path());
@@ -116,6 +126,10 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
         return this.properties(BlockBehaviour.Properties.ofFullCopy(source));
     }
 
+    public BlockEntryBuilder<B, P> properties(BlockEntry<?> source) {
+        return this.properties(source.get());
+    }
+
     // endregion
 
     // region item
@@ -150,6 +164,8 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
 
     // region data generation
 
+    // region models
+
     public BlockEntryBuilder<B, P> model(@NonNull ModelInstruction<B> modelInstruction) {
         this.modelInstruction = modelInstruction;
         return this;
@@ -163,6 +179,23 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
         return basicModel((generators, block) ->
                 generators.createAxisAlignedPillarBlock(block, TexturedModel.COLUMN)
         );
+    }
+
+    public BlockEntryBuilder<B, P> stairsModel() {
+        return basicModel((generators, block) -> {
+            if (block instanceof StairBlockExtension stairBlock) {
+                var texturedModel = TexturedModel.CUBE.get(stairBlock.regy$getBaseState().getBlock());
+                var mapping = texturedModel.getMapping();
+                var stairsInner = BlockModelGenerators.plainVariant(ModelTemplates.STAIRS_INNER.create(block, mapping, generators.modelOutput));
+                var stairsStraight = ModelTemplates.STAIRS_STRAIGHT.create(block, mapping, generators.modelOutput);
+                var stairsOuter = BlockModelGenerators.plainVariant(ModelTemplates.STAIRS_OUTER.create(block, mapping, generators.modelOutput));
+                generators.blockStateOutput.accept(BlockModelGenerators.createStairs(block, stairsInner, BlockModelGenerators.plainVariant(stairsStraight), stairsOuter));
+                generators.registerSimpleItemModel(block, stairsStraight);
+            }
+            else {
+                throw new IllegalStateException("Cannot generate stairs model for block that doesn't extend StairBlock! " + block);
+            }
+        });
     }
 
     public BlockEntryBuilder<B, P> barsModel() {
@@ -190,6 +223,17 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
 
     // endregion
 
+    // region tags
+
+    public BlockEntryBuilder<B, P> tag(TagKey<Block> tag) {
+        this.tagStorage.add(tag);
+        return this;
+    }
+
+    // endregion
+
+    // endregion
+
     // endregion
 
     // region data generation
@@ -202,6 +246,20 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
         if (this.modelInstruction != null) {
             collector.addProvider(this::modelDataGenProvider);
         }
+
+        if (!this.tagStorage.isEmpty()) {
+            collector.addProvider(this::tagDataGenProvider);
+        }
+    }
+
+    private void tagDataGenProvider(DataGeneration dataGeneration) {
+        dataGeneration.<BlockTagDataGenerator>getGeneratorOptional(DataGenerators.BLOCK_TAGS).ifPresent(generator -> {
+            synchronized (this.tagStorage) {
+                this.tagStorage.forEach(tag -> {
+                    generator.tag(tag, builder -> builder.add(dataState.block()).setReplace(false));
+                });
+            }
+        });
     }
 
     private void modelDataGenProvider(@NonNull DataGeneration dataGeneration) {

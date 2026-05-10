@@ -7,6 +7,7 @@ import dev.rosenoire.regy.pipeline.factory.BlockFactory;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.factory.SimpleItemFactory;
 import dev.rosenoire.regy.pipeline.registration.Entry;
+import dev.rosenoire.regy.pipeline.registration.block.BlockEntry;
 import dev.rosenoire.regy.pipeline.registration.block.BlockEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntryBuilder;
@@ -19,6 +20,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.NonNull;
 
 import java.util.*;
@@ -154,6 +157,18 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
 
     public BlockEntryBuilder<Block, R> block(String identifier) {
         return block(identifier, Block::new);
+    }
+
+    public BlockEntryBuilder<Block, R> stairs(String identifier, BlockState source) {
+        return block(identifier, properties -> new StairBlock(source, properties));
+    }
+
+    public BlockEntryBuilder<Block, R> stairs(String identifier, Block source) {
+        return stairs(identifier, source.defaultBlockState());
+    }
+
+    public BlockEntryBuilder<Block, R> stairs(String identifier, BlockEntry<?> source) {
+        return stairs(identifier, source.get());
     }
 
     // endregion
