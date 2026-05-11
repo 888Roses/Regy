@@ -3,6 +3,7 @@ package dev.rosenoire.regy.test.common.index;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.registration.block.BlockEntry;
 import dev.rosenoire.regy.pipeline.registration.block.BlockEntryBuilder;
+import dev.rosenoire.regy.test.common.content.block.GridConstrainedBlock;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.level.block.*;
@@ -123,6 +124,16 @@ public interface AllBlocks {
             .properties(requiresCorrectToolForDrops())
             .transform(taggedItem(ItemTags.PIGLIN_LOVED))
             .cutout()
+            .register();
+
+    BlockEntry<Block> EXAMPLE = REGY
+            .block("example")
+            .simpleItem()
+            .register();
+
+    BlockEntry<GridConstrainedBlock> GRID_CONSTRAINED = REGY
+            .block("grid_constrained", properties -> new GridConstrainedBlock(properties, 2))
+            .simpleItem()
             .register();
 
     static void register() {
