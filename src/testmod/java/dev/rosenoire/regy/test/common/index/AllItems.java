@@ -51,6 +51,26 @@ public interface AllItems {
             .recipe(AllRecipes::eldenIngotToEldenNuggets)
             .register();
 
+    ItemEntry<Item> BURNING_CURSE = REGY
+            .item("burning_curse")
+            .properties(single())
+            .register();
+
+    ItemEntry<Item> ELDEN_BASE = REGY
+            .item("elden_base")
+            .properties(single())
+            .register();
+
+    ItemEntry<Item> ELDEN_RING = REGY
+            .item("elden_ring")
+            .properties(single())
+            .register();
+
+    ItemEntry<Item> ELDEN_FRACTURE = REGY
+            .item("elden_fracture")
+            .properties(single())
+            .register();
+
     static void register() {
     }
 }
