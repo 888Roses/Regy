@@ -32,7 +32,7 @@ public class GridConstrainedItemHandler {
         var player = mc.player;
         var level = mc.level;
 
-        if (player == null || level == null) {
+        if (player == null || level == null || player.isSpectator()) {
             return;
         }
 
@@ -69,7 +69,7 @@ public class GridConstrainedItemHandler {
             for (var gridPosition : gridPositions) {
                 var contextPos = gridPosition.relative(
                         context.getClickedFace().getOpposite(),
-                        level.getBlockState(gridPosition).canBeReplaced() ? 0 : 1
+                        context.getClickedFace().getAxis().isHorizontal() || level.getBlockState(gridPosition).canBeReplaced() ? 0 : 1
                 );
 
                 var gridPositionContext = new BlockPlaceContext(

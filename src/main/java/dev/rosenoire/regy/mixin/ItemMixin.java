@@ -20,6 +20,10 @@ import java.util.function.Consumer;
 public class ItemMixin {
     @Inject(at = @At("HEAD"), method = "appendHoverText")
     private void appendHoverText$drawTags(ItemStack itemStack, Item.TooltipContext tooltipContext, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag tooltipFlag, CallbackInfo ci) {
+        if (!tooltipFlag.isAdvanced()) {
+            return;
+        }
+
         var tags = itemStack.getTags().toList();
         if (tags.isEmpty()) return;
 

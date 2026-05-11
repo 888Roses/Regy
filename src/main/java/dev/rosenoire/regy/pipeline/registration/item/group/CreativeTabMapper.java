@@ -56,11 +56,9 @@ public class CreativeTabMapper {
                     .stream()
                     .map(entry -> entry instanceof ItemEntry<? extends Item> itemEntry ? itemEntry : null)
                     .filter(Objects::nonNull)
-                    // First sort by name to make sure they are always in a consistent order before ordering them by tags.
+                    // First sort by name to make sure they are always in a consistent order.
+                    .sorted(Comparator.comparing(i -> i.get().getClass().getSimpleName()))
                     .sorted(Comparator.comparing(i -> i.get().getName().getString()))
-                    .sorted((a, b) ->
-                            Math.clamp(DataUtils.containedCountInStrictOrder(a.tags, b.tags), -1, 1)
-                    )
                     .forEach(entry -> {
                         var item = entry.get();
                         var group = entry.tabGroup;

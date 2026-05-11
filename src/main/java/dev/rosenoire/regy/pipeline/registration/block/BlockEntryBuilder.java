@@ -1,5 +1,6 @@
 package dev.rosenoire.regy.pipeline.registration.block;
 
+import dev.rosenoire.regy.api.event.ValueEvent;
 import dev.rosenoire.regy.foundation.extensions.StairBlockExtension;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
@@ -27,6 +28,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -280,6 +282,11 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
 
     // endregion
 
+    public BlockEntryBuilder<B, P> collectCustomProviders(@NonNull Consumer<@NonNull DataGenProviderConsumer> consumer) {
+        this.onCollectProviders.subscribe(consumer);
+        return this;
+    }
+
     // endregion
 
     // endregion
@@ -288,6 +295,11 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
 
     protected @Nullable ModelInstruction<B> modelInstruction;
     protected BlockDataState<B> dataState;
+    protected final ValueEvent<@NonNull DataGenProviderConsumer> onCollectProviders = new ValueEvent<>();
+
+    public BlockDataState<B> getDataState() {
+        return dataState;
+    }
 
     @Override
     public void collectDataGenProviders(@NonNull DataGenProviderConsumer collector) {
@@ -298,6 +310,8 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
         if (!this.tagStorage.isEmpty()) {
             collector.addProvider(this::tagDataGenProvider);
         }
+
+        this.onCollectProviders.accept(collector);
     }
 
     private void tagDataGenProvider(DataGeneration dataGeneration) {

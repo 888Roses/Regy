@@ -35,6 +35,7 @@ public class CreativeTabEntryBuilder<P> extends AbstractEntryBuilder<CreativeTab
     private boolean showScrollbar;
     private @NonNull Identifier backgroundTexture = DEFAULT_BACKGROUND_TEXTURE;
     private boolean registerAsMainTab;
+    private CreativeModeTab.@NonNull DisplayItemsGenerator generator = (itemDisplayParameters, output) -> {};
 
     public CreativeTabEntryBuilder(@NonNull AbstractRegy<?> owner, P parent, String identifier) {
         super(owner, parent, identifier);
@@ -46,7 +47,8 @@ public class CreativeTabEntryBuilder<P> extends AbstractEntryBuilder<CreativeTab
         var builder = FabricItemGroup.builder()
                 .title(titleComponent)
                 .icon(iconSupplier)
-                .backgroundTexture(this.backgroundTexture);
+                .backgroundTexture(this.backgroundTexture)
+                .displayItems(this.generator);
 
         if (!showName) builder.hideTitle();
         if (!showScrollbar) builder.noScrollBar();
@@ -105,6 +107,11 @@ public class CreativeTabEntryBuilder<P> extends AbstractEntryBuilder<CreativeTab
 
     public CreativeTabEntryBuilder<P> texture(@NonNull Identifier texture) {
         this.backgroundTexture = texture;
+        return this;
+    }
+
+    public CreativeTabEntryBuilder<P> items(CreativeModeTab.@NonNull DisplayItemsGenerator generator) {
+        this.generator = generator;
         return this;
     }
 

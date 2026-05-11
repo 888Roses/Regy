@@ -15,5 +15,7 @@
     "fabric-datagen": [
       "dev.rosenoire.regy.test.data.TestModDataGenerator"
     ]
-  }
+  },
+  "mixins": [
+  ]
 }
