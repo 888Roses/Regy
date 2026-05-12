@@ -6,9 +6,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.player.Player;
 import org.jspecify.annotations.NonNull;
 
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public final class RoseText {
@@ -26,6 +28,10 @@ public final class RoseText {
 
     public static RoseText text(@NonNull String text) {
         return text(Component.literal(text));
+    }
+
+    public static RoseText trans(@NonNull String key, Object... objects) {
+        return text(Component.translatable(key, objects));
     }
 
     // endregion
@@ -90,6 +96,11 @@ public final class RoseText {
         return this.prepend(" ".repeat(indent));
     }
 
+    public RoseText transform(@NonNull UnaryOperator<@NonNull MutableComponent> operator) {
+        this.component = operator.apply(this.component);
+        return this;
+    }
+
     // endregion
 
     // region use
@@ -101,6 +112,15 @@ public final class RoseText {
     public RoseText consume(@NonNull Consumer<@NonNull Component> consumer) {
         consumer.accept(get());
         return this;
+    }
+
+    public RoseText sendTo(@NonNull Player player, boolean aboveHotbar) {
+        player.displayClientMessage(get(), aboveHotbar);
+        return this;
+    }
+
+    public RoseText sendTo(@NonNull Player player) {
+        return sendTo(player, false);
     }
 
     // endregion

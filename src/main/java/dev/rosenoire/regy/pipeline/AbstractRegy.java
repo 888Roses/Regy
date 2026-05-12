@@ -9,12 +9,14 @@ import dev.rosenoire.regy.pipeline.factory.SimpleItemFactory;
 import dev.rosenoire.regy.pipeline.registration.Entry;
 import dev.rosenoire.regy.pipeline.registration.block.BlockEntry;
 import dev.rosenoire.regy.pipeline.registration.block.BlockEntryBuilder;
+import dev.rosenoire.regy.pipeline.registration.item.component.DataComponentEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabMapper;
 import dev.rosenoire.regy.pipeline.registration.item.material.ToolMaterialEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.potion.PotionEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.sound.SoundEntryBuilder;
+import dev.rosenoire.regy.pipeline.registration.tag.item.ItemTagEntryBuilder;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
@@ -153,6 +155,14 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
 
     public PotionEntryBuilder<R> potion(String identifier, String name) {
         return new PotionEntryBuilder<>(self(), self(), identifier, name);
+    }
+
+    public ItemTagEntryBuilder<R> itemTag(String identifier) {
+        return new ItemTagEntryBuilder<>(self(), self(), identifier);
+    }
+
+    public <V> DataComponentEntryBuilder<V, R> component(String identifier) {
+        return new DataComponentEntryBuilder<>(self(), self(), identifier);
     }
 
     public <B extends Block> BlockEntryBuilder<B, R> block(String identifier, BlockFactory<B> factory) {

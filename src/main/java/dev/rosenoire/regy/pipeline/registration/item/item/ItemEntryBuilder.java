@@ -1,6 +1,7 @@
 package dev.rosenoire.regy.pipeline.registration.item.item;
 
 import dev.rosenoire.regy.api.data.NonNullType;
+import dev.rosenoire.regy.api.event.ValueEvent;
 import dev.rosenoire.regy.api.model.ModelUtils;
 import dev.rosenoire.regy.api.text.NamingConventions;
 import dev.rosenoire.regy.common.RegyCommon;
@@ -49,6 +50,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -140,6 +142,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     protected final List<TagKey<Item>> tagStorage = new ArrayList<>();
     /// [List] of [Recipe] of [I] representing every recipe related to this item entry.
     protected final List<Recipe<I>> recipeStorage = new ArrayList<>();
+    protected final ValueEvent<@NonNull DataGenProviderConsumer> onCollectProviders = new ValueEvent<>();
 
     /// @apiNote Should not be used raw! This variable is ALWAYS right up until
     /// [#register()] is called. Then, all the data-gen related methods are called, for
@@ -149,8 +152,12 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     /// Represents the translation key for this item entry generated using its
     /// [#resourceKey()].
-    protected String descriptionId() {
+    public String descriptionId() {
         return ((ItemPropertiesExtension) properties).regy$getEffectiveDescriptionId();
+    }
+
+    public ItemDataState<I> getDataState() {
+        return itemDataState;
     }
 
     @Override
@@ -159,6 +166,13 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         collector.addProvider(this::dataGenModelProvider);
         collector.addProvider(this::dataGenItemTagProvider);
         collector.addProvider(this::dataGenRecipeProvider);
+
+        this.onCollectProviders.accept(collector);
+    }
+
+    public ItemEntryBuilder<I, P> collectCustomProviders(@NonNull Consumer<@NonNull DataGenProviderConsumer> consumer) {
+        this.onCollectProviders.subscribe(consumer);
+        return this;
     }
 
     protected void dataGenRecipeProvider(DataGeneration gen) {

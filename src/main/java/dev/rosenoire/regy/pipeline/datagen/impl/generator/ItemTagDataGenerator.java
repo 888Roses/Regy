@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 
-public class ItemTagDataGenerator extends FabricTagProvider.ItemTagProvider implements DataGenerator {
+public class ItemTagDataGenerator extends FabricTagProvider.ItemTagProvider implements TagDataGenerator<Item, ItemTagDataGenerator> {
     private final Map<TagKey<Item>, UnaryOperator<TagAppender<Item, Item>>> tagStorage = new HashMap<>();
 
     public ItemTagDataGenerator(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
@@ -26,6 +26,7 @@ public class ItemTagDataGenerator extends FabricTagProvider.ItemTagProvider impl
         this.tagStorage.forEach((tag, func) -> func.apply(valueLookupBuilder(tag)));
     }
 
+    @Override
     public ItemTagDataGenerator tag(TagKey<Item> tag, UnaryOperator<TagAppender<Item, Item>> func) {
         this.tagStorage.put(tag, func);
         return this;

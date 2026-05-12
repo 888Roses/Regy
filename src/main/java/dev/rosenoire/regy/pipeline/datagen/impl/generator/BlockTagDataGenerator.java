@@ -7,6 +7,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.tags.TagAppender;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 
-public class BlockTagDataGenerator extends FabricTagProvider.BlockTagProvider implements DataGenerator {
+public class BlockTagDataGenerator extends FabricTagProvider.BlockTagProvider implements TagDataGenerator<Block, BlockTagDataGenerator> {
     private final Map<TagKey<Block>, UnaryOperator<TagAppender<Block, Block>>> tagStorage = new HashMap<>();
 
     public BlockTagDataGenerator(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
@@ -26,6 +27,7 @@ public class BlockTagDataGenerator extends FabricTagProvider.BlockTagProvider im
         this.tagStorage.forEach((tag, func) -> func.apply(valueLookupBuilder(tag)));
     }
 
+    @Override
     public BlockTagDataGenerator tag(TagKey<Block> tag, UnaryOperator<TagAppender<Block, Block>> func) {
         this.tagStorage.put(tag, func);
         return this;
