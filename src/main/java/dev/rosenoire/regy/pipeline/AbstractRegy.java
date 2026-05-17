@@ -17,10 +17,10 @@ import dev.rosenoire.regy.pipeline.registration.item.material.ToolMaterialEntryB
 import dev.rosenoire.regy.pipeline.registration.item.potion.PotionEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.sound.SoundEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.tag.item.ItemTagEntryBuilder;
+import dev.rosenoire.regy.tooltips.TooltipPalette;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
@@ -42,9 +42,11 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
 
     protected final WrappingValueEvent<R> onSetupDatagen = WrappingValueEvent.create();
     protected final WrappingValueEvent<Entry<?>> onEntryAdded = WrappingValueEvent.create();
+    protected @NonNull TooltipPalette tooltipPalette = TooltipPalette.DEFAULT;
 
     protected AbstractRegy(String modNamespace) {
         super(modNamespace);
+        RegyInternal.REGIES.add(this);
     }
 
     public <A, E extends Entry<A>> E entry(@NonNull E entry) {
@@ -57,6 +59,12 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
     // endregion
 
     // region modifiers
+
+    // TODO: Documentation!
+    public R tooltipPalette(@NonNull TooltipPalette tooltipPalette) {
+        this.tooltipPalette = tooltipPalette;
+        return self();
+    }
 
     // TODO: Documentation!
     public R onBeforeSetupDatagen(@NonNull Consumer<@NonNull R> subscriber) {
@@ -115,6 +123,10 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
 
     public Optional<Entry<?>> entryByIdentifier(Identifier identifier) {
         return Optional.ofNullable(this.entries.getOrDefault(identifier, null));
+    }
+
+    public @NonNull TooltipPalette tooltipPalette() {
+        return this.tooltipPalette;
     }
 
     // endregion

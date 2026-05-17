@@ -17,6 +17,7 @@ import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntry;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabGroup;
 import dev.rosenoire.regy.pipeline.registration.item.group.VanillaCreativeTab;
 import dev.rosenoire.regy.pipeline.registration.item.material.MaterialEntry;
+import dev.rosenoire.regy.tooltips.builder.TooltipBuilder;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
@@ -149,6 +150,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     /// which this data state system was created, and then it is discarded. For that
     /// reason, it should NEVER be used as a source of information.
     protected ItemDataState<I> itemDataState;
+    protected @Nullable UnaryOperator<TooltipBuilder> tooltipBuilder;
 
     /// Represents the translation key for this item entry generated using its
     /// [#resourceKey()].
@@ -208,9 +210,13 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     }
 
     protected void dataGenLangProvider(DataGeneration gen) {
-        gen.<LangDataGenerator>getGeneratorOptional(DataGenerators.LANG).ifPresent(lang ->
-                lang.add(descriptionId(), this.generatedName)
-        );
+        gen.<LangDataGenerator>getGeneratorOptional(DataGenerators.LANG).ifPresent(lang -> {
+            lang.add(descriptionId(), this.generatedName);
+
+            if (this.tooltipBuilder != null) this.tooltipBuilder
+                    .apply(new TooltipBuilder(this.descriptionId(), lang::add))
+                    .build();
+        });
     }
 
     @FunctionalInterface
@@ -253,6 +259,16 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     public ItemEntryBuilder<I, P> customName() {
         this.generatedName = null;
+        return this;
+    }
+
+    public ItemEntryBuilder<I, P> tooltip(@NonNull UnaryOperator<TooltipBuilder> builder) {
+        this.tooltipBuilder = builder;
+        return this;
+    }
+
+    public ItemEntryBuilder<I, P> noTooltip() {
+        this.tooltipBuilder = null;
         return this;
     }
 

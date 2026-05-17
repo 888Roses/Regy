@@ -18,6 +18,15 @@ public interface DataUtils {
         map.get(key).add(value);
     }
 
+    static <K, V> V getOrAddAndGetFallback(Map<K, V> map, K key, V fallback) {
+        if (map.containsKey(key)) {
+            return map.get(key);
+        }
+
+        map.put(key, fallback);
+        return fallback;
+    }
+
     static <A> int containedCount(List<A> a, List<A> b) {
         var i = 0;
         for (var v : a) for (var v2 : b) if (v.equals(v2)) i++;
@@ -27,10 +36,11 @@ public interface DataUtils {
     static <A> int containedCountInStrictOrder(List<A> a, List<A> b) {
         var i = 0;
 
-        for (var v : a) for (var v2 : b) {
-            if (v.equals(v2)) i++;
-            else break;
-        }
+        for (var v : a)
+            for (var v2 : b) {
+                if (v.equals(v2)) i++;
+                else break;
+            }
 
         return i;
     }

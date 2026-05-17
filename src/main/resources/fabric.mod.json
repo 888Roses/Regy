@@ -15,6 +15,9 @@
     ],
     "main": [
       "dev.rosenoire.regy.common.RegyCommon"
+    ],
+    "fabric-datagen": [
+      "dev.rosenoire.regy.data.RegyDataGenerator"
     ]
   },
   "mixins": [

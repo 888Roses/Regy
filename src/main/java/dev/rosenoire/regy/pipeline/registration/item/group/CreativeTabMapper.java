@@ -1,16 +1,10 @@
 package dev.rosenoire.regy.pipeline.registration.item.group;
 
-import dev.rosenoire.regy.api.data.DataUtils;
-import dev.rosenoire.regy.common.RegyCommon;
 import dev.rosenoire.regy.foundation.callbacks.ResourceKeyAwareCreativeTabCallbacks;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
-import dev.rosenoire.regy.pipeline.registration.Entry;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import org.jspecify.annotations.NonNull;

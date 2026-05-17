@@ -13,6 +13,7 @@
     "StairBlockMixin"
   ],
   "client": [
+    "StringSplitterMixin"
   ],
   "injectors": {
     "defaultRequire": 1
