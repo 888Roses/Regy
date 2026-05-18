@@ -2,6 +2,7 @@ package dev.rosenoire.regy.pipeline.registration.item.group;
 
 import dev.rosenoire.regy.api.data.NonNullSupplier;
 import dev.rosenoire.regy.api.data.RegistryUtils;
+import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.DataGenerators;
@@ -44,6 +45,10 @@ public class CreativeTabEntryBuilder<P> extends AbstractEntryBuilder<CreativeTab
 
     @Override
     public @NonNull CreativeTabEntry register() {
+        var log = LogEntry.of(this);
+        log.info("|> §bold§cyan(CreativeTabEntryBuilder)§end §green\"{}\"§end", this.identifier());
+
+        log.info("|  > Creating and Filling Fabric Builder...");
         var builder = FabricItemGroup.builder()
                 .title(titleComponent)
                 .icon(iconSupplier)
@@ -53,15 +58,23 @@ public class CreativeTabEntryBuilder<P> extends AbstractEntryBuilder<CreativeTab
         if (!showName) builder.hideTitle();
         if (!showScrollbar) builder.noScrollBar();
 
-        return Optional.of(builder)
-                .map(CreativeModeTab.Builder::build)
-                .map(tab -> Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, resourceKey, tab))
-                .map(registered -> new CreativeTabEntry(registered, resourceKey))
-                .map(registered -> {
-                    if (registerAsMainTab) regy().creativeTabMapper.setMainTab(registered.get());
-                    return registered;
-                })
-                .orElseThrow(this::throwRegisterNullEntryException);
+        log.info("|  > Creating CreativeModeTab...");
+        var tab = builder.build();
+
+        log.info("|  > Registering CreativeModeTab...");
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, this.resourceKey, tab);
+
+        log.info("|  > Creating Entry...");
+        var entry = this.regy().entry(new CreativeTabEntry(tab, this.resourceKey));
+
+        if (registerAsMainTab) {
+            log.info("|  > Setting tab as Main Tab...");
+            this.regy().creativeTabMapper.setMainTab(entry.get());
+        }
+
+        log.send();
+
+        return entry;
     }
 
     @Override

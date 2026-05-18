@@ -1,5 +1,6 @@
 package dev.rosenoire.regy.pipeline.registration.item.material;
 
+import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import net.minecraft.resources.Identifier;
@@ -29,6 +30,9 @@ public class ToolMaterialEntryBuilder<P> extends AbstractEntryBuilder<MaterialEn
 
     @Override
     public @NonNull MaterialEntry register() {
+        var log = LogEntry.of(this);
+        log.info("|> §bold§cyan(ToolMaterialEntryBuilder)§end §green\"{}\"§end", this.identifier());
+
         if (incorrectBlocksForDrops == null) {
             throw new NullPointerException("incorrectBlocksForDrops tag cannot be null for material entry builder with id '" + identifier() + "'!");
         }
@@ -37,8 +41,25 @@ public class ToolMaterialEntryBuilder<P> extends AbstractEntryBuilder<MaterialEn
             throw new NullPointerException("repairItem tag cannot be null for material entry builder with id '" + identifier() + "'!");
         }
 
-        var material = new ToolMaterial(incorrectBlocksForDrops, durability, speed, attackDamageBonus, enchantmentValue, repairItems);
-        return regy().entry(new MaterialEntry(material, this.regyIdentifier(), this.identifier()));
+        log.info("|  > Creating ToolMaterial...");
+        var material = new ToolMaterial(
+                this.incorrectBlocksForDrops,
+                this.durability,
+                this.speed,
+                this.attackDamageBonus,
+                this.enchantmentValue,
+                this.repairItems
+        );
+
+        log.info("|  > Creating MaterialEntry...");
+        var materialEntry = regy().entry(new MaterialEntry(
+                material,
+                this.regyIdentifier(),
+                this.identifier()
+        ));
+
+        log.send();
+        return materialEntry;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package dev.rosenoire.regy.pipeline.datagen;
 
+import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.RegyOwnable;
 import org.jspecify.annotations.NonNull;
@@ -23,16 +24,18 @@ public class PostProcessTargetStorage implements RegyOwnable {
 
     public void addPostProcessTarget(Object target) {
         if (target == null) {
-            this.log().warn("Attempted to add a null post process target. This is not allowed!");
+            LogEntry.of(this)
+                    .error("|> PostProcessTargetStorage: Attempted to add null Post process Target. This is not allowed!")
+                    .send();
+
             return;
         }
 
         this.storage.add(target);
 
-        this.log().info(
-                "Successfully added post process target ({}).",
-                target.getClass().getSimpleName()
-        );
+        LogEntry.of(this)
+                .info("|> §whitePostProcessTargetStorage:§end Added Post Process Target §cyan{}§end.", target.getClass().getSimpleName())
+                .send();
     }
 
     public Stream<Object> getPostProcessTargets() {

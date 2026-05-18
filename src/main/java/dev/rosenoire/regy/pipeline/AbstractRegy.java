@@ -1,6 +1,8 @@
 package dev.rosenoire.regy.pipeline;
 
 import dev.rosenoire.regy.api.event.WrappingValueEvent;
+import dev.rosenoire.regy.api.logging.LogEntry;
+import dev.rosenoire.regy.api.logging.LogSupplier;
 import dev.rosenoire.regy.pipeline.datagen.PostProcessTargetStorage;
 import dev.rosenoire.regy.pipeline.registration.sound.SoundEntryBuilder;
 import dev.rosenoire.regy.pipeline.factory.AxeItemFactory;
@@ -36,8 +38,8 @@ import java.util.function.Function;
 import static dev.rosenoire.regy.pipeline.content.BlockTransformers.nonFullBlock;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstance<R> {
-    public final Logger log = LoggerFactory.getLogger("regy:" + modNamespace);
+public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstance<R> implements LogSupplier {
+    public final Logger log = LoggerFactory.getLogger(modNamespace);
 
     // region internal
 
@@ -52,6 +54,13 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
     protected AbstractRegy(String modNamespace) {
         super(modNamespace);
         RegyInternal.REGIES.add(this);
+
+        LogEntry.of(this)
+                .info(
+                        "§bold§redINITIALIZED§end §bold§blueR§end§bold§greenE§end§bold§redG§end§bold§yellowY§end §bold§redINSTANCE FOR MOD§end §green§bold\"{}\"§end§bold§red!",
+                        this.modNamespace()
+                )
+                .send();
     }
 
     public <A, E extends Entry<A>> E entry(@NonNull E entry) {
@@ -61,6 +70,11 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
         return entry;
     }
 
+    @Override
+    public @NonNull Logger log() {
+        return this.log;
+    }
+
     // endregion
 
     // region modifiers
@@ -68,24 +82,24 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
     // TODO: Documentation!
     public R tooltipPalette(@NonNull TooltipPalette tooltipPalette) {
         this.tooltipPalette = tooltipPalette;
-        return self();
+        return this.self();
     }
 
     // TODO: Documentation!
     public R onBeforeEntryAdded(@NonNull Consumer<Entry<?>> subscriber) {
         this.onEntryAdded.before().subscribe(subscriber);
-        return self();
+        return this.self();
     }
 
     // TODO: Documentation!
     public R onAfterEntryAdded(@NonNull Consumer<Entry<?>> subscriber) {
         this.onEntryAdded.after().subscribe(subscriber);
-        return self();
+        return this.self();
     }
 
     // TODO: Documentation!
-    public <B extends RegyOwnable> B map(Function<R, B> mapper) {
-        return mapper.apply(self());
+    public <B extends RegyOwnable> B transform(Function<R, B> transformer) {
+        return transformer.apply(this.self());
     }
 
     // endregion

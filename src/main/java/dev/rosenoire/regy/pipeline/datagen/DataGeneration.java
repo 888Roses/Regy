@@ -1,5 +1,7 @@
 package dev.rosenoire.regy.pipeline.datagen;
 
+import dev.rosenoire.regy.api.logging.LogColor;
+import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.client.AbstractClientRegy;
 import dev.rosenoire.regy.pipeline.client.ClientRegyOwnable;
@@ -32,10 +34,14 @@ public class DataGeneration implements ClientRegyOwnable {
     }
 
     private void runDatagen() {
+        LogEntry.of(this).info("|> RUNNING DATAGEN").send();
+
         this.isGeneratingData = true;
         this.destockFunctionStorage();
         this.generateProviderStorage();
         this.generatePostProcessors();
+
+        LogEntry.of(this).info("<| FINISHED RUNNING DATAGEN").send();
     }
 
     @Override
@@ -84,83 +90,122 @@ public class DataGeneration implements ClientRegyOwnable {
     /// [#generatorFunctionStorage].
     @SuppressWarnings("LoggingSimilarMessage")
     protected void destockFunctionStorage() {
-        this.log().info("Destocking generator function storage...");
+        var log = LogEntry.of(this);
 
-        this.log().info("|---- Destocking registry dependant generator function storage...");
+        log.info("§white|§end--§cyan|>§end Destocking Generator Function Storages...");
+
+        log.info("§white|§end  §cyan|§end--§yellow|>§end Destocking §whiteRegistry Dependent Generator Function Storage§end...");
         var destockedCount = 0;
         for (var function : this.registryDependentGeneratorFunctionStorage) {
             try {
                 var generator = this.pack().addProvider(function);
                 var name = generator.getName();
                 var previousGenerator = this.generatorStorage.put(name, generator);
+
                 destockedCount++;
 
-                this.log().info("|------ Successfully destocked '{}' ({}).", name, generator.getClass().getSimpleName());
+                log.info(
+                        "§white|§end  §cyan|§end  §yellow|§end  > Destocked §green\"{}\"§end §cyan({})§end",
+                        name,
+                        generator.getClass().getSimpleName()
+                );
 
                 if (previousGenerator != null) {
-                    this.log().warn(
-                            "|-------- Note: Destocking this generator replaced previously destocked generator '{}' ({})",
+                    log.info(
+                            "§white|§end  §cyan|§end  §yellow|§end    ↪ /!\\ Destocking this generator replaced previously destocked generator §green\"{}\"§end §cyan({})§end",
                             previousGenerator.getName(),
                             previousGenerator.getClass().getSimpleName()
                     );
                 }
             }
             catch (Exception exception) {
-                this.log().error("|------ Could not destock generator function: ", exception);
+                log.error("§white|§end  §cyan|§end  §yellow|§end  > Could not destock generator:");
+                log.error("§white|§end  §cyan|§end  §yellow|§end    ↪ ", exception);
             }
         }
-        this.log().info("|---- Successfully destocked registry dependant generator function storage! ({}/{})", destockedCount, this.registryDependentGeneratorFunctionStorage.size());
+
+        log.info(
+                "§white|§end  §cyan|§end--§yellow<|§end Destocked {}{}/{}§end generators",
+                LogColor.getPercentageColor(destockedCount / (float) this.registryDependentGeneratorFunctionStorage.size()),
+                destockedCount,
+                this.registryDependentGeneratorFunctionStorage.size()
+        );
+
         this.registryDependentGeneratorFunctionStorage.clear();
 
-        this.log().info("|---- Destocking generic generator function storage...");
+        log.info("§white|§end  §cyan|§end--§yellow|>§end Destocking §whiteGeneric Generator Function Storage§end...");
         destockedCount = 0;
         for (var function : this.generatorFunctionStorage) {
             try {
                 var generator = this.pack().addProvider(function);
                 var name = generator.getName();
                 var previousGenerator = this.generatorStorage.put(name, generator);
+
                 destockedCount++;
 
-                this.log().info("|------ Successfully destocked '{}' ({}).", name, generator.getClass().getSimpleName());
+                log.info(
+                        "§white|§end  §cyan|§end  §yellow|§end  > Destocked §green\"{}\"§end §cyan({})§end",
+                        name,
+                        generator.getClass().getSimpleName()
+                );
 
                 if (previousGenerator != null) {
-                    this.log().warn(
-                            "|-------- Note: Destocking this generator replaced previously destocked generator '{}' ({})",
+                    log.info(
+                            "§white|§end  §cyan|§end  §yellow|§end    ↪ /!\\ Destocking this generator replaced previously destocked generator §green\"{}\"§end §cyan({})§end",
                             previousGenerator.getName(),
                             previousGenerator.getClass().getSimpleName()
                     );
                 }
             }
             catch (Exception exception) {
-                this.log().error("|------ Could not destock generator function: ", exception);
+                log.error("§white|§end  §cyan|§end  §yellow|§end  > Could not destock generator:");
+                log.error("§white|§end  §cyan|§end  §yellow|§end    ↪ ", exception);
             }
         }
-        this.log().info("|---- Successfully destocked generic generator function storage! ({}/{})", destockedCount, this.generatorFunctionStorage.size());
+
+        log.info(
+                "§white|§end  §cyan|§end--§yellow<|§end Destocked {}{}/{}§end generators",
+                LogColor.getPercentageColor(destockedCount / (float) this.generatorFunctionStorage.size()),
+                destockedCount,
+                this.generatorFunctionStorage.size()
+        );
+
         this.generatorFunctionStorage.clear();
 
-        this.log().info("|-- Successfully destocked generator function storage!");
+        log.info("§white|§end--§cyan<|§end Destocked Generator Function Storages.");
+        log.send();
     }
 
     // TODO: Documentation!
     protected void generateProviderStorage() {
-        this.log().info("Generating provider storage...");
+        var log = LogEntry.of(this);
+        log.info("§white|§end--§cyan|>§end Generating §whiteDataGenProviders§end from Storage...");
+
         var successfulCount = 0;
 
         for (var provider : this.providerStorage) {
-            this.log().info("|---- Generating provider {}...", provider.getClass().getSimpleName());
-
             try {
                 provider.generate(this);
-                this.log().info("|------ Successfully generated provider!");
                 successfulCount++;
+
+                log.info("§white|§end  §cyan|§end  Generating §whiteDataGenProvider§end §cyan{}§end", provider.getClass().getSimpleName());
             }
             catch (Exception exception) {
-                this.log().error("|------ Could not generate provider: ", exception);
+                log.error("§white|§end  §cyan|§end  Couldn't generate §whiteDataGenProvider§end §cyan{}§end", provider.getClass().getSimpleName());
+                log.error("                         ↪ ", exception);
             }
         }
 
-        this.log().info("|-- Successfully generated providers! ({}/{})", successfulCount, this.providerStorage.size());
+        log.info(
+                "§white|§end--§cyan<|§end Generated {}{}/{}§end §whiteDataGenProviders§end",
+                LogColor.getPercentageColor(successfulCount / (float) this.providerStorage.size()),
+                successfulCount,
+                this.providerStorage.size()
+        );
+
         this.providerStorage.clear();
+
+        log.send();
     }
 
     // TODO: Documentation!
@@ -189,8 +234,15 @@ public class DataGeneration implements ClientRegyOwnable {
     }
 
     public DataGeneration registerPostProcessor(@NonNull DataPostProcessor postProcessor) {
-        this.log().info("Registered new post processor ({}).", postProcessor.getClass().getSimpleName());
         this.postProcessorStorage.add(postProcessor);
+
+        LogEntry.of(this)
+                .info(
+                        "|> §whiteDataGeneration:§end Registered DataPostProcessor §cyan{}§end.",
+                        postProcessor.getClass().getSimpleName()
+                )
+                .send();
+
         return this;
     }
 
@@ -199,33 +251,45 @@ public class DataGeneration implements ClientRegyOwnable {
     }
 
     private void generatePostProcessors() {
-        this.log().info(
-                "Generating datagen for post processor storage... ({} processors {} targets)",
+        var log = LogEntry.of(this);
+        log.info("§white|§end--§cyan|>§end Generating §whitePostProcessors§end from Storage...");
+        log.info(
+                "§white|§end  §cyan|§end  Detected {} §whiteDataPostProcessor(s)§end, {} §whitePostProcessTarget(s)§end",
                 this.postProcessorStorage.size(),
                 this.regy().postProcessTargetStorage().size()
         );
 
         var successCount = 0;
         for (var postProcessor : this.postProcessorStorage) {
-            this.log().info(
-                    "|---- Running post processor {}...",
-                    postProcessor.getClass().getSimpleName()
-            );
-
             try {
+                log.info(
+                        "§white|§end  §cyan|§end  §yellow|§end  > Generating §cyan{}§end... §white(DataPostProcessor)§end",
+                        postProcessor.getClass().getSimpleName()
+                );
+
                 postProcessor.generate(this);
-                this.log().info("|------ Success!");
+
                 successCount++;
             }
             catch (Exception exception) {
-                this.log().error("|------ Failure: ", exception);
+                log.error(
+                        "§white|§end  §cyan|§end  §yellow|§end  > Couldn't generate §cyan{}§end... §white(DataPostProcessor)§end",
+                        postProcessor.getClass().getSimpleName()
+                );
+                log.error(
+                        "                                         ↪ ",
+                        exception
+                );
             }
         }
 
-        this.log().info(
-                "|-- Successfully generated post processors! ({}/{})",
+        log.info(
+                "§white|§end--§cyan<|§end Generated {}{}/{}§end §whiteDataGenProviders§end",
+                LogColor.getPercentageColor(successCount / (float) this.postProcessorStorage.size()),
                 successCount,
-                postProcessorStorage.size()
+                this.postProcessorStorage.size()
         );
+
+        log.send();
     }
 }

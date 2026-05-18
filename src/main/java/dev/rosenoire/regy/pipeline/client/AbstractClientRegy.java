@@ -2,6 +2,7 @@ package dev.rosenoire.regy.pipeline.client;
 
 import dev.rosenoire.regy.api.event.WrappingCallback;
 import dev.rosenoire.regy.api.event.WrappingValueEvent;
+import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.RegyOwnable;
 import dev.rosenoire.regy.pipeline.client.registration.block.ClientBlockEntryBuilder;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 public abstract class AbstractClientRegy<R extends AbstractRegy<R>, SELF extends AbstractClientRegy<R, ?>> implements RegyOwnable {
@@ -49,26 +51,40 @@ public abstract class AbstractClientRegy<R extends AbstractRegy<R>, SELF extends
     // region events
 
     public void initializeEvents() {
-        this.regy().log.info("Initializing client events...");
+        LogEntry.of(this)
+                .info("|> INITIALIZING CLIENT EVENTS")
+                .send();
 
         registerAllBlockEntryRenderModes();
     }
 
     private void registerAllBlockEntryRenderModes() {
-        this.regy().log.info("|-- Register block entries RenderMode...");
+        var log = LogEntry.of(this);
+        log.info("§white|§end--§cyan|>§end Registering all BlockEntry RenderModes...");
+
+        var entries = new ArrayList<BlockEntry<?>>();
+
         for (Entry<?> entry : this.instance.entries()) {
             if (entry instanceof BlockEntry<?> blockEntry) {
-                registerBlockEntryRenderMode(blockEntry);
+                entries.add(blockEntry);
             }
         }
+
+        log.info("§white|§end--§cyan|§end  Detected {} potential entries", entries.size());
+        log.send();
+
+        entries.forEach(this::registerBlockEntryRenderMode);
     }
 
     private void registerBlockEntryRenderMode(BlockEntry<?> blockEntry) {
         var identifier = blockEntry.identifier();
-        this.regy().log.info("|---- Checking BlockEntry '{}' RenderMode...", identifier);
-
         var renderMode = blockEntry.renderMode;
+
         if (renderMode != BlockRenderMode.SOLID) {
+            LogEntry.of(this)
+                    .info("§white|§end--§cyan|§end  > §green\"{}\"§end §white{}§end", identifier, renderMode)
+                    .send();
+
             BlockRenderLayerMap.putBlock(blockEntry.get(), switch (renderMode) {
                 case CUTOUT -> ChunkSectionLayer.CUTOUT;
                 case TRANSLUCENT -> ChunkSectionLayer.TRANSLUCENT;

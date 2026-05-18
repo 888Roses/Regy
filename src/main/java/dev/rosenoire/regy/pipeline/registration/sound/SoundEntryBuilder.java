@@ -1,9 +1,8 @@
 package dev.rosenoire.regy.pipeline.registration.sound;
 
+import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -24,24 +23,33 @@ public class SoundEntryBuilder<P> extends AbstractEntryBuilder<SoundEntry, P> {
 
     @Override
     public @NonNull SoundEntry register() {
-        regy().log.info("Starting registration for sound '{}'...", identifier());
+        var log = LogEntry.of(this);
+        log.info("|> §bold§cyan(SoundEntryBuilder)§end §green\"{}\"§end", this.identifier());
 
-        regy().log.info("|---- Creating sound event...");
-        var soundEvent = isFixedRange
-                ? SoundEvent.createFixedRangeEvent(identifier(), range)
-                : SoundEvent.createVariableRangeEvent(identifier());
+        if (this.isFixedRange) {
+            log.info(
+                    "|  > Creating fixed range SoundEvent... §blue({}b)§end",
+                    Math.round(this.range * 100f) / 100f
+            );
+        } else {
+            log.info("|  > Creating variable range SoundEvent...");
+        }
 
-        regy().log.info("|---- Registering...");
-        Registry.register(BuiltInRegistries.SOUND_EVENT, identifier(), soundEvent);
+        var soundEvent = this.isFixedRange
+                ? SoundEvent.createFixedRangeEvent(this.identifier(), this.range)
+                : SoundEvent.createVariableRangeEvent(this.identifier());
 
-        regy().log.info("|---- Creating Sound Entry...");
+        log.info("|  > Registering SoundEvent...");
+        Registry.register(BuiltInRegistries.SOUND_EVENT, this.identifier(), soundEvent);
+
+        log.info("|  > Creating SoundEntry...");
         var soundEntry = this.regy().entry(new SoundEntry(
                 soundEvent,
                 this.regyIdentifier(),
                 this.identifier()
         ));
 
-        regy().log.info("|-- Finished registration successfully!");
+        log.send();
         return soundEntry;
     }
 

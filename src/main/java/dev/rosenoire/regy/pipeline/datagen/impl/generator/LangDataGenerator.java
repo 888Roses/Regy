@@ -25,11 +25,9 @@ public class LangDataGenerator extends FabricLanguageProvider implements DataGen
 
     public void add(String key, String value) {
         if (StringHelper.isNullBlankOrEmpty(key) || StringHelper.isNullBlankOrEmpty(value)) {
-            RegyCommon.log.warn("Could not add lang because either the key or the value was null: '{}' -> '{}'", StringHelper.defaulted(key, "null"), StringHelper.defaulted(value, "null"));
             return;
         }
 
-        RegyCommon.log.info("Added lang: '{}' -> {}", key, value);
         this.entries.put(key, value);
     }
 

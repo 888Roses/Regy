@@ -1,5 +1,6 @@
 package dev.rosenoire.regy.pipeline.client.registration;
 
+import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.client.AbstractClientRegy;
 import dev.rosenoire.regy.pipeline.client.ClientRegyOwnable;
@@ -42,7 +43,10 @@ public abstract class AbstractClientEntryBuilder<E extends Entry<V>, V> implemen
     }
 
     public void register() {
-        this.regy().log.info("Adding data-generation object for '{}'...", this.entry().regyIdentifier());
         this.client().dataGeneration().addData(this);
+
+        LogEntry.of(this)
+                .info("|> §bold§cyan({})§end §green\"{}\"§end", this.getClass().getSimpleName(), this.entry().regyIdentifier())
+                .send();
     }
 }

@@ -1,5 +1,6 @@
 package dev.rosenoire.regy.pipeline.registration.item.potion;
 
+import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.foundation.extensions.PotionExtension;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
@@ -32,18 +33,27 @@ public class PotionEntryBuilder<P> extends AbstractEntryBuilder<PotionEntry, P> 
 
     @Override
     public @NonNull PotionEntry register() {
-        regy().log.info("Starting registration for potion '{}'...", identifier());
+        var log = LogEntry.of(this);
 
-        regy().log.info("|---- Creating potion and registering...");
+        log.info("|> §bold§cyan(PotionEntryBuilder)§end §green\"{}\"§end", this.identifier());
+
+        log.info("|  > Creating Potion...");
         var potion = new Potion(name, statusEffects.toArray(MobEffectInstance[]::new));
-        ((PotionExtension) potion).regy$setRequiredFeaturesFlatSet(requiredFeatures);
+
+        log.info("|  > Setting requiredFeaturesFlagSet...");
+        ((PotionExtension) potion).regy$setRequiredFeaturesFlagSet(requiredFeatures);
+
+        log.info("|  > Registering Potion...");
         Registry.register(BuiltInRegistries.POTION, identifier(), potion);
 
-        regy().log.info("|---- Creating Potion Entry...");
-        var potionEntry = new PotionEntry(potion, this.regyIdentifier(), this.identifier());
-        potionEntry = this.regy().entry(potionEntry);
+        log.info("|  > Creating PotionEntry...");
+        var potionEntry = this.regy().entry(new PotionEntry(
+                potion,
+                this.regyIdentifier(),
+                this.identifier()
+        ));
 
-        regy().log.info("|-- Finished registration successfully!");
+        log.send();
         return potionEntry;
     }
 

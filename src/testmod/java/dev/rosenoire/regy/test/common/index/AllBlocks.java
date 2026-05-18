@@ -23,6 +23,7 @@ public interface AllBlocks {
             .block("elden_block")
             .simpleItem()
             .properties(requiresCorrectToolForDrops())
+            .cutout()
             .register();
 
     /*

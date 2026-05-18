@@ -11,7 +11,7 @@ public class PotionMixin implements PotionExtension {
     @Shadow private FeatureFlagSet requiredFeatures;
 
     @Override
-    public void regy$setRequiredFeaturesFlatSet(FeatureFlagSet set) {
+    public void regy$setRequiredFeaturesFlagSet(FeatureFlagSet set) {
         this.requiredFeatures = set;
     }
 }

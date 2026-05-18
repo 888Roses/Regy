@@ -1,5 +1,6 @@
 package dev.rosenoire.regy.pipeline.registration.block;
 
+import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.factory.BlockFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.MarkerFactory;
 
 import java.util.HashSet;
 import java.util.function.Function;
@@ -43,15 +45,24 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
 
     @Override
     public @NonNull BlockEntry<B> register() {
-        regy().log.info("Starting registration for block '{}'...", identifier());
+        var log = LogEntry.of(this);
 
-        regy().log.info("|---- Setting property ID and registering...");
+        log.info("|  > Binding §white{}§end...", this.resourceKey);
         this.properties.setId(resourceKey);
+
+        // Display the name of the class of the block and insert it at the start of the message now that we actually have
+        // access to whatever class the block is extending.
         var instance = this.factory.bake(this.properties);
+        log.info(0, "|> §bold§cyan(BlockEntryBuilder)§end §green\"{}\"§end §blue({})§end",
+                this.identifier(),
+                instance.getClass().getSimpleName()
+        );
+
+        log.info("|  > Registering Block at §white{}§end...", this.resourceKey);
         Registry.register(BuiltInRegistries.BLOCK, resourceKey, instance);
 
-        regy().log.info("|---- Creating Block Entry...");
-        var entry = regy().entry(new BlockEntry<>(
+        log.info("|  > Creating BlockEntry...");
+        var blockEntry = regy().entry(new BlockEntry<>(
                 instance,
                 this.resourceKey,
                 this.renderMode,
@@ -59,13 +70,16 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
         ));
 
         if (this.unbakedItem != null) {
-            regy().log.info("|---- Registering unbaked item...");
+            log.info("|  > Detected Unbaked Item...");
+            log.send();
             this.unbakedItem.register();
-            regy().log.info("|---- Finished registering unbaked item...");
+        }
+        // Having to do this because otherwise the full child item message is sent first which is uh, suboptimal LOL.
+        else {
+            log.send();
         }
 
-        regy().log.info("|-- Finished registration successfully!");
-        return entry;
+        return blockEntry;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package dev.rosenoire.regy.pipeline.registration.tag;
 
 import dev.rosenoire.regy.api.data.NonNullConsumer;
+import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.TagDataGenerator;
@@ -56,29 +57,32 @@ public abstract class AbstractTagEntryBuilder
 
     @Override
     public @NonNull ENTRY register() {
-        this.log().info(
-                "Starting registration for tag '{}' of type '{}'...",
+        var log = LogEntry.of(this);
+
+        log.info("|> §bold§cyan({})§end §green\"{}\"§end §blue({})§end",
+                this.getClass().getSimpleName(),
                 this.identifier(),
-                this.registry.identifier()
+                "registry: \"" + this.registry.identifier() + "\""
         );
 
-        this.log().info("|---- Registering Tag Key...");
+        log.info("|  > Creating TagKey...");
         var tag = TagKey.create(this.registry, this.identifier());
 
-        this.log().info("|---- Creating Tag Entry...");
+        log.info("|  > Creating TagEntry...");
         var entry = regy().entry(this.factory.bake(
                 tag,
                 this.regyIdentifier(),
                 this.identifier()
         ));
 
+        log.info("|  > Adding TagKey as PostProcess target...");
         this.regy().postProcessTargetStorage().addPostProcessTarget(new GenericTagPostProcessTarget(
                 this.generatorName,
                 tag,
                 this.instructionStorage
         ));
 
-        this.log().info("|-- Finished registration successfully!");
+        log.send();
         return entry;
     }
 

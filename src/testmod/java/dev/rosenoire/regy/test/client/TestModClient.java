@@ -1,5 +1,6 @@
 package dev.rosenoire.regy.test.client;
 
+import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.common.RegyCommon;
 import dev.rosenoire.regy.pipeline.Regy;
 import dev.rosenoire.regy.pipeline.client.ClientRegy;
@@ -13,7 +14,6 @@ public class TestModClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        RegyCommon.log.info("Initializing Client!");
         REGY.initializeEvents();
 
         ClientTickEvents.END_CLIENT_TICK.register(GridConstrainedItemHandler::tick);

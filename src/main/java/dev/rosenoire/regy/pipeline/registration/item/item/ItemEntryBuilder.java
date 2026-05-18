@@ -1,6 +1,7 @@
 package dev.rosenoire.regy.pipeline.registration.item.item;
 
 import dev.rosenoire.regy.api.data.NonNullType;
+import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.content.ItemTransformers;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
@@ -58,29 +59,41 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     @Override
     public @NonNull ItemEntry<I> register() {
-        regy().log.info("Starting registration for item '{}'...", identifier());
+        var log = LogEntry.of(this);
 
         if (this.attributesBuilder != null) {
-            regy().log.info("|---- Building and assigning attribute builder...");
+            log.info("|  > Assigning Attributes...");
             if (this.properties instanceof ItemPropertiesExtension extension) {
                 this.properties = extension.forceSetAttributes(this.attributesBuilder.build());
+            } else {
+                log.error("|    -> Cannot assign Attributes to Properties not implementing ItemPropertiesExtension!");
             }
         }
 
-        regy().log.info("|---- Setting property ID and registering...");
-        this.properties = this.properties.setId(resourceKey);
-        var item = itemFactory.bake(this, this.properties);
-        Registry.register(BuiltInRegistries.ITEM, resourceKey, item);
+        log.info("|  > Binding §white{}§end...", this.resourceKey);
+        this.properties = this.properties.setId(this.resourceKey);
 
-        regy().log.info("|---- Creating Item Entry...");
+        // Display the name of the class of the item and insert it at the start of the message now that we actually have
+        // access to whatever class the item is extending.
+        var instance = itemFactory.bake(this, this.properties);
+        log.info(0, "|> §bold§cyan(ItemEntryBuilder)§end §green\"{}\"§end §blue({})§end",
+                this.identifier(),
+                instance.getClass().getSimpleName()
+        );
+
+        log.info("|  > Registering Item at §white{}§end...", this.resourceKey);
+        Registry.register(BuiltInRegistries.ITEM, this.resourceKey, instance);
+
+        log.info("|  > Creating ItemEntry...");
         var itemEntry = regy().entry(new ItemEntry<>(
-                item,
+                instance,
                 this.resourceKey,
                 this.material(),
                 this.creativeTabBuilder.build()
         ));
 
-        regy().log.info("|-- Finished registration successfully!");
+        log.send();
+
         return itemEntry;
     }
 
