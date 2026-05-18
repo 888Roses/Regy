@@ -2,6 +2,7 @@ package dev.rosenoire.regy.pipeline.client;
 
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.RegyOwnable;
+import dev.rosenoire.regy.pipeline.client.registration.block.ClientBlockEntryBuilder;
 import dev.rosenoire.regy.pipeline.client.registration.item.potion.ClientPotionEntryBuilder;
 import dev.rosenoire.regy.pipeline.client.registration.sound.ClientSoundEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.Entry;
@@ -14,6 +15,7 @@ import dev.rosenoire.regy.pipeline.registration.sound.SoundEntry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.NonNull;
 
 public abstract class AbstractClientRegy<R extends AbstractRegy<R>> implements RegyOwnable {
@@ -73,6 +75,10 @@ public abstract class AbstractClientRegy<R extends AbstractRegy<R>> implements R
 
     public <I extends Item> ClientItemEntryBuilder<I> item(ItemEntry<I> itemEntry) {
         return new ClientItemEntryBuilder<>(this.regy(), itemEntry);
+    }
+
+    public <B extends Block> ClientBlockEntryBuilder<B> block(BlockEntry<B> blockEntry) {
+        return new ClientBlockEntryBuilder<>(this.regy(), blockEntry);
     }
 
     public ClientPotionEntryBuilder potion(PotionEntry potionEntry) {
