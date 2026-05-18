@@ -8,7 +8,9 @@ public interface AllCreativeTabs {
     CreativeTabEntry MAIN = REGY.tab("main")
             .name("Eldritch Testimony")
             .icon(AllItems.ELDRITCH_BLESSING)
-            .mainTab()
+            .items((itemDisplayParameters, output) -> {
+                output.accept(AllItems.ELDRITCH_BLESSING);
+            })
             .register();
 
     static void register() {
