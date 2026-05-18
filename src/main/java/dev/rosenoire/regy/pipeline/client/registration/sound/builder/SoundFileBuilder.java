@@ -1,5 +1,9 @@
-package dev.rosenoire.regy.pipeline.client.registration.sound;
+package dev.rosenoire.regy.pipeline.client.registration.sound.builder;
 
+import dev.rosenoire.regy.pipeline.client.registration.sound.ClientSoundEntryBuilder;
+import dev.rosenoire.regy.pipeline.client.registration.sound.builder.impl.EventHolderSoundFileBuilder;
+import dev.rosenoire.regy.pipeline.client.registration.sound.builder.impl.EventSoundFileBuilder;
+import dev.rosenoire.regy.pipeline.client.registration.sound.builder.impl.FileSoundFileBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;

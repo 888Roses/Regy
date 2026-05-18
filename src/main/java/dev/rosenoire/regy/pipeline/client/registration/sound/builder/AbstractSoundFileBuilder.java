@@ -1,11 +1,14 @@
-package dev.rosenoire.regy.pipeline.client.registration.sound;
+package dev.rosenoire.regy.pipeline.client.registration.sound.builder;
 
+import dev.rosenoire.regy.pipeline.client.registration.sound.ClientSoundEntryBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.datagen.v1.builder.SoundTypeBuilder;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Function;
 
+@SuppressWarnings("unused")
 @Environment(EnvType.CLIENT)
 public abstract class AbstractSoundFileBuilder<F extends AbstractSoundFileBuilder<F>> implements SoundFileBuilder {
     protected final ClientSoundEntryBuilder instance;
@@ -15,7 +18,8 @@ public abstract class AbstractSoundFileBuilder<F extends AbstractSoundFileBuilde
     protected boolean stream = false;
     protected boolean preload = false;
 
-    protected AbstractSoundFileBuilder(ClientSoundEntryBuilder instance) {
+    @ApiStatus.Internal
+    public AbstractSoundFileBuilder(ClientSoundEntryBuilder instance) {
         this.instance = instance;
     }
 
@@ -31,8 +35,12 @@ public abstract class AbstractSoundFileBuilder<F extends AbstractSoundFileBuilde
     }
 
     public ClientSoundEntryBuilder build() {
-        instance.soundEntries.add(transformCommon(createEntry()));
+        this.addSoundEntry(transformCommon(createEntry()));
         return instance;
+    }
+
+    protected void addSoundEntry(SoundTypeBuilder.EntryBuilder sound) {
+        instance.internal_addSoundEntry(sound);
     }
 
     public F self() {

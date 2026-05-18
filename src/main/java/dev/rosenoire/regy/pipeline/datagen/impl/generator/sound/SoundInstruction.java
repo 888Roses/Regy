@@ -1,4 +1,4 @@
-package dev.rosenoire.regy.pipeline.client.registration.sound;
+package dev.rosenoire.regy.pipeline.datagen.impl.generator.sound;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

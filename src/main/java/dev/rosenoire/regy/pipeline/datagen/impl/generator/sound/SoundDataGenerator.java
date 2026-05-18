@@ -1,7 +1,7 @@
-package dev.rosenoire.regy.pipeline.datagen.impl.generator;
+package dev.rosenoire.regy.pipeline.datagen.impl.generator.sound;
 
 import dev.rosenoire.regy.pipeline.datagen.DataGenerator;
-import dev.rosenoire.regy.pipeline.client.registration.sound.SoundInstruction;
+import dev.rosenoire.regy.pipeline.datagen.impl.generator.DataGenerators;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricSoundsProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;

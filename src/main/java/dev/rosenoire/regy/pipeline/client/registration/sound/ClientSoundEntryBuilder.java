@@ -3,11 +3,15 @@ package dev.rosenoire.regy.pipeline.client.registration.sound;
 import dev.rosenoire.regy.api.text.NamingConventions;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.client.registration.AbstractClientEntryBuilder;
+import dev.rosenoire.regy.pipeline.client.registration.sound.builder.SoundFileBuilder;
+import dev.rosenoire.regy.pipeline.client.registration.sound.builder.impl.EventHolderSoundFileBuilder;
+import dev.rosenoire.regy.pipeline.client.registration.sound.builder.impl.EventSoundFileBuilder;
+import dev.rosenoire.regy.pipeline.client.registration.sound.builder.impl.FileSoundFileBuilder;
 import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.DataGenerators;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.LangDataGenerator;
-import dev.rosenoire.regy.pipeline.datagen.impl.generator.SoundDataGenerator;
+import dev.rosenoire.regy.pipeline.datagen.impl.generator.sound.SoundDataGenerator;
 import dev.rosenoire.regy.pipeline.registration.sound.SoundEntry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -18,6 +22,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Util;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -31,7 +36,7 @@ public class ClientSoundEntryBuilder extends AbstractClientEntryBuilder<SoundEnt
     protected float range = 0f;
     protected @Nullable String subtitle = null;
     protected boolean replace = false;
-    final List<SoundTypeBuilder.EntryBuilder> soundEntries = new ArrayList<>();
+    protected final List<SoundTypeBuilder.EntryBuilder> soundEntries = new ArrayList<>();
 
     public ClientSoundEntryBuilder(@NonNull AbstractRegy<?> regy, @NonNull SoundEntry soundEntry) {
         super(regy, soundEntry);
@@ -39,14 +44,12 @@ public class ClientSoundEntryBuilder extends AbstractClientEntryBuilder<SoundEnt
         this.simpleSubtitle();
     }
 
+    // region modifiers
+
     public ClientSoundEntryBuilder replace(boolean replace) {
         this.replace = replace;
         return this;
     }
-
-    // endregion
-
-    // region data generation
 
     public ClientSoundEntryBuilder subtitle(@NonNull String lang) {
         this.subtitle = lang;
@@ -81,6 +84,14 @@ public class ClientSoundEntryBuilder extends AbstractClientEntryBuilder<SoundEnt
     }
 
     // endregion
+
+    // region internal
+
+    @ApiStatus.Internal
+    public ClientSoundEntryBuilder internal_addSoundEntry(SoundTypeBuilder.EntryBuilder entryBuilder) {
+        this.soundEntries.add(entryBuilder);
+        return this;
+    }
 
     // endregion
 
