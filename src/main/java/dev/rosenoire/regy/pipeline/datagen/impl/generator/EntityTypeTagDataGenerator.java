@@ -1,13 +1,12 @@
 package dev.rosenoire.regy.pipeline.datagen.impl.generator;
 
-import dev.rosenoire.regy.pipeline.datagen.DataGenerator;
+import dev.rosenoire.regy.pipeline.registration.tag.TagDefinition;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.tags.TagAppender;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
@@ -16,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 
 public class EntityTypeTagDataGenerator extends FabricTagProvider.EntityTypeTagProvider implements TagDataGenerator<EntityType<?>, EntityTypeTagDataGenerator> {
-    private final Map<TagKey<EntityType<?>>, UnaryOperator<TagAppender<EntityType<?>, EntityType<?>>>> tagStorage = new HashMap<>();
+    private final Map<TagKey<EntityType<?>>, UnaryOperator<TagDefinition<EntityType<?>, EntityType<?>>>> tagStorage = new HashMap<>();
 
     public EntityTypeTagDataGenerator(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
@@ -24,11 +23,13 @@ public class EntityTypeTagDataGenerator extends FabricTagProvider.EntityTypeTagP
 
     @Override
     protected void addTags(HolderLookup.@NonNull Provider wrapperLookup) {
-        this.tagStorage.forEach((tag, func) -> func.apply(valueLookupBuilder(tag)));
+        this.tagStorage.forEach((tag, func) ->
+                func.apply(transform(valueLookupBuilder(tag)))
+        );
     }
 
     @Override
-    public EntityTypeTagDataGenerator tag(TagKey<EntityType<?>> tag, UnaryOperator<TagAppender<EntityType<?>, EntityType<?>>> func) {
+    public EntityTypeTagDataGenerator tag(TagKey<EntityType<?>> tag, UnaryOperator<TagDefinition<EntityType<?>, EntityType<?>>> func) {
         this.tagStorage.put(tag, func);
         return this;
     }

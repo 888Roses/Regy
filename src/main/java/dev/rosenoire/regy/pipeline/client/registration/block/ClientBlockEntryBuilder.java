@@ -3,6 +3,7 @@ package dev.rosenoire.regy.pipeline.client.registration.block;
 import dev.rosenoire.regy.api.event.ValueEvent;
 import dev.rosenoire.regy.foundation.extensions.StairBlockExtension;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
+import dev.rosenoire.regy.pipeline.client.AbstractClientRegy;
 import dev.rosenoire.regy.pipeline.client.registration.AbstractClientEntryBuilder;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.BlockTagDataGenerator;
@@ -23,9 +24,8 @@ import java.util.function.Consumer;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public class ClientBlockEntryBuilder<B extends Block> extends AbstractClientEntryBuilder<BlockEntry<B>, B> {
-
-    public ClientBlockEntryBuilder(@NonNull AbstractRegy<?> regy, @NonNull BlockEntry<B> entry) {
-        super(regy, entry);
+    public ClientBlockEntryBuilder(@NonNull AbstractClientRegy<?, ?> client, @NonNull BlockEntry<B> entry) {
+        super(client, entry);
 
         this.cubeModel();
     }

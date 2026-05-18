@@ -19,18 +19,13 @@ public interface AllBlocks {
     static void register() {
     }
 
-    /*
     BlockEntry<Block> ELDEN_BLOCK = REGY
             .block("elden_block")
-            .transform(eldenProperties())
-            .item()
-            .tag(ItemTags.PIGLIN_LOVED)
-            .recipe(AllRecipes::eldenIngotsToEldenBlock)
-            .recipe(AllRecipes::eldenBlockToEldenIngots)
-            .build()
+            .simpleItem()
             .properties(requiresCorrectToolForDrops())
             .register();
 
+    /*
     BlockEntry<Block> ELDEN_TILES = REGY
             .block("elden_tiles")
             .transform(eldenProperties())

@@ -1,7 +1,8 @@
 package dev.rosenoire.regy.pipeline.client.registration;
 
 import dev.rosenoire.regy.pipeline.AbstractRegy;
-import dev.rosenoire.regy.pipeline.RegyOwnable;
+import dev.rosenoire.regy.pipeline.client.AbstractClientRegy;
+import dev.rosenoire.regy.pipeline.client.ClientRegyOwnable;
 import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
 import dev.rosenoire.regy.pipeline.registration.Entry;
 import net.fabricmc.api.EnvType;
@@ -10,18 +11,18 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
-public abstract class AbstractClientEntryBuilder<E extends Entry<V>, V> implements RegyOwnable, DataGenObject {
-    private final @NonNull AbstractRegy<?> regy;
+public abstract class AbstractClientEntryBuilder<E extends Entry<V>, V> implements ClientRegyOwnable, DataGenObject {
+    private final @NonNull AbstractClientRegy<?, ?> client;
     private final @NonNull E entry;
 
-    public AbstractClientEntryBuilder(@NonNull AbstractRegy<?> regy, @NonNull E entry) {
-        this.regy = regy;
+    public AbstractClientEntryBuilder(@NonNull AbstractClientRegy<?, ?> client, @NonNull E entry) {
+        this.client = client;
         this.entry = entry;
     }
 
     @Override
-    public @NonNull AbstractRegy<?> regy() {
-        return this.regy;
+    public @NonNull AbstractClientRegy<?, ?> client() {
+        return this.client;
     }
 
     public @NonNull E entry() {
@@ -42,6 +43,6 @@ public abstract class AbstractClientEntryBuilder<E extends Entry<V>, V> implemen
 
     public void register() {
         this.regy().log.info("Adding data-generation object for '{}'...", this.entry().regyIdentifier());
-        this.regy().dataGeneration().addData(this);
+        this.client().dataGeneration().addData(this);
     }
 }

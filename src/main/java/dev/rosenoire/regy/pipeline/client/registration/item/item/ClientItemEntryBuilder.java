@@ -4,6 +4,7 @@ import dev.rosenoire.regy.api.event.ValueEvent;
 import dev.rosenoire.regy.api.model.ModelUtils;
 import dev.rosenoire.regy.api.text.NamingConventions;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
+import dev.rosenoire.regy.pipeline.client.AbstractClientRegy;
 import dev.rosenoire.regy.pipeline.client.registration.AbstractClientEntryBuilder;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.*;
@@ -34,8 +35,8 @@ public class ClientItemEntryBuilder<I extends Item> extends AbstractClientEntryB
     protected @Nullable ModelInstruction<I> modelInstruction = ModelInstruction.simple();
     protected @Nullable UnaryOperator<TooltipBuilder> tooltipBuilder;
 
-    public ClientItemEntryBuilder(@NonNull AbstractRegy<?> regy, @NonNull ItemEntry<I> entry) {
-        super(regy, entry);
+    public ClientItemEntryBuilder(@NonNull AbstractClientRegy<?, ?> client, @NonNull ItemEntry<I> entry) {
+        super(client, entry);
 
         this.simpleName();
         this.simpleModel();
@@ -63,7 +64,12 @@ public class ClientItemEntryBuilder<I extends Item> extends AbstractClientEntryB
     protected void dataGenItemTagProvider(DataGeneration gen) {
         gen.<ItemTagDataGenerator>getGeneratorOptional(DataGenerators.ITEM_TAGS).ifPresent(tags -> {
             synchronized (this.tagStorage) {
-                this.tagStorage.forEach(tag -> tags.tag(tag, builder -> builder.add(this.value()).setReplace(false)));
+                this.tagStorage.forEach(tag -> tags
+                        .tag(tag, builder -> builder
+                                .add(this.value())
+                                .setReplace(false)
+                        )
+                );
             }
         });
     }

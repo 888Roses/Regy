@@ -2,6 +2,7 @@ package dev.rosenoire.regy.pipeline.client.registration.sound;
 
 import dev.rosenoire.regy.api.text.NamingConventions;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
+import dev.rosenoire.regy.pipeline.client.AbstractClientRegy;
 import dev.rosenoire.regy.pipeline.client.registration.AbstractClientEntryBuilder;
 import dev.rosenoire.regy.pipeline.client.registration.sound.builder.SoundFileBuilder;
 import dev.rosenoire.regy.pipeline.client.registration.sound.builder.impl.EventHolderSoundFileBuilder;
@@ -38,8 +39,8 @@ public class ClientSoundEntryBuilder extends AbstractClientEntryBuilder<SoundEnt
     protected boolean replace = false;
     protected final List<SoundTypeBuilder.EntryBuilder> soundEntries = new ArrayList<>();
 
-    public ClientSoundEntryBuilder(@NonNull AbstractRegy<?> regy, @NonNull SoundEntry soundEntry) {
-        super(regy, soundEntry);
+    public ClientSoundEntryBuilder(@NonNull AbstractClientRegy<?, ?> client, @NonNull SoundEntry entry) {
+        super(client, entry);
 
         this.simpleSubtitle();
     }

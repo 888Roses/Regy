@@ -1,90 +1,99 @@
 package dev.rosenoire.regy.pipeline.registration.tag;
 
+import dev.rosenoire.regy.api.data.NonNullConsumer;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
-import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.TagDataGenerator;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.tags.TagAppender;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
-import org.apache.commons.lang3.function.TriFunction;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
-public abstract class AbstractTagEntryBuilder<P, T, E extends AbstractTagEntry<T>, G extends TagDataGenerator<T, G> & DataProvider, B extends AbstractTagEntryBuilder<P, T, E, G, B>> extends AbstractEntryBuilder<E, P> implements DataGenObject {
-    protected final List<@NonNull Consumer<@NonNull TagAppender<T, T>>> appenderInstructions = new ArrayList<>();
+public abstract class AbstractTagEntryBuilder
+        <
+                PARENT,
+                TYPE,
+                ENTRY extends AbstractTagEntry<TYPE>,
+                GENERATOR extends TagDataGenerator<TYPE, GENERATOR> & DataProvider,
+                SELF extends AbstractTagEntryBuilder<PARENT, TYPE, ENTRY, GENERATOR, SELF>
+                >
+        extends AbstractEntryBuilder<ENTRY, PARENT> {
 
-    protected final ResourceKey<Registry<T>> registryResourceKey;
-    protected final TriFunction<TagKey<T>, Identifier, Identifier, E> entryFactory;
-    protected final String dataGeneratorName;
+    /// [ResourceKey] representing the [Registry] represented by the type of [TagKey]
+    /// contained by this [AbstractTagEntryBuilder].
+    protected final @NonNull ResourceKey<Registry<TYPE>> registry;
 
-    public AbstractTagEntryBuilder(@NonNull AbstractRegy<?> regy, P parent, String identifier, ResourceKey<Registry<T>> registryResourceKey, TriFunction<TagKey<T>, Identifier, Identifier, E> entryFactory, String dataGeneratorName) {
+    /// [GenericTagFactory] responsible with creating an instance of [ENTRY] from the
+    /// given parameters.
+    protected final @NonNull GenericTagFactory<TYPE, ENTRY> factory;
+
+    /// Represents the name of generator used to generate the tag data generation.
+    /// This is used in combination with [DataGeneration#getGeneratorOptional(String)]
+    /// to attempt to obtain the generator.
+    protected final @NonNull String generatorName;
+
+    protected final List<@NonNull NonNullConsumer<TagDefinition>> instructionStorage = new ArrayList<>();
+
+    public AbstractTagEntryBuilder(
+            @NonNull AbstractRegy<?> regy,
+            PARENT parent,
+            @NonNull String identifier,
+            @NonNull ResourceKey<Registry<TYPE>> registry,
+            @NonNull GenericTagFactory<TYPE, ENTRY> factory,
+            @NonNull String generatorName
+    ) {
         super(regy, parent, identifier);
-        this.registryResourceKey = registryResourceKey;
-        this.entryFactory = entryFactory;
-        this.dataGeneratorName = dataGeneratorName;
+        this.registry = registry;
+        this.factory = factory;
+        this.generatorName = generatorName;
     }
 
     @Override
-    public @NonNull E register() {
-        var tag = TagKey.create(this.registryResourceKey, identifier());
-        var entry = regy().entry(this.entryFactory.apply(tag, regyIdentifier(), identifier()));
+    public @NonNull ENTRY register() {
+        this.log().info(
+                "Starting registration for tag '{}' of type '{}'...",
+                this.identifier(),
+                this.registry.identifier()
+        );
 
-        this.state = new DataGenState<>(tag);
-        regy().dataGeneration().addData(this);
+        this.log().info("|---- Registering Tag Key...");
+        var tag = TagKey.create(this.registry, this.identifier());
 
+        this.log().info("|---- Creating Tag Entry...");
+        var entry = regy().entry(this.factory.bake(
+                tag,
+                this.regyIdentifier(),
+                this.identifier()
+        ));
+
+        this.regy().postProcessTargetStorage().addPostProcessTarget(new GenericTagPostProcessTarget(
+                this.generatorName,
+                tag,
+                this.instructionStorage
+        ));
+
+        this.log().info("|-- Finished registration successfully!");
         return entry;
     }
 
     @Override
     protected Identifier regyIdentifier() {
-        return identifier().withPrefix("tag/" + registryResourceKey.identifier().getPath() + "/");
+        return identifier().withPrefix("tag/" + registry.identifier().getPath() + "/");
     }
 
-    public B self() {
+    public SELF self() {
         //noinspection unchecked
-        return (B) this;
+        return (SELF) this;
     }
 
-    public B instruction(@NonNull Consumer<@NonNull TagAppender<T, T>> instruction) {
-        this.appenderInstructions.add(instruction);
+    public SELF instruction(@NonNull NonNullConsumer<TagDefinition> instruction) {
+        this.instructionStorage.add(instruction);
         return self();
     }
-
-    // region data generation
-
-    protected DataGenState<T> state;
-
-    public DataGenState<T> getState() {
-        return state;
-    }
-
-    @Override
-    public void collectDataGenProviders(DataGenProviderConsumer collector) {
-        collector.addProvider(this::dataGenTagProvider);
-    }
-
-    private void dataGenTagProvider(DataGeneration dataGeneration) {
-        dataGeneration.<G>getGeneratorOptional(dataGeneratorName).ifPresent(generator -> {
-            generator.tag(state.key(), builder -> {
-                synchronized (this.appenderInstructions) {
-                    this.appenderInstructions.forEach(instruction -> instruction.accept(builder));
-                }
-
-                return builder;
-            });
-        });
-    }
-
-    public record DataGenState<T>(TagKey<T> key) {
-    }
-
-    // endregion
 }

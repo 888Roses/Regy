@@ -1,8 +1,8 @@
 package dev.rosenoire.regy.pipeline;
 
 import dev.rosenoire.regy.api.event.WrappingValueEvent;
+import dev.rosenoire.regy.pipeline.datagen.PostProcessTargetStorage;
 import dev.rosenoire.regy.pipeline.registration.sound.SoundEntryBuilder;
-import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.factory.AxeItemFactory;
 import dev.rosenoire.regy.pipeline.factory.BlockFactory;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
@@ -18,7 +18,6 @@ import dev.rosenoire.regy.pipeline.registration.item.material.ToolMaterialEntryB
 import dev.rosenoire.regy.pipeline.registration.item.potion.PotionEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.tag.item.ItemTagEntryBuilder;
 import dev.rosenoire.regy.tooltips.TooltipPalette;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.AxeItem;
@@ -41,12 +40,14 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
     public final Logger log = LoggerFactory.getLogger("regy:" + modNamespace);
 
     // region internal
+
     private final HashMap<Identifier, Entry<?>> entries = new HashMap<>();
     public final CreativeTabMapper creativeTabMapper = new CreativeTabMapper(this);
 
-    protected final WrappingValueEvent<R> onSetupDatagen = WrappingValueEvent.create();
     protected final WrappingValueEvent<Entry<?>> onEntryAdded = WrappingValueEvent.create();
     protected @NonNull TooltipPalette tooltipPalette = TooltipPalette.DEFAULT;
+
+    protected @NonNull PostProcessTargetStorage postProcessTargetStorage = new PostProcessTargetStorage(this);
 
     protected AbstractRegy(String modNamespace) {
         super(modNamespace);
@@ -67,18 +68,6 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
     // TODO: Documentation!
     public R tooltipPalette(@NonNull TooltipPalette tooltipPalette) {
         this.tooltipPalette = tooltipPalette;
-        return self();
-    }
-
-    // TODO: Documentation!
-    public R onBeforeSetupDatagen(@NonNull Consumer<@NonNull R> subscriber) {
-        this.onSetupDatagen.before().subscribe(subscriber);
-        return self();
-    }
-
-    // TODO: Documentation!
-    public R onAfterSetupDatagen(@NonNull Consumer<@NonNull R> subscriber) {
-        this.onSetupDatagen.after().subscribe(subscriber);
         return self();
     }
 
@@ -131,6 +120,10 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
 
     public @NonNull TooltipPalette tooltipPalette() {
         return this.tooltipPalette;
+    }
+
+    public @NonNull PostProcessTargetStorage postProcessTargetStorage() {
+        return this.postProcessTargetStorage;
     }
 
     // endregion
@@ -213,35 +206,6 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
 
     public SoundEntryBuilder<R> sound(String identifier) {
         return new SoundEntryBuilder<>(this.self(), this.self(), identifier);
-    }
-
-    // endregion
-
-    // region datagen
-
-    protected final DataGeneration dataGeneration = new DataGeneration(this);
-    protected FabricDataGenerator.Pack datagenPack;
-
-    /// Represents the [FabricDataGenerator.Pack] data-gen pack targeted by this
-    /// [AbstractRegy] instance after
-    /// [#runDatagen(FabricDataGenerator.Pack)] was called.
-    public FabricDataGenerator.Pack pack() {
-        return datagenPack;
-    }
-
-    /// Represents the manager for all data generation for this [AbstractRegy] instance.
-    public DataGeneration dataGeneration() {
-        return this.dataGeneration;
-    }
-
-    public void runDatagen(@NonNull FabricDataGenerator generator) {
-        this.runDatagen(generator.createPack());
-    }
-
-    public void runDatagen(FabricDataGenerator.Pack datagenPack) {
-        this.onSetupDatagen.before().accept(self());
-        this.datagenPack = datagenPack;
-        this.onSetupDatagen.after().accept(self());
     }
 
     // endregion

@@ -1,26 +1,11 @@
 package dev.rosenoire.regy.pipeline;
 
-import dev.rosenoire.regy.pipeline.datagen.impl.generator.*;
-import dev.rosenoire.regy.pipeline.datagen.impl.generator.sound.SoundDataGenerator;
-
 /// Represents a default implementation of the [AbstractRegy] class.
 /// This class is `final`; if you wish to extend the behaviour of a Regy registry,
 /// extend [AbstractRegy] instead.
 public final class Regy extends AbstractRegy<Regy> {
     private Regy(String modNamespace) {
         super(modNamespace);
-
-        onBeforeSetupDatagen(instance -> instance.dataGeneration()
-                .addGenerator(LangDataGenerator::new)
-                .addGenerator(ModelDataGenerator::new)
-                .addGenerator(RecipeDataGenerator::new)
-                .addGenerator(ItemTagDataGenerator::new)
-                .addGenerator(BlockTagDataGenerator::new)
-                .addGenerator(BlockEntityTagDataGenerator::new)
-                .addGenerator(FluidTagDataGenerator::new)
-                .addGenerator(EntityTypeTagDataGenerator::new)
-                .addGenerator(SoundDataGenerator::new)
-        );
     }
 
     /// Creates a new getOwner of the default Regy class using the given `namespace`

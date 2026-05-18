@@ -1,6 +1,6 @@
 package dev.rosenoire.regy.pipeline.datagen.impl.generator;
 
-import dev.rosenoire.regy.pipeline.datagen.DataGenerator;
+import dev.rosenoire.regy.pipeline.registration.tag.TagDefinition;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 
 public class ItemTagDataGenerator extends FabricTagProvider.ItemTagProvider implements TagDataGenerator<Item, ItemTagDataGenerator> {
-    private final Map<TagKey<Item>, UnaryOperator<TagAppender<Item, Item>>> tagStorage = new HashMap<>();
+    private final Map<TagKey<Item>, UnaryOperator<TagDefinition<Item, Item>>> tagStorage = new HashMap<>();
 
     public ItemTagDataGenerator(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
@@ -23,11 +23,13 @@ public class ItemTagDataGenerator extends FabricTagProvider.ItemTagProvider impl
 
     @Override
     protected void addTags(HolderLookup.@NonNull Provider wrapperLookup) {
-        this.tagStorage.forEach((tag, func) -> func.apply(valueLookupBuilder(tag)));
+        this.tagStorage.forEach((tag, func) ->
+                func.apply(transform(valueLookupBuilder(tag)))
+        );
     }
 
     @Override
-    public ItemTagDataGenerator tag(TagKey<Item> tag, UnaryOperator<TagAppender<Item, Item>> func) {
+    public ItemTagDataGenerator tag(TagKey<Item> tag, UnaryOperator<TagDefinition<Item, Item>> func) {
         this.tagStorage.put(tag, func);
         return this;
     }

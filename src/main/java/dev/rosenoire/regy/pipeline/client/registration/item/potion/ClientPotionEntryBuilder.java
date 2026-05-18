@@ -2,6 +2,7 @@ package dev.rosenoire.regy.pipeline.client.registration.item.potion;
 
 import dev.rosenoire.regy.api.text.NamingConventions;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
+import dev.rosenoire.regy.pipeline.client.AbstractClientRegy;
 import dev.rosenoire.regy.pipeline.client.registration.AbstractClientEntryBuilder;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.DataGenerators;
@@ -15,8 +16,8 @@ import org.jspecify.annotations.Nullable;
 public class ClientPotionEntryBuilder extends AbstractClientEntryBuilder<PotionEntry, Potion> {
     private @Nullable String generatedName;
 
-    public ClientPotionEntryBuilder(@NonNull AbstractRegy<?> regy, @NonNull PotionEntry entry) {
-        super(regy, entry);
+    public ClientPotionEntryBuilder(@NonNull AbstractClientRegy<?, ?> client, @NonNull PotionEntry entry) {
+        super(client, entry);
         this.simpleName();
     }
 

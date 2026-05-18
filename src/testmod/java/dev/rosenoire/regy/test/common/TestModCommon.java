@@ -24,5 +24,6 @@ public class TestModCommon implements ModInitializer {
         AllSounds.register();
         AllPotions.register();
         AllBlocks.register();
+        AllItemTags.register();
     }
 }

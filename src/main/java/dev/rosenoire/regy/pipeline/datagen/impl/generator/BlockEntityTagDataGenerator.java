@@ -1,12 +1,11 @@
 package dev.rosenoire.regy.pipeline.datagen.impl.generator;
 
-import dev.rosenoire.regy.pipeline.datagen.DataGenerator;
+import dev.rosenoire.regy.pipeline.registration.tag.TagDefinition;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.tags.TagAppender;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jspecify.annotations.NonNull;
 
@@ -16,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 
 public class BlockEntityTagDataGenerator extends FabricTagProvider.BlockEntityTypeTagProvider implements TagDataGenerator<BlockEntityType<?>, BlockEntityTagDataGenerator> {
-    private final Map<TagKey<BlockEntityType<?>>, UnaryOperator<TagAppender<BlockEntityType<?>, BlockEntityType<?>>>> tagStorage = new HashMap<>();
+    private final Map<TagKey<BlockEntityType<?>>, UnaryOperator<TagDefinition<BlockEntityType<?>, BlockEntityType<?>>>> tagStorage = new HashMap<>();
 
     public BlockEntityTagDataGenerator(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
@@ -24,11 +23,13 @@ public class BlockEntityTagDataGenerator extends FabricTagProvider.BlockEntityTy
 
     @Override
     protected void addTags(HolderLookup.@NonNull Provider wrapperLookup) {
-        this.tagStorage.forEach((tag, func) -> func.apply(valueLookupBuilder(tag)));
+        this.tagStorage.forEach((tag, func) ->
+                func.apply(transform(valueLookupBuilder(tag)))
+        );
     }
 
     @Override
-    public BlockEntityTagDataGenerator tag(TagKey<BlockEntityType<?>> tag, UnaryOperator<TagAppender<BlockEntityType<?>, BlockEntityType<?>>> func) {
+    public BlockEntityTagDataGenerator tag(TagKey<BlockEntityType<?>> tag, UnaryOperator<TagDefinition<BlockEntityType<?>, BlockEntityType<?>>> func) {
         this.tagStorage.put(tag, func);
         return this;
     }
