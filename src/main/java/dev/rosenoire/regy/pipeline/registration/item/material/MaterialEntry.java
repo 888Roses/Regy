@@ -6,7 +6,7 @@ import net.minecraft.world.item.ToolMaterial;
 import org.jspecify.annotations.NonNull;
 
 public class MaterialEntry extends AbstractSimpleEntry<ToolMaterial> {
-    public MaterialEntry(@NonNull ToolMaterial value, Identifier regyIdentifier) {
-        super(value, regyIdentifier);
+    public MaterialEntry(@NonNull ToolMaterial value, @NonNull Identifier regyIdentifier, @NonNull Identifier identifier) {
+        super(value, regyIdentifier, identifier);
     }
 }

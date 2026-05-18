@@ -1,13 +1,16 @@
-package dev.rosenoire.regy.pipeline.registration.sound;
+package dev.rosenoire.regy.pipeline.client.registration.sound;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.datagen.v1.builder.SoundTypeBuilder;
 import net.minecraft.resources.Identifier;
 
-public class FileSoundFileBuilder<P> extends AbstractSoundFileBuilder<FileSoundFileBuilder<P>, P> {
+@Environment(EnvType.CLIENT)
+public class FileSoundFileBuilder extends AbstractSoundFileBuilder<FileSoundFileBuilder> {
     protected final Identifier soundEvent;
     protected int variants;
 
-    protected FileSoundFileBuilder(SoundEntryBuilder<P> instance, Identifier soundEvent) {
+    protected FileSoundFileBuilder(ClientSoundEntryBuilder instance, Identifier soundEvent) {
         super(instance);
         this.soundEvent = soundEvent;
     }
@@ -18,7 +21,7 @@ public class FileSoundFileBuilder<P> extends AbstractSoundFileBuilder<FileSoundF
     }
 
     @Override
-    public SoundEntryBuilder<P> build() {
+    public ClientSoundEntryBuilder build() {
         if (this.variants <= 0) {
             return super.build();
         }
@@ -31,7 +34,7 @@ public class FileSoundFileBuilder<P> extends AbstractSoundFileBuilder<FileSoundF
         return instance;
     }
 
-    public FileSoundFileBuilder<P> variants(int variants) {
+    public FileSoundFileBuilder variants(int variants) {
         this.variants = variants;
         return self();
     }

@@ -7,7 +7,7 @@ import net.minecraft.world.item.Item;
 import org.jspecify.annotations.NonNull;
 
 public class ItemTagEntry extends AbstractTagEntry<Item> {
-    public ItemTagEntry(@NonNull TagKey<Item> value, Identifier regyIdentifier) {
-        super(value, regyIdentifier);
+    public ItemTagEntry(@NonNull TagKey<Item> value, @NonNull Identifier regyIdentifier, @NonNull Identifier identifier) {
+        super(value, regyIdentifier, identifier);
     }
 }

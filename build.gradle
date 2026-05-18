@@ -16,6 +16,8 @@ sourceSets {
 }
 
 loom {
+    accessWidenerPath = file("src/testmod/resources/testmod.accesswidener")
+
     runs {
         testmodClient {
             client()

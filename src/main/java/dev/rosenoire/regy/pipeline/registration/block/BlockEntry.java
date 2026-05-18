@@ -7,15 +7,14 @@ import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.NonNull;
 
 import java.util.HashSet;
-import java.util.List;
 
 public class BlockEntry<B extends Block> extends AbstractRegistryEntry<B, Block> {
     public final BlockRenderMode renderMode;
-    public final HashSet<TagKey<Block>> tags;
+    public final HashSet<TagKey<Block>> tagStorage;
 
     public BlockEntry(@NonNull B value, ResourceKey<Block> resourceKey, BlockRenderMode renderMode, HashSet<TagKey<Block>> tagStorage) {
         super(value, resourceKey);
         this.renderMode = renderMode;
-        this.tags = tagStorage;
+        this.tagStorage = tagStorage;
     }
 }

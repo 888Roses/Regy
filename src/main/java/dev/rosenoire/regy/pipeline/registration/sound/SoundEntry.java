@@ -6,7 +6,7 @@ import net.minecraft.sounds.SoundEvent;
 import org.jspecify.annotations.NonNull;
 
 public class SoundEntry extends AbstractSimpleEntry<SoundEvent> {
-    public SoundEntry(@NonNull SoundEvent value, Identifier regyIdentifier) {
-        super(value, regyIdentifier);
+    public SoundEntry(@NonNull SoundEvent value, @NonNull Identifier regyIdentifier, @NonNull Identifier identifier) {
+        super(value, regyIdentifier, identifier);
     }
 }

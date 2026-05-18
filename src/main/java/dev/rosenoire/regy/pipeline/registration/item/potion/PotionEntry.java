@@ -6,7 +6,7 @@ import net.minecraft.world.item.alchemy.Potion;
 import org.jspecify.annotations.NonNull;
 
 public class PotionEntry extends AbstractSimpleEntry<Potion> {
-    public PotionEntry(@NonNull Potion value, Identifier regyIdentifier) {
-        super(value, regyIdentifier);
+    public PotionEntry(@NonNull Potion value, @NonNull Identifier regyIdentifier, @NonNull Identifier identifier) {
+        super(value, regyIdentifier, identifier);
     }
 }

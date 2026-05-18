@@ -10,16 +10,15 @@ import static dev.rosenoire.regy.test.common.TestModCommon.REGY;
 import static dev.rosenoire.regy.pipeline.content.ItemTransformers.*;
 
 public interface AllItems {
+    static void register() {
+    }
+
     ItemEntry<Item> ELDRITCH_BLESSING = REGY
             .item("eldritch_blessing")
             .properties(properties -> properties.rarity(Rarity.UNCOMMON))
             .properties(single())
-            .tooltip(builder -> builder
-                    .summary("Launches your home-grown vegetables at Enemies. Can be powered with _Air Pressure_ from a _Backtank_.")
-                    .behaviour("When R-Clicked", "_Shoots_ a suitable item from your _Inventory_.")
-                    .behaviour("While wearing Backtank", "_No Durability_ will be used. Instead, _Air Pressure_ is drained from the Tank.")
-            )
             .register();
+    /*
 
     ItemEntry<Item> ELDERN_PROSECUTOR = REGY
             .item("eldern_prosecutor")
@@ -75,7 +74,5 @@ public interface AllItems {
             .item("elden_fracture")
             .properties(single())
             .register();
-
-    static void register() {
-    }
+     */
 }

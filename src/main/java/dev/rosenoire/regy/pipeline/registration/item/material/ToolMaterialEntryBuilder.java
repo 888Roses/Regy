@@ -38,7 +38,7 @@ public class ToolMaterialEntryBuilder<P> extends AbstractEntryBuilder<MaterialEn
         }
 
         var material = new ToolMaterial(incorrectBlocksForDrops, durability, speed, attackDamageBonus, enchantmentValue, repairItems);
-        return getRegy().entry(new MaterialEntry(material, this.identifier()));
+        return regy().entry(new MaterialEntry(material, this.regyIdentifier(), this.identifier()));
     }
 
     @Override

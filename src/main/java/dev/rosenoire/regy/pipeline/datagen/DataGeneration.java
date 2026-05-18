@@ -29,14 +29,14 @@ public class DataGeneration implements RegyOwnable {
     }
 
     @Override
-    public @NonNull AbstractRegy<?> getRegy() {
+    public @NonNull AbstractRegy<?> regy() {
         return regy;
     }
 
     /// Represents the [FabricDataGenerator.Pack] data-gen pack targeted by the
     /// generation ran by this [AbstractRegy]'s [DataGeneration].
     public FabricDataGenerator.Pack pack() {
-        return this.getRegy().pack();
+        return this.regy().pack();
     }
 
     // TODO: Documentation!

@@ -1,13 +1,16 @@
-package dev.rosenoire.regy.pipeline.registration.sound;
+package dev.rosenoire.regy.pipeline.client.registration.sound;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.datagen.v1.builder.SoundTypeBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 
-public class EventHolderSoundFileBuilder<P> extends AbstractSoundFileBuilder<EventHolderSoundFileBuilder<P>, P> {
+@Environment(EnvType.CLIENT)
+public class EventHolderSoundFileBuilder extends AbstractSoundFileBuilder<EventHolderSoundFileBuilder> {
     protected final Holder<SoundEvent> soundEvent;
 
-    protected EventHolderSoundFileBuilder(SoundEntryBuilder<P> instance, Holder<SoundEvent> soundEvent) {
+    protected EventHolderSoundFileBuilder(ClientSoundEntryBuilder instance, Holder<SoundEvent> soundEvent) {
         super(instance);
         this.soundEvent = soundEvent;
     }

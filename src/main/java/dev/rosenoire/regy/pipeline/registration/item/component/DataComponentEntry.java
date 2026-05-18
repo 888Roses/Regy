@@ -6,7 +6,7 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
 public class DataComponentEntry<V> extends AbstractSimpleEntry<DataComponentType<V>> {
-    public DataComponentEntry(@NonNull DataComponentType<V> value, Identifier regyIdentifier) {
-        super(value, regyIdentifier);
+    public DataComponentEntry(@NonNull DataComponentType<V> value, @NonNull Identifier regyIdentifier, @NonNull Identifier identifier) {
+        super(value, regyIdentifier, identifier);
     }
 }

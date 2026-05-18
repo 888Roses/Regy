@@ -5,11 +5,13 @@ import org.jspecify.annotations.NonNull;
 
 public abstract class AbstractSimpleEntry<T> implements Entry<T>  {
     protected final @NonNull T value;
-    protected final Identifier regyIdentifier;
+    protected final @NonNull Identifier regyIdentifier;
+    protected final @NonNull Identifier identifier;
 
-    public AbstractSimpleEntry(@NonNull T value, Identifier regyIdentifier) {
+    public AbstractSimpleEntry(@NonNull T value, @NonNull Identifier regyIdentifier, @NonNull Identifier identifier) {
         this.value = value;
         this.regyIdentifier = regyIdentifier;
+        this.identifier = identifier;
     }
 
     @Override
@@ -18,7 +20,12 @@ public abstract class AbstractSimpleEntry<T> implements Entry<T>  {
     }
 
     @Override
-    public Identifier regyIdentifier() {
+    public @NonNull Identifier regyIdentifier() {
         return this.regyIdentifier;
+    }
+
+    @Override
+    public @NonNull Identifier identifier() {
+        return this.identifier;
     }
 }

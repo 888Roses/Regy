@@ -6,7 +6,7 @@ import net.minecraft.tags.TagKey;
 import org.jspecify.annotations.NonNull;
 
 public abstract class AbstractTagEntry<T> extends AbstractSimpleEntry<TagKey<T>> {
-    public AbstractTagEntry(@NonNull TagKey<T> value, Identifier regyIdentifier) {
-        super(value, regyIdentifier);
+    public AbstractTagEntry(@NonNull TagKey<T> value, @NonNull Identifier regyIdentifier, @NonNull Identifier identifier) {
+        super(value, regyIdentifier, identifier);
     }
 }

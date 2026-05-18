@@ -1,15 +1,8 @@
 package dev.rosenoire.regy.pipeline.registration.item.item;
 
 import dev.rosenoire.regy.api.data.NonNullType;
-import dev.rosenoire.regy.api.event.ValueEvent;
-import dev.rosenoire.regy.api.model.ModelUtils;
-import dev.rosenoire.regy.api.text.NamingConventions;
-import dev.rosenoire.regy.common.RegyCommon;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.content.ItemTransformers;
-import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
-import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
-import dev.rosenoire.regy.pipeline.datagen.impl.generator.*;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.block.BlockEntryBuilder;
@@ -17,11 +10,6 @@ import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntry;
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabGroup;
 import dev.rosenoire.regy.pipeline.registration.item.group.VanillaCreativeTab;
 import dev.rosenoire.regy.pipeline.registration.item.material.MaterialEntry;
-import dev.rosenoire.regy.tooltips.builder.TooltipBuilder;
-import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.model.ItemModelUtils;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Registry;
@@ -29,11 +17,8 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -49,14 +34,12 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<ItemEntry<I>, P> implements DataGenObject {
+public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<ItemEntry<I>, P> {
     protected final ItemFactory<I> itemFactory;
     protected final ResourceKey<Item> resourceKey;
 
@@ -71,36 +54,34 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
         this.itemFactory = itemFactory;
         this.resourceKey = ResourceKey.create(Registries.ITEM, identifier());
         this.properties = new Item.Properties();
-
-        this.simpleName();
-        this.simpleModel();
     }
 
     @Override
     public @NonNull ItemEntry<I> register() {
-        RegyCommon.log.info("Starting registration for entry builder: '{}'...", identifier());
+        regy().log.info("Starting registration for item '{}'...", identifier());
 
         if (this.attributesBuilder != null) {
-            RegyCommon.log.info("  Building attribute building...");
+            regy().log.info("|---- Building and assigning attribute builder...");
             if (this.properties instanceof ItemPropertiesExtension extension) {
                 this.properties = extension.forceSetAttributes(this.attributesBuilder.build());
             }
         }
 
+        regy().log.info("|---- Setting property ID and registering...");
         this.properties = this.properties.setId(resourceKey);
         var item = itemFactory.bake(this, this.properties);
         Registry.register(BuiltInRegistries.ITEM, resourceKey, item);
 
-        itemDataState = new ItemDataState<>(item, this.resourceKey, this.path());
-        RegyCommon.log.info("  Adding data-gen data...");
-        // TODO: Automatize!
-        getRegy().dataGeneration().addData(this);
+        regy().log.info("|---- Creating Item Entry...");
+        var itemEntry = regy().entry(new ItemEntry<>(
+                item,
+                this.resourceKey,
+                this.material(),
+                this.creativeTabBuilder.build()
+        ));
 
-        var entry = new ItemEntry<>(item, resourceKey, material(), creativeTabBuilder.build(), this.tagStorage);
-        RegyCommon.log.info("  Adding entry...");
-        entry = getRegy().entry(entry);
-        RegyCommon.log.info("Finished registration for entry builder: '{}'...", identifier());
-        return entry;
+        regy().log.info("|-- Finished registration successfully!");
+        return itemEntry;
     }
 
     @Override
@@ -130,146 +111,10 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     // endregion
 
-    // region datagen
-
-    /// `String` representing the name to generate for this item entry. Can be null. If
-    /// null, no name should be generated for this item.
-    protected @Nullable String generatedName;
-    /// [ModelInstruction] of [I] representing the model to generate for that item. Can
-    /// be null. If null, the model generation process should be skipped entirely.
-    protected @Nullable ModelInstruction<I> modelInstruction = ModelInstruction.simple();
-    /// [List] of [TagKey] of [Item] representing every tag the built item entry should
-    /// be made part of when running data-gen.
-    protected final List<TagKey<Item>> tagStorage = new ArrayList<>();
-    /// [List] of [Recipe] of [I] representing every recipe related to this item entry.
-    protected final List<Recipe<I>> recipeStorage = new ArrayList<>();
-    protected final ValueEvent<@NonNull DataGenProviderConsumer> onCollectProviders = new ValueEvent<>();
-
-    /// @apiNote Should not be used raw! This variable is ALWAYS right up until
-    /// [#register()] is called. Then, all the data-gen related methods are called, for
-    /// which this data state system was created, and then it is discarded. For that
-    /// reason, it should NEVER be used as a source of information.
-    protected ItemDataState<I> itemDataState;
-    protected @Nullable UnaryOperator<TooltipBuilder> tooltipBuilder;
-
-    /// Represents the translation key for this item entry generated using its
-    /// [#resourceKey()].
-    public String descriptionId() {
-        return ((ItemPropertiesExtension) properties).regy$getEffectiveDescriptionId();
-    }
-
-    public ItemDataState<I> getDataState() {
-        return itemDataState;
-    }
-
-    @Override
-    public void collectDataGenProviders(DataGenProviderConsumer collector) {
-        collector.addProvider(this::dataGenLangProvider);
-        collector.addProvider(this::dataGenModelProvider);
-        collector.addProvider(this::dataGenItemTagProvider);
-        collector.addProvider(this::dataGenRecipeProvider);
-
-        this.onCollectProviders.accept(collector);
-    }
-
-    public ItemEntryBuilder<I, P> collectCustomProviders(@NonNull Consumer<@NonNull DataGenProviderConsumer> consumer) {
-        this.onCollectProviders.subscribe(consumer);
-        return this;
-    }
-
-    protected void dataGenRecipeProvider(DataGeneration gen) {
-        gen.<RecipeDataGenerator>getGeneratorOptional(DataGenerators.RECIPES).ifPresent(recipes ->
-                this.recipeStorage.forEach(instruction ->
-                        recipes.registerRecipe((provider, output) ->
-                                instruction.generateRecipe(gen, provider, output, this.itemDataState))
-                )
-        );
-    }
-
-    protected void dataGenItemTagProvider(DataGeneration gen) {
-        gen.<ItemTagDataGenerator>getGeneratorOptional(DataGenerators.ITEM_TAGS).ifPresent(tags -> {
-            synchronized (this.tagStorage) {
-                this.tagStorage.forEach(tag -> tags.tag(
-                        tag,
-                        builder -> builder.add(itemDataState.item()).setReplace(false)
-                ));
-            }
-        });
-    }
-
-    protected void dataGenModelProvider(DataGeneration gen) {
-        if (this.modelInstruction == null) {
-            return;
-        }
-
-        gen.<ModelDataGenerator>getGeneratorOptional(DataGenerators.MODELS).ifPresent(models ->
-                models.addItemModel(() -> itemModelGenerator ->
-                        modelInstruction.generateModel(gen, itemModelGenerator, itemDataState)
-                )
-        );
-    }
-
-    protected void dataGenLangProvider(DataGeneration gen) {
-        gen.<LangDataGenerator>getGeneratorOptional(DataGenerators.LANG).ifPresent(lang -> {
-            lang.add(descriptionId(), this.generatedName);
-
-            if (this.tooltipBuilder != null) this.tooltipBuilder
-                    .apply(new TooltipBuilder(this.descriptionId(), lang::add))
-                    .build();
-        });
-    }
-
-    @FunctionalInterface
-    public interface ModelInstruction<I extends Item> {
-        void generateModel(DataGeneration dataGen, ItemModelGenerators generators, ItemDataState<I> state);
-
-        static <I extends Item> ModelInstruction<I> simple() {
-            return (dataGen, generators, state) ->
-                    generators.generateFlatItem(state.item(), ModelTemplates.FLAT_ITEM);
-        }
-
-        static <I extends Item> ModelInstruction<I> handheld(ItemModel.Unbaked gui, ItemModel.Unbaked handheld) {
-            return (dataGen, generators, state) ->
-                    generators.itemModelOutput.accept(state.item(), ItemModelGenerators.createFlatModelDispatch(gui, handheld));
-        }
-    }
-
-    @FunctionalInterface
-    public interface Recipe<I extends Item> {
-        void generateRecipe(DataGeneration dataGeneration, RecipeProvider provider, RecipeOutput output, ItemDataState<I> state);
-    }
-
-    // endregion
-
     // region modifiers
 
-    // TODO: Rename to transform
     public <B> B transform(Function<ItemEntryBuilder<I, P>, B> mapper) {
         return mapper.apply(this);
-    }
-
-    public ItemEntryBuilder<I, P> name(@NonNull String name) {
-        this.generatedName = name;
-        return this;
-    }
-
-    public ItemEntryBuilder<I, P> simpleName() {
-        return name(NamingConventions.HUMAN_TEXT.transform(path()));
-    }
-
-    public ItemEntryBuilder<I, P> customName() {
-        this.generatedName = null;
-        return this;
-    }
-
-    public ItemEntryBuilder<I, P> tooltip(@NonNull UnaryOperator<TooltipBuilder> builder) {
-        this.tooltipBuilder = builder;
-        return this;
-    }
-
-    public ItemEntryBuilder<I, P> noTooltip() {
-        this.tooltipBuilder = null;
-        return this;
     }
 
     public ItemEntryBuilder<I, P> properties(Item.@NonNull Properties properties) {
@@ -311,35 +156,6 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     public ItemEntryBuilder<I, P> showInMainTab() {
         this.creativeTabBuilder.showInMainTab(true);
         return this;
-    }
-
-    public ItemEntryBuilder<I, P> model(@NonNull ModelInstruction<I> instruction) {
-        this.modelInstruction = instruction;
-        return this;
-    }
-
-    public ItemEntryBuilder<I, P> customModel() {
-        this.modelInstruction = null;
-        return this;
-    }
-
-    public ItemEntryBuilder<I, P> simpleModel() {
-        return model(ModelInstruction.simple());
-    }
-
-    public ItemEntryBuilder<I, P> handheldModel(ItemModel.Unbaked gui, ItemModel.Unbaked handheld) {
-        return model(ModelInstruction.handheld(gui, handheld));
-    }
-
-    public ItemEntryBuilder<I, P> handheldModel(String guiSuffix, String handheldSuffix) {
-        return this.handheldModel(
-                ItemModelUtils.plainModel(ModelUtils.getItemSubModelId(identifier(), guiSuffix)),
-                ItemModelUtils.plainModel(ModelUtils.getItemSubModelId(identifier(), handheldSuffix))
-        );
-    }
-
-    public ItemEntryBuilder<I, P> handheldModel() {
-        return handheldModel("", "handheld");
     }
 
     public ItemEntryBuilder<I, P> attribute(ItemAttributeModifiers.@NonNull Entry entry) {
@@ -397,6 +213,7 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
     }
 
     public <@NonNullType T> ItemEntryBuilder<I, P> removeComponent(@NonNull DataComponentType<T> dataComponentType) {
+        //noinspection DataFlowIssue
         return properties(properties -> properties.component(dataComponentType, null));
     }
 
@@ -472,16 +289,6 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     public ItemEntryBuilder<I, P> weaponComponent() {
         return weaponComponent(1);
-    }
-
-    public ItemEntryBuilder<I, P> tag(@NonNull TagKey<Item> key) {
-        tagStorage.add(key);
-        return this;
-    }
-
-    public ItemEntryBuilder<I, P> recipe(Recipe<I> recipe) {
-        this.recipeStorage.add(recipe);
-        return this;
     }
 
     // endregion

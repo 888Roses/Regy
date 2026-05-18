@@ -22,7 +22,7 @@ public abstract class AbstractEntryBuilder<T extends Entry<?>, P> implements Reg
         this.identifier = identifier;
     }
 
-    public final @NonNull AbstractRegy<?> getRegy() {
+    public final @NonNull AbstractRegy<?> regy() {
         return this.regy;
     }
 
@@ -39,7 +39,7 @@ public abstract class AbstractEntryBuilder<T extends Entry<?>, P> implements Reg
     /// Returns an [Identifier] representing this [AbstractEntryBuilder] using its getOwner
     /// [AbstractRegy]'s [AbstractRegy#id(String)] and the [#path()].
     public final Identifier identifier() {
-        return getRegy().id(path());
+        return regy().id(path());
     }
 
     /// Registers this builder in the Minecraft registries and returns an [AbstractRegistryEntry]
@@ -54,7 +54,7 @@ public abstract class AbstractEntryBuilder<T extends Entry<?>, P> implements Reg
 
     /// Cannot be called before registration!
     public Optional<T> entry() {
-        return getRegy().entryByIdentifier(this.regyIdentifier()).map(entry -> {
+        return regy().entryByIdentifier(this.regyIdentifier()).map(entry -> {
             try {
                 //noinspection unchecked
                 return (T) entry;

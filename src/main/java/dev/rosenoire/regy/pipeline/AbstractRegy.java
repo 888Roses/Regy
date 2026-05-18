@@ -1,6 +1,7 @@
 package dev.rosenoire.regy.pipeline;
 
 import dev.rosenoire.regy.api.event.WrappingValueEvent;
+import dev.rosenoire.regy.pipeline.registration.sound.SoundEntryBuilder;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.factory.AxeItemFactory;
 import dev.rosenoire.regy.pipeline.factory.BlockFactory;
@@ -15,7 +16,6 @@ import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntryBuild
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabMapper;
 import dev.rosenoire.regy.pipeline.registration.item.material.ToolMaterialEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.potion.PotionEntryBuilder;
-import dev.rosenoire.regy.pipeline.registration.sound.SoundEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.tag.item.ItemTagEntryBuilder;
 import dev.rosenoire.regy.tooltips.TooltipPalette;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -27,6 +27,8 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -36,6 +38,8 @@ import static dev.rosenoire.regy.pipeline.content.BlockTransformers.nonFullBlock
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstance<R> {
+    public final Logger log = LoggerFactory.getLogger("regy:" + modNamespace);
+
     // region internal
     private final HashMap<Identifier, Entry<?>> entries = new HashMap<>();
     public final CreativeTabMapper creativeTabMapper = new CreativeTabMapper(this);
@@ -161,10 +165,6 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
         return new ToolMaterialEntryBuilder<>(self(), self(), identifier);
     }
 
-    public SoundEntryBuilder<R> sound(String identifier) {
-        return new SoundEntryBuilder<>(self(), self(), identifier);
-    }
-
     public PotionEntryBuilder<R> potion(String identifier, String name) {
         return new PotionEntryBuilder<>(self(), self(), identifier, name);
     }
@@ -201,7 +201,6 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
         return block(identifier, properties -> new TrapDoorBlock(blockSetType, properties))
                 .transform(nonFullBlock())
                 .tag(BlockTags.TRAPDOORS)
-                .trapdoorModel()
                 .cutout();
     }
 
@@ -209,8 +208,11 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
         return block(identifier, properties -> new DoorBlock(blockSetType, properties))
                 .transform(nonFullBlock())
                 .tag(BlockTags.DOORS)
-                .doorModel()
                 .cutout();
+    }
+
+    public SoundEntryBuilder<R> sound(String identifier) {
+        return new SoundEntryBuilder<>(this.self(), this.self(), identifier);
     }
 
     // endregion
@@ -222,7 +224,7 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
 
     /// Represents the [FabricDataGenerator.Pack] data-gen pack targeted by this
     /// [AbstractRegy] instance after
-    /// [#setupDatagen(FabricDataGenerator.Pack)] was called.
+    /// [#runDatagen(FabricDataGenerator.Pack)] was called.
     public FabricDataGenerator.Pack pack() {
         return datagenPack;
     }
@@ -232,7 +234,11 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
         return this.dataGeneration;
     }
 
-    public void setupDatagen(FabricDataGenerator.Pack datagenPack) {
+    public void runDatagen(@NonNull FabricDataGenerator generator) {
+        this.runDatagen(generator.createPack());
+    }
+
+    public void runDatagen(FabricDataGenerator.Pack datagenPack) {
         this.onSetupDatagen.before().accept(self());
         this.datagenPack = datagenPack;
         this.onSetupDatagen.after().accept(self());

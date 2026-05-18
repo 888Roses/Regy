@@ -16,6 +16,10 @@ import static dev.rosenoire.regy.pipeline.content.BlockTransformers.*;
 
 @SuppressWarnings("unused")
 public interface AllBlocks {
+    static void register() {
+    }
+
+    /*
     BlockEntry<Block> ELDEN_BLOCK = REGY
             .block("elden_block")
             .transform(eldenProperties())
@@ -136,9 +140,6 @@ public interface AllBlocks {
             .simpleItem()
             .register();
 
-    static void register() {
-    }
-
     private static <B extends Block, R extends AbstractRegy<R>> UnaryOperator<BlockEntryBuilder<B, R>> eldenProperties() {
         return builder -> builder
                 .properties(Blocks.GOLD_BLOCK)
@@ -148,4 +149,5 @@ public interface AllBlocks {
     private static <B extends Block, R extends AbstractRegy<R>> UnaryOperator<BlockEntryBuilder<B, R>> eldenSound() {
         return builder -> builder.properties(properties -> properties.sound(SoundType.AMETHYST));
     }
+     */
 }

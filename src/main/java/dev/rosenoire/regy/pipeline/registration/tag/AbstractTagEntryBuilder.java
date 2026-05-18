@@ -11,22 +11,21 @@ import net.minecraft.data.tags.TagAppender;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import org.apache.commons.lang3.function.TriFunction;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public abstract class AbstractTagEntryBuilder<P, T, E extends AbstractTagEntry<T>, G extends TagDataGenerator<T, G> & DataProvider, B extends AbstractTagEntryBuilder<P, T, E, G, B>> extends AbstractEntryBuilder<E, P> implements DataGenObject {
     protected final List<@NonNull Consumer<@NonNull TagAppender<T, T>>> appenderInstructions = new ArrayList<>();
 
     protected final ResourceKey<Registry<T>> registryResourceKey;
-    protected final BiFunction<TagKey<T>, Identifier, E> entryFactory;
+    protected final TriFunction<TagKey<T>, Identifier, Identifier, E> entryFactory;
     protected final String dataGeneratorName;
 
-    public AbstractTagEntryBuilder(@NonNull AbstractRegy<?> regy, P parent, String identifier, ResourceKey<Registry<T>> registryResourceKey, BiFunction<TagKey<T>, Identifier, E> entryFactory, String dataGeneratorName) {
+    public AbstractTagEntryBuilder(@NonNull AbstractRegy<?> regy, P parent, String identifier, ResourceKey<Registry<T>> registryResourceKey, TriFunction<TagKey<T>, Identifier, Identifier, E> entryFactory, String dataGeneratorName) {
         super(regy, parent, identifier);
         this.registryResourceKey = registryResourceKey;
         this.entryFactory = entryFactory;
@@ -36,10 +35,10 @@ public abstract class AbstractTagEntryBuilder<P, T, E extends AbstractTagEntry<T
     @Override
     public @NonNull E register() {
         var tag = TagKey.create(this.registryResourceKey, identifier());
-        var entry = getRegy().entry(this.entryFactory.apply(tag, regyIdentifier()));
+        var entry = regy().entry(this.entryFactory.apply(tag, regyIdentifier(), identifier()));
 
         this.state = new DataGenState<>(tag);
-        getRegy().dataGeneration().addData(this);
+        regy().dataGeneration().addData(this);
 
         return entry;
     }

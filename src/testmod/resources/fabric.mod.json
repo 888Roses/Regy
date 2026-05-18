@@ -17,5 +17,6 @@
     ]
   },
   "mixins": [
-  ]
+  ],
+  "accessWidener": "testmod.accesswidener"
 }

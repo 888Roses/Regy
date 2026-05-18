@@ -20,6 +20,7 @@ public interface BlockTransformers {
         );
     }
 
+    /*
     @SafeVarargs
     static <B extends Block, P> UnaryOperator<BlockEntryBuilder<B, P>> taggedItem(TagKey<Item>... tags) {
         return builder -> {
@@ -28,6 +29,7 @@ public interface BlockTransformers {
             return itemBuilder.build();
         };
     }
+     */
 
     static UnaryOperator<BlockBehaviour.Properties> requiresCorrectToolForDrops() {
         return BlockBehaviour.Properties::requiresCorrectToolForDrops;

@@ -30,7 +30,7 @@ public class DataComponentEntryBuilder<V, P> extends AbstractEntryBuilder<DataCo
         if (cacheEncoding) builder.cacheEncoding();
 
         var component = Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, identifier(), builder.build());
-        return getRegy().entry(new DataComponentEntry<>(component, regyIdentifier()));
+        return regy().entry(new DataComponentEntry<>(component, regyIdentifier(), identifier()));
     }
 
     @Override
