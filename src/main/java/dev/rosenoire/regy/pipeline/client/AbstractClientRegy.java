@@ -138,7 +138,10 @@ public abstract class AbstractClientRegy<R extends AbstractRegy<R>, SELF extends
 
     public void setupDatagen(FabricDataGenerator.@NonNull Pack pack) {
         if (this.hasRanDatagen) {
-            this.regy().log.warn("Cannot run datagen multiple times!");
+            LogEntry.of(this)
+                    .error("Cannot run datagen because it was already run!")
+                    .send();
+
             return;
         }
 
