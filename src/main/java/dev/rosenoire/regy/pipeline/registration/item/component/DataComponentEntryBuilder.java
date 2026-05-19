@@ -93,7 +93,7 @@ public class DataComponentEntryBuilder<V, P> extends AbstractEntryBuilder<DataCo
         return this;
     }
 
-    public DataComponentEntryBuilder<V, P> networkCodec(StreamCodec<? super RegistryFriendlyByteBuf, V> networkCodec) {
+    public DataComponentEntryBuilder<V, P> streamCodec(StreamCodec<? super RegistryFriendlyByteBuf, V> networkCodec) {
         this.networkCodec = networkCodec;
         return this;
     }
