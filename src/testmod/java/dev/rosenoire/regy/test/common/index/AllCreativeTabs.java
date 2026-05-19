@@ -10,6 +10,7 @@ public interface AllCreativeTabs {
             .icon(AllItems.ELDRITCH_BLESSING)
             .items((itemDisplayParameters, output) -> {
                 output.accept(AllItems.ELDRITCH_BLESSING);
+                output.accept(AllItems.CLEAVER);
             })
             .register();
 

@@ -2,7 +2,10 @@ package dev.rosenoire.regy.tooltips;
 
 import dev.rosenoire.regy.api.data.Colors;
 import dev.rosenoire.regy.api.text.Palette;
+import dev.rosenoire.regy.pipeline.AbstractRegy;
+import dev.rosenoire.regy.pipeline.RegyInternal;
 import net.minecraft.ChatFormatting;
+import net.minecraft.world.item.Item;
 
 @SuppressWarnings("unused")
 public record TooltipPalette(
@@ -20,6 +23,12 @@ public record TooltipPalette(
 
     public Palette getHeaderPalette(boolean unfolded) {
         return unfolded ? this.headerUnfolded() : this.headerFolded();
+    }
+
+    public static TooltipPalette getPalette(Item item) {
+        return RegyInternal.regyFromItem(item)
+                .map(AbstractRegy::tooltipPalette)
+                .orElse(DEFAULT);
     }
 
     public static final class Builder {

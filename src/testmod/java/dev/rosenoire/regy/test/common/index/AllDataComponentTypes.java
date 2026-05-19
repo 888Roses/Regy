@@ -10,7 +10,7 @@ public interface AllDataComponentTypes {
     DataComponentEntry<Integer> UWU_METER = REGY
             .<Integer>component("uwu_meter")
             .codec(Codec.INT)
-            .networkCodec(ByteBufCodecs.INT)
+            .streamCodec(ByteBufCodecs.INT)
             .register();
 
     static void register() {

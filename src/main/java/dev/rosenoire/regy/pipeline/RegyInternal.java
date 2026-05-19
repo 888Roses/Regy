@@ -3,6 +3,7 @@ package dev.rosenoire.regy.pipeline;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
@@ -29,5 +30,10 @@ public interface RegyInternal {
 
     static Optional<AbstractRegy<?>> regyFromReference(Holder.@NonNull Reference<?> reference) {
         return regyFromKey(reference.key());
+    }
+
+    static Optional<AbstractRegy<?>> regyFromItem(Item item) {
+        //noinspection deprecation
+        return regyFromReference(item.builtInRegistryHolder());
     }
 }

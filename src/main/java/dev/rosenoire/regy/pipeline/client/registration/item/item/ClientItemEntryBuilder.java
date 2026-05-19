@@ -1,9 +1,8 @@
 package dev.rosenoire.regy.pipeline.client.registration.item.item;
 
 import dev.rosenoire.regy.api.event.ValueEvent;
-import dev.rosenoire.regy.api.model.ModelUtils;
 import dev.rosenoire.regy.api.text.NamingConventions;
-import dev.rosenoire.regy.pipeline.AbstractRegy;
+import dev.rosenoire.regy.common.index.InternalDataComponents;
 import dev.rosenoire.regy.pipeline.client.AbstractClientRegy;
 import dev.rosenoire.regy.pipeline.client.registration.AbstractClientEntryBuilder;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
@@ -12,14 +11,17 @@ import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import dev.rosenoire.regy.tooltips.builder.TooltipBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.data.models.model.ModelTemplate;
+import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
@@ -35,11 +37,28 @@ public class ClientItemEntryBuilder<I extends Item> extends AbstractClientEntryB
     protected @Nullable ModelInstruction<I> modelInstruction = ModelInstruction.simple();
     protected @Nullable UnaryOperator<TooltipBuilder> tooltipBuilder;
 
+    protected final Map<String, String> skinNames = new HashMap<>();
+    protected final Map<String, String> skinAuthors = new HashMap<>();
+
     public ClientItemEntryBuilder(@NonNull AbstractClientRegy<?, ?> client, @NonNull ItemEntry<I> entry) {
         super(client, entry);
 
         this.simpleName();
         this.simpleModel();
+    }
+
+    public ClientItemEntryBuilder<I> skinName(String skin, String displayName) {
+        this.skinNames.put(skin, displayName);
+        return this;
+    }
+
+    public ClientItemEntryBuilder<I> skinAuthor(String skin, String author) {
+        this.skinAuthors.put(skin, author);
+        return this;
+    }
+
+    public ClientItemEntryBuilder<I> skin(String skin, String displayName, String author) {
+        return this.skinName(skin, displayName).skinAuthor(skin, author);
     }
 
     @Override
@@ -96,6 +115,20 @@ public class ClientItemEntryBuilder<I extends Item> extends AbstractClientEntryB
             if (this.tooltipBuilder != null) {
                 this.tooltipBuilder.apply(new TooltipBuilder(desc, lang::add)).build();
             }
+
+            var component = InternalDataComponents.ITEM_SKIN.get(this.value());
+
+            if (component != null) {
+                for (var skin : component.skins()) {
+                    var nameId = desc + ".skin." + skin;
+                    lang.add(nameId, this.skinNames.getOrDefault(skin, NamingConventions.HUMAN_TEXT.transform(skin)));
+
+                    if (this.skinAuthors.containsKey(skin)) {
+                        var authorId = nameId + ".author";
+                        lang.add(authorId, this.skinAuthors.get(skin));
+                    }
+                }
+            }
         });
     }
 
@@ -128,25 +161,37 @@ public class ClientItemEntryBuilder<I extends Item> extends AbstractClientEntryB
         return this;
     }
 
+    public ClientItemEntryBuilder<I> simpleSkinModel() {
+        return this.skinModel(SkinModelInstruction.simple());
+    }
+
+    public ClientItemEntryBuilder<I> simpleSkinModel(@NonNull ModelTemplate modelTemplate) {
+        return this.skinModel(SkinModelInstruction.simple(modelTemplate));
+    }
+
+    public ClientItemEntryBuilder<I> skinModel(@NonNull SkinModelInstruction<I> instruction) {
+        return this.model(instruction.compute());
+    }
+
     public ClientItemEntryBuilder<I> customModel() {
         this.modelInstruction = null;
         return this;
     }
 
     public ClientItemEntryBuilder<I> simpleModel() {
-        return model(ModelInstruction.simple());
+        return this.model(ModelInstruction.simple());
     }
 
-    public ClientItemEntryBuilder<I> handheldModel(net.minecraft.client.renderer.item.ItemModel.Unbaked gui, net.minecraft.client.renderer.item.ItemModel.Unbaked handheld) {
-        return model(ModelInstruction.handheld(gui, handheld));
+    public ClientItemEntryBuilder<I> handheldModel(ItemModel.@NonNull Unbaked modelInGui, ItemModel.@NonNull Unbaked modelInWorld) {
+        return this.model(ModelInstruction.handheld(modelInGui, modelInWorld));
     }
 
-    public ClientItemEntryBuilder<I> handheldModel(String guiSuffix, String handheldSuffix) {
-        return this.handheldModel(ItemModelUtils.plainModel(ModelUtils.getItemSubModelId(identifier(), guiSuffix)), ItemModelUtils.plainModel(ModelUtils.getItemSubModelId(identifier(), handheldSuffix)));
+    public ClientItemEntryBuilder<I> handheldModel(@NonNull String modelInGuiSuffix, @NonNull String modelInWorldSuffix) {
+        return this.model(ModelInstruction.plainHandheld(this.identifier(), modelInGuiSuffix, modelInGuiSuffix));
     }
 
     public ClientItemEntryBuilder<I> handheldModel() {
-        return handheldModel("", "handheld");
+        return this.model(ModelInstruction.plainHandheld(this.identifier()));
     }
 
     public ClientItemEntryBuilder<I> tag(@NonNull TagKey<Item> key) {

@@ -18,6 +18,7 @@ import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabEntryBuild
 import dev.rosenoire.regy.pipeline.registration.item.group.CreativeTabMapper;
 import dev.rosenoire.regy.pipeline.registration.item.material.ToolMaterialEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.item.potion.PotionEntryBuilder;
+import dev.rosenoire.regy.pipeline.registration.tag.block.BlockTagEntryBuilder;
 import dev.rosenoire.regy.pipeline.registration.tag.item.ItemTagEntryBuilder;
 import dev.rosenoire.regy.tooltips.TooltipPalette;
 import net.minecraft.resources.Identifier;
@@ -178,6 +179,10 @@ public abstract class AbstractRegy<R extends AbstractRegy<R>> extends RegyInstan
 
     public ItemTagEntryBuilder<R> itemTag(String identifier) {
         return new ItemTagEntryBuilder<>(self(), self(), identifier);
+    }
+
+    public BlockTagEntryBuilder<R> blockTag(String identifier) {
+        return new BlockTagEntryBuilder<>(self(), self(), identifier);
     }
 
     public <V> DataComponentEntryBuilder<V, R> component(String identifier) {

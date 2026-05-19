@@ -1,6 +1,8 @@
 package dev.rosenoire.regy.test.data;
 
+import dev.rosenoire.regy.pipeline.client.registration.item.item.SkinModelInstruction;
 import dev.rosenoire.regy.test.common.index.AllItems;
+import net.minecraft.client.data.models.model.ModelTemplates;
 
 import static dev.rosenoire.regy.test.client.TestModClient.REGY;
 
@@ -12,6 +14,14 @@ public interface AllItemData {
                         .behaviour("When R-Clicked", "_Shoots_ a suitable item from your _Inventory_.")
                         .behaviour("While wearing Backtank", "_No Durability_ will be used. Instead, _Air Pressure_ is drained from the Tank.")
                 )
+                .register();
+
+        REGY.item(AllItems.CLEAVER)
+                .simpleSkinModel(ModelTemplates.FLAT_HANDHELD_ITEM)
+                .skinAuthor("alternate", "Rosenoire_")
+                .skinAuthor("femboy_beater", "Rosenoire_")
+                .skinAuthor("sharpened", "ShivAngel")
+                .skinAuthor("butcher", "Rosenoire_")
                 .register();
     }
 }

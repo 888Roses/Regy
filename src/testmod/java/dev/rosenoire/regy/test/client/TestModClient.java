@@ -1,7 +1,5 @@
 package dev.rosenoire.regy.test.client;
 
-import dev.rosenoire.regy.api.logging.LogEntry;
-import dev.rosenoire.regy.common.RegyCommon;
 import dev.rosenoire.regy.pipeline.Regy;
 import dev.rosenoire.regy.pipeline.client.ClientRegy;
 import dev.rosenoire.regy.test.common.TestModCommon;

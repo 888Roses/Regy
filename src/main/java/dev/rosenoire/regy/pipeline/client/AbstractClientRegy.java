@@ -8,6 +8,8 @@ import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.RegyOwnable;
 import dev.rosenoire.regy.pipeline.client.registration.AbstractClientEntryBuilder;
 import dev.rosenoire.regy.pipeline.client.registration.block.ClientBlockEntryBuilder;
+import dev.rosenoire.regy.pipeline.client.registration.item.model.properties.conditional.ConditionalItemModelPropertyBuilder;
+import dev.rosenoire.regy.pipeline.client.registration.item.model.properties.select.SelectItemModelPropertyBuilder;
 import dev.rosenoire.regy.pipeline.client.registration.item.potion.ClientPotionEntryBuilder;
 import dev.rosenoire.regy.pipeline.client.registration.sound.ClientSoundEntryBuilder;
 import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
@@ -22,6 +24,7 @@ import dev.rosenoire.regy.pipeline.registration.sound.SoundEntry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperty;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.NonNull;
@@ -137,7 +140,7 @@ public abstract class AbstractClientRegy<R extends AbstractRegy<R>, SELF extends
             BiFunction<AbstractClientRegy<R, SELF>, E, B> func
     ) {
         NonNullSupplier<DataGenObject> supplier = () -> func.apply(this, entry);
-        var dataObject = this.dataGeneration().getOrCreateData(entry.hashCode(), supplier);
+        var dataObject = this.dataGeneration().getOrCreateData(entry.regyIdentifier().hashCode(), supplier);
         //noinspection unchecked
         return (B) dataObject;
     }
@@ -156,6 +159,14 @@ public abstract class AbstractClientRegy<R extends AbstractRegy<R>, SELF extends
 
     public ClientSoundEntryBuilder sound(SoundEntry soundEntry) {
         return this.genericEntryBuilder(soundEntry, ClientSoundEntryBuilder::new);
+    }
+
+    public ConditionalItemModelPropertyBuilder conditionalItemModelProperty(String identifier) {
+        return new ConditionalItemModelPropertyBuilder(this, identifier);
+    }
+
+    public SelectItemModelPropertyBuilder selectItemModelProperty(String identifier) {
+        return new SelectItemModelPropertyBuilder(this, identifier);
     }
 
     // endregion

@@ -43,7 +43,7 @@ public class DataGeneration implements ClientRegyOwnable {
             var builder = this.client().getAdapterForEntry(entry);
 
             if (builder != null) {
-                getOrCreateData(entry.hashCode(), builder);
+                getOrCreateData(entry.regyIdentifier().hashCode(), builder);
             }
         }
     }

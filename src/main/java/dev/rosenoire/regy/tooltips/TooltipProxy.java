@@ -2,6 +2,7 @@ package dev.rosenoire.regy.tooltips;
 
 import dev.rosenoire.regy.api.text.Palette;
 import dev.rosenoire.regy.api.text.RoseText;
+import dev.rosenoire.regy.api.text.TextHelper;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.RegyInternal;
 import net.fabricmc.api.EnvType;
@@ -34,13 +35,13 @@ public interface TooltipProxy {
 
         var sumId = desc + ".tooltip.summary";
 
-        if (isEmpty(sumId)) {
+        if (!TextHelper.exists(sumId)) {
             return;
         }
 
         var client = Minecraft.getInstance();
         var showTooltip = client.hasShiftDown();
-        var palette = getPalette(item);
+        var palette = TooltipPalette.getPalette(item);
 
         RoseText.trans("tooltip.regy.show_tooltip")
                 .palette(palette.getHeaderPalette(showTooltip))
@@ -63,7 +64,7 @@ public interface TooltipProxy {
             var behaviourId = desc + ".tooltip.behaviour" + behaviourIndex;
             var conditionId = desc + ".tooltip.condition" + behaviourIndex;
 
-            if (isEmpty(behaviourId) || isEmpty(conditionId)) {
+            if (!TextHelper.exists(behaviourId) || !TextHelper.exists(conditionId)) {
                 break;
             }
 
@@ -84,27 +85,5 @@ public interface TooltipProxy {
 
             behaviourIndex++;
         }
-    }
-
-    private static boolean isEmpty(@NonNull String translationKey) {
-        return !I18n.exists(translationKey);
-    }
-
-    @SuppressWarnings("deprecation")
-    private static Optional<AbstractRegy<?>> getOwner(Item item) {
-        return RegyInternal.regyFromReference(item.builtInRegistryHolder());
-    }
-
-    private static TooltipPalette getPalette(Item item) {
-        return getOwner(item)
-                .map(AbstractRegy::tooltipPalette)
-                .orElse(TooltipPalette.DEFAULT);
-    }
-
-    private static Palette getShowTooltipPalette(@NonNull Palette palette, boolean showTooltip) {
-        return !showTooltip ? palette : new Palette(
-                component -> component.withStyle(ChatFormatting.WHITE),
-                palette.normalStyle()
-        );
     }
 }

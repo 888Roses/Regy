@@ -47,7 +47,7 @@ public abstract class AbstractClientEntryBuilder<E extends Entry<V>, V> implemen
         // this.client().dataGeneration().addData(this);
 
         LogEntry.of(this)
-                .info("|> §bold§cyan({})§end §green\"{}\"§end", this.getClass().getSimpleName(), this.entry().regyIdentifier())
+                .info("|> §bold§redHELLO?§end §bold§cyan({})§end §green\"{}\"§end", this.getClass().getSimpleName(), this.entry().regyIdentifier())
                 .send();
 
         return this;

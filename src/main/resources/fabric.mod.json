@@ -11,13 +11,13 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "dev.rosenoire.regy.client.RegyClient"
+      "dev.rosenoire.regy.client.InternalRegyClient"
     ],
     "main": [
-      "dev.rosenoire.regy.common.RegyCommon"
+      "dev.rosenoire.regy.common.InternalRegyCommon"
     ],
     "fabric-datagen": [
-      "dev.rosenoire.regy.data.RegyDataGenerator"
+      "dev.rosenoire.regy.data.InternalRegyDataGeneration"
     ]
   },
   "mixins": [

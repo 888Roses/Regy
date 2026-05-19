@@ -2,6 +2,8 @@ package dev.rosenoire.regy.pipeline.registration.item.item;
 
 import dev.rosenoire.regy.api.data.NonNullType;
 import dev.rosenoire.regy.api.logging.LogEntry;
+import dev.rosenoire.regy.common.content.datacomponent.ItemSkin;
+import dev.rosenoire.regy.common.index.InternalDataComponents;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.content.ItemTransformers;
 import dev.rosenoire.regy.pipeline.factory.ItemFactory;
@@ -302,6 +304,18 @@ public class ItemEntryBuilder<I extends Item, P> extends AbstractEntryBuilder<It
 
     public ItemEntryBuilder<I, P> weaponComponent() {
         return weaponComponent(1);
+    }
+
+    public ItemEntryBuilder<I, P> skins(String... skins) {
+        return this.component(InternalDataComponents.ITEM_SKIN.get(), ItemSkin
+                .create()
+                .transform(builder -> {
+                    for (var skin : skins) {
+                        builder.addSkin(skin);
+                    }
+                })
+                .build()
+        );
     }
 
     // endregion

@@ -1,5 +1,6 @@
 package dev.rosenoire.regy.api.text;
 
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FormattedCharSequence;
@@ -13,5 +14,9 @@ public interface TextHelper {
         });
 
         return component;
+    }
+
+    static boolean exists(String translationKey) {
+        return I18n.exists(translationKey);
     }
 }
