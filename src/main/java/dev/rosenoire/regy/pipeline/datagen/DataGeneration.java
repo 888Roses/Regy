@@ -1,5 +1,6 @@
 package dev.rosenoire.regy.pipeline.datagen;
 
+import dev.rosenoire.regy.api.data.NonNullSupplier;
 import dev.rosenoire.regy.api.logging.LogColor;
 import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
@@ -7,6 +8,8 @@ import dev.rosenoire.regy.pipeline.client.AbstractClientRegy;
 import dev.rosenoire.regy.pipeline.client.ClientRegyOwnable;
 import dev.rosenoire.regy.pipeline.datagen.impl.generator.DataGenerators;
 import dev.rosenoire.regy.pipeline.datagen.post_processor.DataPostProcessor;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.data.DataProvider;
 import org.jspecify.annotations.NonNull;
@@ -22,6 +25,7 @@ public class DataGeneration implements ClientRegyOwnable {
     private final List<FabricDataGenerator.Pack.Factory<? extends @NonNull DataGenerator>> generatorFunctionStorage = new ArrayList<>();
     private final List<FabricDataGenerator.Pack.RegistryDependentFactory<? extends @NonNull DataGenerator>> registryDependentGeneratorFunctionStorage = new ArrayList<>();
     private final List<DataGenProvider> providerStorage = new ArrayList<>();
+    private final Int2ObjectMap<DataGenObject> keyedObjectStorage = new Int2ObjectArrayMap<>();
 
     private final HashSet<DataPostProcessor> postProcessorStorage = new HashSet<>();
 
@@ -31,12 +35,25 @@ public class DataGeneration implements ClientRegyOwnable {
     public DataGeneration(AbstractClientRegy<?, ?> client) {
         this.client = client;
         this.client.onRunDatagen.after().subscribe(this::runDatagen);
+        this.client.onSetupDatagen.before().subscribe(this::setupDatagen);
+    }
+
+    private void setupDatagen(FabricDataGenerator.Pack pack) {
+        for (var entry : this.client().regy().entries()) {
+            var builder = this.client().getAdapterForEntry(entry);
+
+            if (builder != null) {
+                getOrCreateData(entry.hashCode(), builder);
+            }
+        }
     }
 
     private void runDatagen() {
         LogEntry.of(this).info("|> RUNNING DATAGEN").send();
 
         this.isGeneratingData = true;
+
+        this.destockKeyedObjectStorage();
         this.destockFunctionStorage();
         this.generateProviderStorage();
         this.generatePostProcessors();
@@ -56,9 +73,7 @@ public class DataGeneration implements ClientRegyOwnable {
     }
 
     // TODO: Documentation!
-    public <T extends DataGenerator & DataProvider> DataGeneration addGenerator(
-            FabricDataGenerator.Pack.RegistryDependentFactory<@NonNull T> factory
-    ) {
+    public <T extends DataGenerator & DataProvider> DataGeneration addGenerator(FabricDataGenerator.Pack.RegistryDependentFactory<@NonNull T> factory) {
         if (this.isGeneratingData) {
             // If we're currently generating data-gen, we don't want to add any more
             // generator to the pack since it might invalidate the already generated
@@ -88,7 +103,6 @@ public class DataGeneration implements ClientRegyOwnable {
     /// Called just after the [AbstractRegy] instance sets up datagen.
     /// Adds every added generator to the pack and clears the
     /// [#generatorFunctionStorage].
-    @SuppressWarnings("LoggingSimilarMessage")
     protected void destockFunctionStorage() {
         var log = LogEntry.of(this);
 
@@ -176,6 +190,41 @@ public class DataGeneration implements ClientRegyOwnable {
         log.send();
     }
 
+    private void destockKeyedObjectStorage() {
+        var log = LogEntry.of(this);
+
+        log.info("§white|§end--§cyan|>§end Destocking Keyed Object Storage...");
+
+        var destockedCount = 0;
+        for (var value : this.keyedObjectStorage.values()) {
+            try {
+                log.info(
+                        "§white|§end  §cyan|§end  > Destocked Keyed §whiteDataObject§end §cyan{}§end",
+                        value.getClass().getSimpleName()
+                );
+
+                this.addData(value);
+                destockedCount++;
+            }
+            catch (Exception exception) {
+                log.error(
+                        "§white|§end  §cyan|§end  > Couldn't destock Keyed §whiteDataObject§end §cyan{}§end",
+                        value.getClass().getSimpleName()
+                ).error(
+                        "§white|§end  §cyan|§end    ↪ ",
+                        exception
+                );
+            }
+        }
+
+        log.info(
+                "§white|§end--§cyan<|§end Destocked Keyed {}{}/{}§end Objects",
+                LogColor.getPercentageColor(destockedCount / (float) this.keyedObjectStorage.size()),
+                destockedCount,
+                this.keyedObjectStorage.size()
+        );
+    }
+
     // TODO: Documentation!
     protected void generateProviderStorage() {
         var log = LogEntry.of(this);
@@ -209,13 +258,27 @@ public class DataGeneration implements ClientRegyOwnable {
     }
 
     // TODO: Documentation!
-    public <T extends DataGenProvider> DataGeneration addData(T dataProvider) {
+    public <T extends DataGenProvider> DataGeneration addData(@NonNull T dataProvider) {
+        LogEntry.of(this)
+                .info(
+                        "§white|§end  > §cyanDataProvider§end §blue{}§end",
+                        dataProvider.getClass().getSimpleName()
+                )
+                .send();
+
         this.providerStorage.add(dataProvider);
         return this;
     }
 
     // TODO: Documentation!
-    public <T extends DataGenObject> DataGeneration addData(T dataObject) {
+    public <T extends DataGenObject> DataGeneration addData(@NonNull T dataObject) {
+        LogEntry.of(this)
+                .info(
+                        "|> §whiteDataGeneration:§end Adding §cyanDataObject§end §white{}§end...",
+                        dataObject.getClass().getSimpleName()
+                )
+                .send();
+
         dataObject.collectDataGenProviders(this::addData);
         return this;
     }
@@ -291,5 +354,15 @@ public class DataGeneration implements ClientRegyOwnable {
         );
 
         log.send();
+    }
+
+    public DataGenObject getOrCreateData(int hash, @NonNull NonNullSupplier<DataGenObject> supplier) {
+        if (this.keyedObjectStorage.containsKey(hash)) {
+            return this.keyedObjectStorage.get(hash);
+        }
+
+        var obj = supplier.get();
+        this.keyedObjectStorage.put(hash, obj);
+        return obj;
     }
 }

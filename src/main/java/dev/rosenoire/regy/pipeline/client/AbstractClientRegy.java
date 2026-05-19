@@ -1,13 +1,16 @@
 package dev.rosenoire.regy.pipeline.client;
 
+import dev.rosenoire.regy.api.data.NonNullSupplier;
 import dev.rosenoire.regy.api.event.WrappingCallback;
 import dev.rosenoire.regy.api.event.WrappingValueEvent;
 import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.RegyOwnable;
+import dev.rosenoire.regy.pipeline.client.registration.AbstractClientEntryBuilder;
 import dev.rosenoire.regy.pipeline.client.registration.block.ClientBlockEntryBuilder;
 import dev.rosenoire.regy.pipeline.client.registration.item.potion.ClientPotionEntryBuilder;
 import dev.rosenoire.regy.pipeline.client.registration.sound.ClientSoundEntryBuilder;
+import dev.rosenoire.regy.pipeline.datagen.DataGenObject;
 import dev.rosenoire.regy.pipeline.datagen.DataGeneration;
 import dev.rosenoire.regy.pipeline.registration.Entry;
 import dev.rosenoire.regy.pipeline.registration.block.BlockEntry;
@@ -25,7 +28,9 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 public abstract class AbstractClientRegy<R extends AbstractRegy<R>, SELF extends AbstractClientRegy<R, ?>> implements RegyOwnable {
     protected final @NonNull R instance;
@@ -101,20 +106,56 @@ public abstract class AbstractClientRegy<R extends AbstractRegy<R>, SELF extends
 
     // region registration
 
+    protected final List<ClientEntryBuilderAdapter> entryBuilderAdapters = new ArrayList<>();
+
+    public @Nullable NonNullSupplier<DataGenObject> getAdapterForEntry(@NonNull Entry<?> entry) {
+        for (var adapter : this.entryBuilderAdapters) {
+            var builder = adapter.getSupplier(this, entry);
+            if (builder != null) return builder;
+        }
+
+        return null;
+    }
+
+    public SELF registerEntryBuilderAdapter(@NonNull ClientEntryBuilderAdapter adapter) {
+        LogEntry.of(this)
+                .info(
+                        "|> §white{}:§end Registered §cyanClientEntryBuilderAdapter§end §blue{}§end.",
+                        this.getClass().getSimpleName(),
+                        adapter.getClass().getSimpleName()
+                )
+                .send();
+
+        this.entryBuilderAdapters.add(adapter);
+        return this.self();
+    }
+
+    // TODO: There's gotta be a better way of doing that but it's like 23:10 right now and i'm exhausted and I really
+    //  couldn't be bothered to make it better LOL (this is so bad :sad:).
+    protected <B extends AbstractClientEntryBuilder<E, V>, E extends Entry<V>, V> B genericEntryBuilder(
+            E entry,
+            BiFunction<AbstractClientRegy<R, SELF>, E, B> func
+    ) {
+        NonNullSupplier<DataGenObject> supplier = () -> func.apply(this, entry);
+        var dataObject = this.dataGeneration().getOrCreateData(entry.hashCode(), supplier);
+        //noinspection unchecked
+        return (B) dataObject;
+    }
+
     public <I extends Item> ClientItemEntryBuilder<I> item(ItemEntry<I> itemEntry) {
-        return new ClientItemEntryBuilder<>(this, itemEntry);
+        return this.genericEntryBuilder(itemEntry, ClientItemEntryBuilder::new);
     }
 
     public <B extends Block> ClientBlockEntryBuilder<B> block(BlockEntry<B> blockEntry) {
-        return new ClientBlockEntryBuilder<>(this, blockEntry);
+        return this.genericEntryBuilder(blockEntry, ClientBlockEntryBuilder::new);
     }
 
     public ClientPotionEntryBuilder potion(PotionEntry potionEntry) {
-        return new ClientPotionEntryBuilder(this, potionEntry);
+        return this.genericEntryBuilder(potionEntry, ClientPotionEntryBuilder::new);
     }
 
     public ClientSoundEntryBuilder sound(SoundEntry soundEntry) {
-        return new ClientSoundEntryBuilder(this, soundEntry);
+        return this.genericEntryBuilder(soundEntry, ClientSoundEntryBuilder::new);
     }
 
     // endregion

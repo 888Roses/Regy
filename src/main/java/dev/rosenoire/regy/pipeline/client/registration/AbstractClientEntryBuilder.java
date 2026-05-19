@@ -42,11 +42,14 @@ public abstract class AbstractClientEntryBuilder<E extends Entry<V>, V> implemen
         return this.identifier().getPath();
     }
 
-    public void register() {
-        this.client().dataGeneration().addData(this);
+    public DataGenObject register() {
+        // Shouldn't have to do that since it's automatically added when running data generation.
+        // this.client().dataGeneration().addData(this);
 
         LogEntry.of(this)
                 .info("|> §bold§cyan({})§end §green\"{}\"§end", this.getClass().getSimpleName(), this.entry().regyIdentifier())
                 .send();
+
+        return this;
     }
 }

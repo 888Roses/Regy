@@ -12,7 +12,7 @@ public class TestModDataGenerator implements DataGeneratorEntrypoint {
         REGY.setupDatagen(fabricDataGenerator);
 
         AllItemData.init();
-        AllBlockData.init();
+        // AllBlockData.init();
         AllSoundData.init();
 
         REGY.runDatagen();
