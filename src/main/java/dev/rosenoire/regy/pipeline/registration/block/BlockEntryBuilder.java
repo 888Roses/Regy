@@ -4,6 +4,7 @@ import dev.rosenoire.regy.api.logging.LogEntry;
 import dev.rosenoire.regy.pipeline.AbstractRegy;
 import dev.rosenoire.regy.pipeline.factory.BlockFactory;
 import dev.rosenoire.regy.pipeline.registration.AbstractEntryBuilder;
+import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntry;
 import dev.rosenoire.regy.pipeline.registration.item.item.ItemEntryBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,6 +33,7 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
     /// [BlockBehaviour.Properties] used to register the [BlockEntry].
     protected BlockBehaviour.@NonNull Properties properties;
     protected @Nullable ItemEntryBuilder<?, BlockEntryBuilder<B, P>> unbakedItem;
+    protected @Nullable ItemEntry<? extends Item> bakedItem;
     protected @NonNull BlockRenderMode renderMode = BlockRenderMode.SOLID;
     private final HashSet<TagKey<Block>> tagStorage = new HashSet<>();
 
@@ -41,6 +43,8 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
         this.factory = factory;
         this.resourceKey = ResourceKey.create(Registries.BLOCK, identifier());
         this.properties = BlockBehaviour.Properties.of();
+
+        this.simpleItem();
     }
 
     @Override
@@ -66,14 +70,16 @@ public class BlockEntryBuilder<B extends Block, P> extends AbstractEntryBuilder<
                 instance,
                 this.resourceKey,
                 this.renderMode,
-                this.tagStorage
+                this.tagStorage,
+                () -> this.bakedItem
         ));
 
         if (this.unbakedItem != null) {
             log.info("|  > Detected Unbaked Item...");
             log.send();
-            this.unbakedItem.register();
+            this.bakedItem = this.unbakedItem.register();
         }
+
         // Having to do this because otherwise the full child item message is sent first which is uh, suboptimal LOL.
         else {
             log.send();
